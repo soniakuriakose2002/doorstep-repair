@@ -1,9 +1,10 @@
 // Site-wide settings.
-// PLACEHOLDER: the brand name, city and contact details are not confirmed yet.
+// Brand name set by the user (2026-09-28). PLACEHOLDER: city and contact details are not confirmed yet.
 // Replace them here and they update everywhere.
 
 export const site = {
-  name: 'FixNest',
+  name: 'Danat Computers',
+  handle: 'danatcomputers', // social-post preview handle
   tagline: 'Electronics repair at your doorstep',
   city: 'Bengaluru',
   currency: '₹',

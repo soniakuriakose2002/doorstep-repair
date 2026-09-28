@@ -37,7 +37,7 @@ const show = (f: Format) => !format || format === f;
         <div class="media m-post" data-kind="post">
           <div class="post-head">
             <span class="post-av">{site.name[0]}</span>
-            <span class="post-who"><b>{site.name.toLowerCase()}</b><small>{site.city} · Sponsored</small></span>
+            <span class="post-who"><b>{site.handle}</b><small>{site.city} · Sponsored</small></span>
             <span class="post-dots">•••</span>
           </div>
           <div class="post-img"><img src={IMG} alt="" loading="lazy" decoding="async" /></div>
@@ -47,7 +47,7 @@ const show = (f: Format) => !format || format === f;
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 3L11 13M22 3l-7 19-4-9-9-4z"/></svg>
             <span class="post-cta">Book now</span>
           </div>
-          <p class="post-cap"><b>{site.name.toLowerCase()}</b> Phone, laptop, printer or CCTV? We come to you. Estimate {price()}.</p>
+          <p class="post-cap"><b>{site.handle}</b> Phone, laptop, printer or CCTV? We come to you. Estimate {price()}.</p>
         </div>
       )}
       {show('video') && (
