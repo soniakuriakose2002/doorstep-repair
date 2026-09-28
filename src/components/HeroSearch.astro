@@ -1,0 +1,223 @@
+---
+// Hero search, modelled on techfix.ae: location + country/city + "what are you
+// looking for" + popular chips. Everything resolves to the Services page.
+import { site } from '../data/site';
+import { coverage } from '../data/coverage';
+import { categories } from '../data/devices';
+
+// SAMPLE: only one country/city until real locations are confirmed.
+const countries = [{ name: 'India', cities: [site.city] }];
+
+const areas = [...new Set(Object.values(coverage).flatMap((m) => m.zones.flatMap((z) => z.areas)))].sort();
+const doorstep = coverage.doorstep.zones.flatMap((z) => z.areas);
+const pickup = coverage.pickup.zones.flatMap((z) => z.areas);
+
+const suggestions = [
+  ...categories.map((c) => c.name),
+  ...new Set(categories.flatMap((c) => c.brands.map((b) => b.name))),
+  ...categories.flatMap((c) => c.brands.flatMap((b) => b.models)),
+];
+
+const popular = [
+  { label: 'Laptop Repair', href: '/services?cat=laptop#catalog' },
+  { label: 'iPhone Repair', href: '/services?cat=mobile&q=iPhone#catalog' },
+  { label: 'Printer Repair', href: '/services?cat=printer#catalog' },
+  { label: 'CCTV Installation', href: '/services?cat=cctv#catalog' },
+  { label: 'Data Recovery', href: '/services?cat=data#catalog' },
+];
+
+const catIndex = categories.map((c) => ({ id: c.id, words: [c.name, c.short, ...c.name.split(/[\s&]+/)].map((w) => w.toLowerCase()) }));
+---
+
+<div class="hs" data-hs data-doorstep={JSON.stringify(doorstep)} data-pickup={JSON.stringify(pickup)} data-cats={JSON.stringify(catIndex)}>
+  <form class="hs-row" data-hs-loc>
+    <label class="hs-field">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="7.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22"/></svg>
+      <input name="area" list="hs-areas" placeholder="Search location here" autocomplete="off" aria-label="Your area" />
+    </label>
+    <button type="submit" class="hs-btn">Set Location</button>
+  </form>
+  <datalist id="hs-areas">{areas.map((a) => <option value={a} />)}</datalist>
+  <p class="hs-status" data-hs-status aria-live="polite"></p>
+
+  <div class="hs-selects">
+    <label class="hs-select">
+      <select aria-label="Country">
+        <option value="" disabled>Select Country</option>
+        {countries.map((c, i) => <option selected={i === 0}>{c.name}</option>)}
+      </select>
+    </label>
+    <label class="hs-select">
+      <select aria-label="City">
+        <option value="" disabled>Search city</option>
+        {countries[0].cities.map((c, i) => <option selected={i === 0}>{c}</option>)}
+      </select>
+    </label>
+  </div>
+
+  <form class="hs-row" data-hs-find>
+    <label class="hs-field">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input name="q" list="hs-things" placeholder="What are you looking for?" autocomplete="off" aria-label="What are you looking for" />
+    </label>
+    <button type="submit" class="hs-btn hs-icon" aria-label="Search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+    </button>
+  </form>
+  <datalist id="hs-things">{suggestions.map((s) => <option value={s} />)}</datalist>
+
+  <div class="hs-popular">
+    <span>Popular:</span>
+    {popular.map((p) => <a href={p.href} data-href={p.href} class="hs-chip" data-hs-chip>{p.label}</a>)}
+  </div>
+</div>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-hs]');
+  if (root) {
+    const doorstep: string[] = JSON.parse(root.dataset.doorstep!);
+    const pickup: string[] = JSON.parse(root.dataset.pickup!);
+    const cats: { id: string; words: string[] }[] = JSON.parse(root.dataset.cats!);
+    const norm = (s: string) => s.toLowerCase().replace(/\s+/g, ' ').trim();
+    const status = root.querySelector<HTMLElement>('[data-hs-status]')!;
+    const locForm = root.querySelector<HTMLFormElement>('[data-hs-loc]')!;
+    const findForm = root.querySelector<HTMLFormElement>('[data-hs-find]')!;
+    let area = '';
+    try { area = localStorage.getItem('area') ?? ''; } catch {}
+
+    const match = (list: string[], q: string) => list.find((a) => norm(a) === q) ?? list.find((a) => norm(a).includes(q));
+
+    const show = (typed: string) => {
+      const q = norm(typed);
+      if (!q) { status.textContent = ''; status.className = 'hs-status'; return; }
+      const d = match(doorstep, q);
+      const p = match(pickup, q);
+      const name = d ?? p;
+      if (name) {
+        area = name;
+        try { localStorage.setItem('area', name); } catch {}
+        const modes = [d && 'Doorstep', p && 'Pickup'].filter(Boolean).join(' & ');
+        status.className = 'hs-status ok';
+        status.textContent = `✓ We cover ${name} — ${modes} available.`;
+        (locForm.elements.namedItem('area') as HTMLInputElement).value = name;
+      } else {
+        area = typed.trim();
+        status.className = 'hs-status warn';
+        status.textContent = `${typed.trim()} isn't on our list yet — book anyway and we'll confirm.`;
+      }
+      linkify();
+    };
+
+    // Carry the area into every Services link from the search and chips.
+    const withArea = (href: string) => {
+      if (!area) return href;
+      const u = new URL(href, location.origin);
+      u.searchParams.set('area', area);
+      return u.pathname + u.search + u.hash;
+    };
+    const linkify = () => root.querySelectorAll<HTMLAnchorElement>('[data-hs-chip]').forEach((a) => {
+      a.href = withArea(a.dataset.href!);
+    });
+
+    locForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      show((locForm.elements.namedItem('area') as HTMLInputElement).value);
+    });
+
+    findForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const raw = (findForm.elements.namedItem('q') as HTMLInputElement).value.trim();
+      const q = norm(raw);
+      const cat = q && cats.find((c) => c.words.some((w) => w === q || (q.length > 3 && w.startsWith(q))));
+      const href = !q ? '/services#catalog'
+        : cat ? `/services?cat=${cat.id}#catalog`
+        : `/services?q=${encodeURIComponent(raw)}#catalog`;
+      location.href = withArea(href);
+    });
+
+    if (area) {
+      (locForm.elements.namedItem('area') as HTMLInputElement).value = area;
+      show(area);
+    }
+  }
+</script>
+
+<style>
+  .hs { display: grid; gap: 12px; margin-top: 26px; max-width: 600px; }
+  .hs-row {
+    display: flex;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+    transition: border-color .2s;
+  }
+  .hs-row:focus-within { border-color: var(--violet); }
+  .hs-field { flex: 1; display: flex; align-items: center; gap: 12px; padding: 0 16px; min-width: 0; }
+  .hs-field svg { width: 20px; height: 20px; color: var(--ink-3); flex: none; }
+  .hs-field input { flex: 1; min-width: 0; height: 54px; border: 0; background: none; outline: none; font: inherit; font-size: 16px; color: var(--ink); }
+  .hs-field input::placeholder { color: var(--ink-3); }
+  .hs-btn {
+    border: 0;
+    padding: 0 22px;
+    background: var(--violet);
+    color: var(--on-accent);
+    font-weight: 700;
+    font-size: 15px;
+    white-space: nowrap;
+    transition: filter .2s;
+  }
+  .hs-btn:hover { filter: brightness(1.08); }
+  .hs-icon { width: 76px; display: grid; place-items: center; padding: 0; }
+  .hs-icon svg { width: 22px; height: 22px; }
+  .hs-status { font-size: 14px; font-weight: 600; min-height: 0; margin: -4px 4px 0; }
+  .hs-status:empty { display: none; }
+  .hs-status.ok { color: var(--lime); }
+  .hs-status.warn { color: var(--ink-2); }
+  .hs-selects { display: flex; gap: 12px; }
+  .hs-select { position: relative; flex: 0 1 200px; }
+  .hs-select select {
+    width: 100%;
+    height: 50px;
+    padding: 0 40px 0 14px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    font: inherit;
+    font-size: 15px;
+    appearance: none;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+  }
+  .hs-select::after {
+    content: '';
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid var(--ink-3);
+    border-bottom: 2px solid var(--ink-3);
+    transform: translateY(-70%) rotate(45deg);
+    pointer-events: none;
+  }
+  .hs-popular { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 4px; }
+  .hs-popular span { font-size: 14px; font-weight: 700; color: var(--violet); margin-right: 4px; }
+  .hs-chip {
+    padding: 8px 14px;
+    border-radius: 10px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    font-size: 14px;
+    color: var(--ink-2);
+    transition: border-color .2s, color .2s;
+  }
+  .hs-chip:hover { border-color: var(--violet); color: var(--violet); }
+  @media (max-width: 480px) {
+    .hs-btn { padding: 0 14px; font-size: 14px; }
+    .hs-icon { width: 56px; }
+    .hs-select { flex: 1; }
+  }
+</style>

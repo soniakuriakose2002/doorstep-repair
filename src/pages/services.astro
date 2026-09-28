@@ -398,6 +398,13 @@ const payload = JSON.stringify({
   if (startQ) { modelSearch.value = startQ; filterCatalog(); }
   const startMode = q.get('mode');
   setMode(startMode && data.coverage[startMode] ? startMode : 'doorstep');
+  // ?area= from the home-page location search: pre-check coverage and pre-fill the booking
+  const startArea = q.get('area');
+  if (startArea) {
+    areaSearch.value = startArea;
+    filterAreas();
+    if ([...fArea.options].some((o) => o.value === startArea)) { fArea.value = startArea; summary(); }
+  }
 </script>
 
 <style>

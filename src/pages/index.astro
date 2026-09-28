@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import MediaFrame from '../components/MediaFrame.astro';
+import HeroSearch from '../components/HeroSearch.astro';
 import { serviceModes, price } from '../data/site';
 import { categories, totals, iconPaths } from '../data/devices';
 
@@ -32,6 +33,7 @@ const angles = [
           A technician comes to your door, or we pick it up and bring it back repaired.
           The estimate is <span class="price-tag">{price()}</span>.
         </p>
+        <div data-reveal style="--d:.2s"><HeroSearch /></div>
         <div class="hero-cta" data-reveal style="--d:.24s">
           <a href="/services#book" class="btn btn-primary">
             Book doorstep repair
