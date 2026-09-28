@@ -70,49 +70,6 @@ const angles = [
     </div>
   </section>
 
-  <!-- ============ SIDE-BY-SIDE COMPARISON ============ -->
-  <section class="section compare" id="compare">
-    <div class="wrap">
-      <div class="compare-head">
-        <div>
-          <span class="eyebrow" data-reveal>Media angle lab</span>
-          <h2 class="h-lg" data-reveal style="--d:.06s">Compare them side by side</h2>
-          <p class="lead" data-reveal style="--d:.12s">
-            The same hero in every format and angle. Click any preview to put it in the hero above.
-          </p>
-        </div>
-        <div class="seg" role="group" aria-label="Comparison view" data-reveal style="--d:.18s">
-          <button type="button" data-set-view="side" aria-pressed="true">Side by side</button>
-          <button type="button" data-set-view="matrix" aria-pressed="false">All 9</button>
-        </div>
-      </div>
-
-      <div class="cmp cmp-side" data-view-panel="side">
-        {formats.map((f, i) => (
-          <div role="button" tabindex="0" class="cmp-card glass" data-pick-format={f.id} data-reveal style={`--d:${i * .08}s`}>
-            <MediaFrame format={f.id} angle="tilt" />
-            <span class="cmp-name">{f.label} <small data-side-angle>15° Tilt</small></span>
-          </div>
-        ))}
-      </div>
-
-      <div class="cmp cmp-matrix" data-view-panel="matrix" hidden>
-        <span></span>
-        {angles.map((a) => <span class="cmp-axis">{a.label}</span>)}
-        {formats.map((f) => (
-          <>
-            <span class="cmp-axis cmp-axis-row">{f.label}</span>
-            {angles.map((a) => (
-              <div role="button" tabindex="0" class="cmp-card glass" data-pick-format={f.id} data-pick-angle={a.id}>
-                <MediaFrame format={f.id} angle={a.id} />
-              </div>
-            ))}
-          </>
-        ))}
-      </div>
-    </div>
-  </section>
-
   <!-- ============ SERVICE MODES ============ -->
   <section class="section">
     <div class="wrap">
@@ -218,16 +175,6 @@ const angles = [
     press('data-set-angle', 'aria-pressed', angle);
     document.querySelector('[data-now]')!.textContent = `${names[format]} · ${names[angle]}`;
 
-    // Side-by-side follows the chosen angle and highlights the chosen format.
-    document.querySelectorAll<HTMLElement>('.cmp-side .cmp-card').forEach((card) => {
-      card.querySelector<HTMLElement>('.frame')!.dataset.angle = angle;
-      card.querySelector('[data-side-angle]')!.textContent = names[angle];
-      card.classList.toggle('is-current', card.dataset.pickFormat === format);
-    });
-    document.querySelectorAll<HTMLElement>('.cmp-matrix .cmp-card').forEach((card) => {
-      card.classList.toggle('is-current', card.dataset.pickFormat === format && card.dataset.pickAngle === angle);
-    });
-
     if (writeUrl) {
       const u = new URL(location.href);
       u.searchParams.set('format', format);
@@ -244,25 +191,6 @@ const angles = [
     b.addEventListener('click', () => apply(b.dataset.setFormat!, lab.dataset.angle!)));
   document.querySelectorAll<HTMLButtonElement>('[data-set-angle]').forEach((b) =>
     b.addEventListener('click', () => apply(lab.dataset.format!, b.dataset.setAngle!)));
-
-  document.querySelectorAll<HTMLElement>('.cmp-card').forEach((card) => {
-    const pick = () => {
-      apply(card.dataset.pickFormat!, card.dataset.pickAngle ?? lab.dataset.angle!);
-      lab.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    };
-    card.addEventListener('click', pick);
-    card.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); }
-    });
-  });
-
-  document.querySelectorAll<HTMLButtonElement>('[data-set-view]').forEach((b) =>
-    b.addEventListener('click', () => {
-      const view = b.dataset.setView!;
-      press('data-set-view', 'aria-pressed', view);
-      document.querySelectorAll<HTMLElement>('[data-view-panel]').forEach((p) => (p.hidden = p.dataset.viewPanel !== view));
-      requestAnimationFrame(syncVideos);
-    }));
 
   const copy = document.querySelector<HTMLButtonElement>('[data-copy]')!;
   copy.addEventListener('click', async () => {
@@ -317,34 +245,6 @@ const angles = [
   @media (max-width: 520px) {
     .lab-label { width: 100%; }
     .seg button { padding: 8px 12px; font-size: 13px; }
-  }
-
-  /* comparison */
-  .compare-head { display: flex; justify-content: space-between; align-items: end; gap: 24px; flex-wrap: wrap; margin-bottom: 40px; }
-  .compare-head h2 { margin: 14px 0 12px; }
-  .cmp { display: grid; gap: 18px; }
-  .cmp-side { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .cmp-matrix { grid-template-columns: auto repeat(3, minmax(0, 1fr)); align-items: center; }
-  .cmp-axis { text-align: center; font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
-  .cmp-axis-row { writing-mode: vertical-rl; transform: rotate(180deg); }
-  .cmp-card {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 14px;
-    text-align: left;
-    border-radius: var(--radius);
-    transition: border-color .3s, transform .3s, box-shadow .3s;
-  }
-  .cmp-card:hover { transform: translateY(-4px); border-color: rgba(20, 22, 60, .22); }
-  .cmp-card.is-current { border-color: var(--cyan); box-shadow: 0 0 0 1px var(--cyan), 0 0 40px -10px var(--cyan); }
-  .cmp-name { display: flex; justify-content: space-between; font-weight: 600; padding: 0 4px; }
-  .cmp-name small { color: var(--ink-3); font-weight: 500; }
-  @media (max-width: 860px) {
-    .cmp-side { grid-template-columns: 1fr; }
-    .cmp-matrix { grid-template-columns: auto repeat(3, minmax(0, 1fr)); gap: 8px; }
-    .cmp-matrix .cmp-card { padding: 6px; }
-    .cmp-axis { font-size: 10px; }
   }
 
   /* modes */
