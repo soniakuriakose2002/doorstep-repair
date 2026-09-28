@@ -23,15 +23,13 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
   </head>
   <body>
     <div class="aurora" aria-hidden="true">
       <span class="orb o1"></span>
-      <span class="orb o2"></span>
-      <span class="orb o3"></span>
       <span class="grid"></span>
     </div>
 
@@ -104,13 +102,11 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
   .orb {
     position: absolute;
     border-radius: 50%;
-    filter: blur(90px);
-    opacity: .7;
+    filter: blur(110px);
+    opacity: .35;
     animation: drift 22s ease-in-out infinite alternate;
   }
-  .o1 { width: 46vw; height: 46vw; left: -12vw; top: -14vw; background: #c4b5fd; }
-  .o2 { width: 38vw; height: 38vw; right: -10vw; top: 18vh; background: #a5f3fc; animation-duration: 28s; }
-  .o3 { width: 30vw; height: 30vw; left: 30vw; bottom: -18vw; background: #fbcfe8; opacity: .55; animation-duration: 34s; }
+  .o1 { width: 40vw; height: 40vw; right: -8vw; top: -12vw; background: #ffb38a; }
   @keyframes drift {
     to { transform: translate3d(6vw, 4vh, 0) scale(1.12); }
   }
@@ -118,9 +114,8 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     position: absolute;
     inset: 0;
     background-image:
-      linear-gradient(rgba(20, 22, 60, .035) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(20, 22, 60, .035) 1px, transparent 1px);
-    background-size: 64px 64px;
+      radial-gradient(rgba(15, 27, 45, .09) 1px, transparent 1.4px);
+    background-size: 22px 22px;
     mask-image: radial-gradient(ellipse at 50% 0%, #000 20%, transparent 70%);
   }
 
@@ -138,15 +133,16 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     gap: 24px;
     padding: 10px 10px 10px 20px;
     border-radius: 999px;
-    background: rgba(255, 255, 255, .72);
+    background: #fff;
   }
   .logo {
     display: inline-flex;
     align-items: center;
     gap: 10px;
     font-family: var(--display);
-    font-weight: 700;
-    font-size: 20px;
+    font-weight: 800;
+    font-size: 21px;
+    letter-spacing: -.02em;
   }
   .logo-mark {
     display: grid;
@@ -169,7 +165,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     transition: color .2s, background .2s;
   }
   nav a:hover { color: var(--ink); }
-  nav a[aria-current='page'] { color: var(--ink); background: rgba(20, 22, 60, .08); }
+  nav a[aria-current='page'] { color: var(--violet); background: #fff1ea; font-weight: 600; }
   .nav-cta { padding: 11px 20px; }
 
   @media (max-width: 720px) {
@@ -180,7 +176,8 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     .nav-cta { margin-left: auto; padding: 9px 14px; font-size: 14px; }
   }
 
-  .footer { border-top: 1px solid var(--line); margin-top: 40px; }
+  .footer { margin-top: 40px; background: var(--navy); color: #fff; border-radius: 32px 32px 0 0; }
+  .footer .logo { color: #fff; }
   .footer-inner {
     display: flex;
     justify-content: space-between;
@@ -188,9 +185,9 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     flex-wrap: wrap;
     padding: 48px 0 32px;
   }
-  .muted { color: var(--ink-3); margin-top: 10px; max-width: 42ch; }
-  .footer-nav { list-style: none; margin: 0; padding: 0; display: flex; gap: 24px; color: var(--ink-2); }
-  .footer-nav a:hover { color: var(--ink); }
+  .muted { color: rgba(255,255,255,.6); margin-top: 10px; max-width: 42ch; }
+  .footer-nav { list-style: none; margin: 0; padding: 0; display: flex; gap: 24px; color: rgba(255,255,255,.75); }
+  .footer-nav a:hover { color: var(--violet); }
   .footer-base {
     display: flex;
     justify-content: space-between;
@@ -198,7 +195,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     gap: 8px;
     padding: 20px 0 32px;
     font-size: 13px;
-    color: var(--ink-3);
-    border-top: 1px solid var(--line);
+    color: rgba(255,255,255,.5);
+    border-top: 1px solid rgba(255,255,255,.1);
   }
 </style>

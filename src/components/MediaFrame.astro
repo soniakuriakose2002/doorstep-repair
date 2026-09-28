@@ -75,7 +75,7 @@ const show = (f: Format) => !format || format === f;
     bottom: 4%;
     height: 12%;
     border-radius: 50%;
-    background: radial-gradient(closest-side, rgba(139, 92, 246, .45), transparent);
+    background: radial-gradient(closest-side, rgba(255, 90, 31, .45), transparent);
     filter: blur(14px);
     transition: transform .9s cubic-bezier(.2, .8, .2, 1), opacity .9s;
     opacity: .5;
@@ -110,8 +110,8 @@ const show = (f: Format) => !format || format === f;
     background: var(--surface);
     box-shadow:
       0 0 0 1px rgba(20, 22, 60, .12),
-      0 30px 80px -20px rgba(40, 30, 120, .22),
-      0 0 60px -20px rgba(139, 92, 246, .6);
+      0 30px 80px -20px rgba(15, 27, 45, .22),
+      0 0 60px -20px rgba(255, 90, 31, .6);
   }
   :global([data-angle='iso']) .m-image,
   :global([data-angle='iso']) .m-video,
@@ -156,8 +156,8 @@ const show = (f: Format) => !format || format === f;
     background: var(--surface);
     box-shadow:
       0 0 0 1px rgba(20, 22, 60, .12),
-      0 30px 80px -20px rgba(40, 30, 120, .22),
-      0 0 60px -20px rgba(34, 211, 238, .5);
+      0 30px 80px -20px rgba(15, 27, 45, .22),
+      0 0 60px -20px rgba(255, 138, 0, .5);
     font-size: 12px;
   }
   :global([data-format='post']) .m-post { display: flex; }
