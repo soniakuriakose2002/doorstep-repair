@@ -1,29 +1,190 @@
+/*
+  Themes. Pick one with the palette button (bottom-right) or ?theme=<id>.
+  Each theme sets the same tokens; --media-hue shifts the baked orange video
+  and image to match until the video is re-rendered in the chosen colours.
+*/
 :root {
-  /* Warm service theme — off-white page, solid white cards, navy ink, bold orange */
-  --bg: #f7f4ee;
   --surface: #ffffff;
-  --ink: #0f1b2d;
-  --ink-2: #475467;
-  --ink-3: #8590a2;
-  --line: rgba(15, 27, 45, 0.1);
-  --tint: rgba(15, 27, 45, 0.04);
-  --tint-2: rgba(15, 27, 45, 0.07);
   --glass: #ffffff;
   --glass-2: #ffffff;
-  --navy: #0f1b2d;
-  --violet: #ff5a1f;
-  --cyan: #e2450f;
-  --blue: #ff8a00;
-  --pink: #ff5a1f;
   --lime: #12a150;
-  --grad: linear-gradient(120deg, #ff5a1f, #ff8a00);
-  --grad-hot: linear-gradient(120deg, #ff5a1f, #ff8a00 50%, #ffb400);
-  --shadow: 0 1px 2px rgba(15, 27, 45, .05), 0 14px 34px -18px rgba(15, 27, 45, .22);
   --radius: 20px;
   --display: 'Plus Jakarta Sans', system-ui, sans-serif;
   --body: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --grad: linear-gradient(120deg, var(--violet), var(--blue));
+  --grad-hot: linear-gradient(120deg, var(--violet), var(--blue));
+  --pink: var(--violet);
+  color-scheme: light;
+
+  /* light-theme chip lightness; dark themes override */
+  --chip-l: 94%;
+  --chip-ink-l: 40%;
+  --chip-line-l: 85%;
+  --head-case: none;
+
+  /* Green (default) — from the hero mockup: green-black, grid, bright green */
+  --bg: #07120e;
+  --surface: #0d1c17;
+  --glass: #0d1c17;
+  --glass-2: #10231c;
+  --ink: #eef6f2;
+  --ink-2: #a7bcb3;
+  --ink-3: #6c857b;
+  --navy: #040b08;
+  --violet: #2fd07f;
+  --blue: #1fae68;
+  --cyan: #3ee08f;
+  --lime: #3ee08f;
+  --a1: 47, 208, 127;
+  --a2: 31, 174, 104;
+  --accent-soft: rgba(47, 208, 127, .12);
+  --glow: #0f5c38;
+  --on-accent: #04120c;
+  --media-hue: 0deg;
+  --line: rgba(255, 255, 255, 0.08);
+  --tint: rgba(255, 255, 255, 0.04);
+  --tint-2: rgba(255, 255, 255, 0.07);
+  --shadow: 0 1px 0 rgba(255, 255, 255, .04) inset, 0 18px 40px -20px rgba(0, 0, 0, .6);
+  --chip-l: 16%;
+  --chip-ink-l: 68%;
+  --chip-line-l: 26%;
+  --head-case: uppercase;
+  color-scheme: dark;}
+
+:root[data-theme='blue'], :root[data-theme='red'], :root[data-theme='teal'],
+:root[data-theme='yellow'], :root[data-theme='orange'], :root[data-theme='slate'] {
+  --surface: #ffffff;
+  --glass: #ffffff;
+  --glass-2: #ffffff;
+  --lime: #12a150;
+  --on-accent: #ffffff;
+  --chip-l: 94%;
+  --chip-ink-l: 40%;
+  --chip-line-l: 85%;
+  --head-case: none;
+  --shadow: 0 1px 2px rgba(15, 27, 45, .05), 0 14px 34px -18px rgba(15, 27, 45, .22);
   color-scheme: light;
 }
+:root[data-theme='blue'] {
+  /* Blue — white + royal blue */
+  --bg: #f4f7fc;
+  --ink: #0b1f3a;
+  --ink-2: #44546c;
+  --ink-3: #8593a8;
+  --navy: #0b1f3a;
+  --violet: #1d4ed8;
+  --blue: #0ea5e9;
+  --cyan: #1d4ed8;
+  --a1: 29, 78, 216;
+  --a2: 14, 165, 233;
+  --accent-soft: #e8efff;
+  --glow: #bcd3ff;
+  --on-accent: #ffffff;
+  --media-hue: 75deg;
+  --line: rgba(11, 31, 58, 0.1);
+  --tint: rgba(11, 31, 58, 0.04);
+  --tint-2: rgba(11, 31, 58, 0.07);
+  --shadow: 0 1px 2px rgba(11, 31, 58, .05), 0 14px 34px -18px rgba(11, 31, 58, .22);
+}
+
+:root[data-theme='red'] {
+  --bg: #faf7f7;
+  --ink: #141414;
+  --ink-2: #4d4d52;
+  --ink-3: #8e8e95;
+  --navy: #141414;
+  --violet: #e11d2e;
+  --blue: #ff5a5f;
+  --cyan: #d0162a;
+  --a1: 225, 29, 46;
+  --a2: 255, 90, 95;
+  --accent-soft: #ffe8ea;
+  --glow: #ffc2c6;
+  --media-hue: -160deg;
+  --line: rgba(20, 20, 20, 0.1);
+  --tint: rgba(20, 20, 20, 0.04);
+  --tint-2: rgba(20, 20, 20, 0.07);
+}
+
+:root[data-theme='teal'] {
+  --bg: #f2f8f7;
+  --ink: #0d2b2e;
+  --ink-2: #3f5a5c;
+  --ink-3: #7f9899;
+  --navy: #0d2b2e;
+  --violet: #0d9488;
+  --blue: #22c3a6;
+  --cyan: #0b7f75;
+  --a1: 13, 148, 136;
+  --a2: 34, 195, 166;
+  --accent-soft: #dcf5f1;
+  --glow: #a8e8dd;
+  --media-hue: 25deg;
+  --line: rgba(13, 43, 46, 0.1);
+  --tint: rgba(13, 43, 46, 0.04);
+  --tint-2: rgba(13, 43, 46, 0.07);
+}
+
+:root[data-theme='yellow'] {
+  --bg: #f6f5f1;
+  --ink: #17171a;
+  --ink-2: #4a4a50;
+  --ink-3: #8b8b92;
+  --navy: #17171a;
+  --violet: #f5b400;
+  --blue: #ffd24a;
+  --cyan: #a37400;
+  --a1: 245, 180, 0;
+  --a2: 255, 210, 74;
+  --accent-soft: #fff4cf;
+  --glow: #ffe38a;
+  --on-accent: #17171a;
+  --media-hue: -105deg;
+  --line: rgba(23, 23, 26, 0.1);
+  --tint: rgba(23, 23, 26, 0.04);
+  --tint-2: rgba(23, 23, 26, 0.07);
+}
+
+:root[data-theme='orange'] {
+  --bg: #f7f4ee;
+  --ink: #0f1b2d;
+  --ink-2: #475467;
+  --ink-3: #8590a2;
+  --navy: #0f1b2d;
+  --violet: #ff5a1f;
+  --blue: #ff8a00;
+  --cyan: #e2450f;
+  --a1: 255, 90, 31;
+  --a2: 255, 138, 0;
+  --accent-soft: #fff1ea;
+  --glow: #ffb38a;
+  --media-hue: -130deg;
+}
+
+:root[data-theme='slate'] {
+  /* Mid-tone: grey page, not dark, electric-blue accent */
+  --bg: #e6eaf0;
+  --surface: #f9fafc;
+  --glass: #f9fafc;
+  --glass-2: #f9fafc;
+  --ink: #1e2a3b;
+  --ink-2: #4a5669;
+  --ink-3: #7e899a;
+  --navy: #1e2a3b;
+  --violet: #2f6bff;
+  --blue: #00b3ff;
+  --cyan: #2458d6;
+  --a1: 47, 107, 255;
+  --a2: 0, 179, 255;
+  --accent-soft: #dde7ff;
+  --glow: #b5c9f5;
+  --media-hue: 75deg;
+  --line: rgba(30, 42, 59, 0.12);
+  --tint: rgba(30, 42, 59, 0.05);
+  --tint-2: rgba(30, 42, 59, 0.08);
+}
+
+.m-image img, .m-video video, .post-img img { filter: hue-rotate(var(--media-hue, 0deg)); }
 
 *, *::before, *::after { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -79,7 +240,7 @@ img, video, svg { display: block; max-width: 100%; }
   background: var(--grad);
 }
 
-.h-xl { font-size: clamp(40px, 6.4vw, 84px); }
+.h-xl { font-size: clamp(38px, 6vw, 80px); text-transform: var(--head-case); letter-spacing: -.01em; }
 .h-lg { font-size: clamp(32px, 4.4vw, 56px); }
 .h-md { font-size: clamp(22px, 2.4vw, 30px); }
 .lead { font-size: clamp(16px, 1.4vw, 19px); color: var(--ink-2); max-width: 60ch; }
@@ -119,10 +280,10 @@ img, video, svg { display: block; max-width: 100%; }
 .btn-primary {
   border: 0;
   background: var(--grad);
-  color: #fff;
-  box-shadow: 0 12px 34px -10px rgba(255, 90, 31, .6);
+  color: var(--on-accent);
+  box-shadow: 0 12px 34px -10px rgba(var(--a1), .6);
 }
-.btn-primary:hover { background: var(--grad); box-shadow: 0 16px 40px -8px rgba(255, 138, 0, .55); }
+.btn-primary:hover { background: var(--grad); box-shadow: 0 16px 40px -8px rgba(var(--a2), .55); }
 .btn svg { width: 18px; height: 18px; }
 
 .price-tag {
@@ -154,7 +315,7 @@ img, video, svg { display: block; max-width: 100%; }
 .seg button:hover { color: var(--ink); }
 .seg button[aria-pressed='true'] {
   background: var(--ink);
-  color: #fff;
+  color: var(--bg);
 }
 
 .chip {

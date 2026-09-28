@@ -93,14 +93,14 @@ const total = teams.reduce((n, t) => n + t.members.length, 0);
     border-radius: 50%;
     display: grid;
     place-items: center;
-    background: radial-gradient(circle at 30% 25%, #fff, hsl(var(--h) 85% 93%) 75%);
-    color: hsl(var(--h) 60% 35%);
+    background: radial-gradient(circle at 30% 25%, var(--surface), hsl(var(--h) 60% var(--chip-l)) 75%);
+    color: hsl(var(--h) 65% var(--chip-ink-l));
     font-family: var(--display);
     font-size: 30px;
     font-weight: 700;
   }
   .card h3 { font-size: 20px; }
-  .role { color: hsl(var(--h) 60% 42%); font-size: 14px; font-weight: 500; margin-top: 4px; }
+  .role { color: hsl(var(--h) 65% var(--chip-ink-l)); font-size: 14px; font-weight: 500; margin-top: 4px; }
   .skills { list-style: none; padding: 0; margin: 16px 0 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
   .skills li { padding: 4px 10px; border-radius: 999px; background: rgba(20, 22, 60, .06); font-size: 12px; color: var(--ink-2); }
   .note { font-size: 13px; color: var(--ink-3); text-align: center; }

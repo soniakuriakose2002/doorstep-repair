@@ -25,10 +25,11 @@ const angles = [
       <div class="hero-copy">
         <span class="eyebrow" data-reveal>Doorstep electronics repair</span>
         <h1 class="h-xl" data-reveal style="--d:.08s">
-          Every device, fixed <span class="grad-text">at your door.</span>
+          Technology, <span class="grad-text">repaired right.</span>
         </h1>
+        <p class="devices-line" data-reveal style="--d:.12s">Phone &bull; Laptop &bull; Computer &bull; Printer &bull; CCTV &bull; Networking</p>
         <p class="lead" data-reveal style="--d:.16s">
-          Phones, laptops, desktops, printers, CCTV and Wi-Fi. A technician comes to you, or we pick it up and bring it back repaired.
+          A technician comes to your door, or we pick it up and bring it back repaired.
           The estimate is <span class="price-tag">{price()}</span>.
         </p>
         <div class="hero-cta" data-reveal style="--d:.24s">
@@ -288,6 +289,7 @@ const angles = [
     align-items: center;
   }
   .hero-copy h1 { margin: 18px 0 20px; }
+  .devices-line { font-size: clamp(15px, 1.3vw, 18px); font-weight: 600; color: var(--ink); margin: -6px 0 16px; }
   .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px; }
   .hero-facts {
     display: flex;
@@ -360,14 +362,14 @@ const angles = [
     content: '';
     position: absolute;
     inset: -1px;
-    background: radial-gradient(600px circle at 0% 0%, rgba(255, 90, 31, .22), transparent 45%);
+    background: radial-gradient(600px circle at 0% 0%, rgba(var(--a1), .22), transparent 45%);
     opacity: .7;
     pointer-events: none;
   }
-  .mode:nth-child(2)::before { background: radial-gradient(600px circle at 100% 0%, rgba(255, 138, 0, .2), transparent 45%); }
+  .mode:nth-child(2)::before { background: radial-gradient(600px circle at 100% 0%, rgba(var(--a2), .2), transparent 45%); }
   .mode:hover { transform: translateY(-6px); border-color: rgba(20, 22, 60, .2); }
   .mode p { color: var(--ink-2); }
-  .mode-icon { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 16px; background: var(--grad); color: #fff; }
+  .mode-icon { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 16px; background: var(--grad); color: var(--on-accent); }
   .mode-icon svg { width: 28px; height: 28px; }
   .mode-steps { list-style: none; padding: 0; margin: 6px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
   .mode-steps li { display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border-radius: 999px; background: rgba(20, 22, 60, .05); font-size: 14px; }
@@ -395,7 +397,7 @@ const angles = [
   .issue-grid { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .issue { display: flex; align-items: center; gap: 14px; padding: 16px 18px; border-radius: 16px; transition: transform .25s, border-color .25s; }
   .issue:hover { transform: translateY(-3px); border-color: hsl(var(--h) 70% 55% / .5); }
-  .issue-icon { flex: none; display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: hsl(var(--h) 85% 94%); color: hsl(var(--h) 65% 42%); }
+  .issue-icon { flex: none; display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: hsl(var(--h) 70% var(--chip-l)); color: hsl(var(--h) 65% var(--chip-ink-l)); }
   .issue-icon svg { width: 22px; height: 22px; }
   .issue-text { display: grid; line-height: 1.3; flex: 1; min-width: 0; }
   .issue-text small { color: var(--ink-3); font-size: 13px; }
@@ -411,8 +413,8 @@ const angles = [
     justify-items: center;
     gap: 18px;
     background:
-      radial-gradient(circle at 20% 0%, rgba(255, 90, 31, .3), transparent 50%),
-      radial-gradient(circle at 80% 100%, rgba(255, 138, 0, .25), transparent 50%),
+      radial-gradient(circle at 20% 0%, rgba(var(--a1), .3), transparent 50%),
+      radial-gradient(circle at 80% 100%, rgba(var(--a2), .25), transparent 50%),
       var(--glass);
   }
 </style>

@@ -26,8 +26,15 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
       href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-  </head>
-  <body>
+    <script is:inline>
+      (() => {
+        const ok = ['green', 'blue', 'red', 'teal', 'yellow', 'orange', 'slate'];
+        let t = new URLSearchParams(location.search).get('theme');
+        try { if (t && ok.includes(t)) localStorage.setItem('theme', t); else t = localStorage.getItem('theme'); } catch {}
+        if (t && ok.includes(t) && t !== 'green') document.documentElement.dataset.theme = t;
+      })();
+    </script>
+  </head>  <body>
     <div class="aurora" aria-hidden="true">
       <span class="orb o1"></span>
       <span class="grid"></span>
@@ -74,6 +81,28 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
       </div>
     </footer>
 
+    <div class="theme-pick" data-theme-pick>
+      <button type="button" class="theme-toggle" aria-expanded="false" aria-label="Change colour theme">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1 0 1.6-.8 1.6-1.6 0-.5-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1 0-.9.7-1.6 1.6-1.6H16a5 5 0 0 0 5-5c0-4.1-4-7.6-9-7.6z"/><circle cx="7.5" cy="11" r="1.2"/><circle cx="10.5" cy="7" r="1.2"/><circle cx="15" cy="7.5" r="1.2"/></svg>
+        Theme
+      </button>
+      <div class="theme-menu" role="group" aria-label="Colour theme" hidden>
+        {[
+          ['green', 'Green', '#2fd07f', '#07120e'],
+          ['blue', 'Blue', '#1d4ed8', '#f4f7fc'],
+          ['red', 'Red', '#e11d2e', '#faf7f7'],
+          ['teal', 'Teal', '#0d9488', '#f2f8f7'],
+          ['yellow', 'Yellow', '#f5b400', '#17171a'],
+          ['orange', 'Orange', '#ff5a1f', '#f7f4ee'],
+          ['slate', 'Slate', '#2f6bff', '#e6eaf0'],
+        ].map(([id, label, a, b]) => (
+          <button type="button" data-theme-id={id} aria-pressed="false">
+            <span class="sw" style={`--a:${a};--b:${b}`}></span>{label}
+          </button>
+        ))}
+      </div>
+    </div>
+
     <script>
       const io = new IntersectionObserver(
         (entries) => entries.forEach((e) => {
@@ -87,6 +116,31 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
       const onScroll = () => nav?.classList.toggle('scrolled', window.scrollY > 12);
       onScroll();
       window.addEventListener('scroll', onScroll, { passive: true });
+
+      // Theme switcher
+      const pick = document.querySelector<HTMLElement>('[data-theme-pick]')!;
+      const menu = pick.querySelector<HTMLElement>('.theme-menu')!;
+      const toggle = pick.querySelector<HTMLButtonElement>('.theme-toggle')!;
+      const current = () => document.documentElement.dataset.theme ?? 'green';
+      const mark = () => menu.querySelectorAll<HTMLButtonElement>('[data-theme-id]').forEach((b) =>
+        b.setAttribute('aria-pressed', String(b.dataset.themeId === current())));
+      mark();
+      toggle.addEventListener('click', () => {
+        menu.hidden = !menu.hidden;
+        toggle.setAttribute('aria-expanded', String(!menu.hidden));
+      });
+      menu.addEventListener('click', (e) => {
+        const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-theme-id]');
+        if (!b) return;
+        const t = b.dataset.themeId!;
+        if (t === 'green') delete document.documentElement.dataset.theme;
+        else document.documentElement.dataset.theme = t;
+        try { localStorage.setItem('theme', t); } catch {}
+        const u = new URL(location.href);
+        u.searchParams.set('theme', t);
+        history.replaceState(null, '', u);
+        mark();
+      });
     </script>
   </body>
 </html>
@@ -106,7 +160,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     opacity: .35;
     animation: drift 22s ease-in-out infinite alternate;
   }
-  .o1 { width: 40vw; height: 40vw; right: -8vw; top: -12vw; background: #ffb38a; }
+  .o1 { width: 40vw; height: 40vw; right: -8vw; top: -12vw; background: var(--glow); }
   @keyframes drift {
     to { transform: translate3d(6vw, 4vh, 0) scale(1.12); }
   }
@@ -118,6 +172,16 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     background-size: 22px 22px;
     mask-image: radial-gradient(ellipse at 50% 0%, #000 20%, transparent 70%);
   }
+
+  /* Default green theme: engineering grid like the hero mockup */
+  :global(:root:not([data-theme])) .grid {
+    background-image:
+      linear-gradient(rgba(47, 208, 127, .06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(47, 208, 127, .06) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: linear-gradient(#000, transparent 85%);
+  }
+  :global(:root:not([data-theme])) .nav-inner { background: rgba(13, 28, 23, .85); border-color: rgba(255,255,255,.08); backdrop-filter: blur(12px); }
 
   .nav {
     position: sticky;
@@ -133,7 +197,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     gap: 24px;
     padding: 10px 10px 10px 20px;
     border-radius: 999px;
-    background: #fff;
+    background: var(--surface);
   }
   .logo {
     display: inline-flex;
@@ -151,7 +215,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     height: 34px;
     border-radius: 10px;
     background: var(--grad);
-    color: #fff;
+    color: var(--on-accent);
   }
   .logo-mark svg { width: 22px; height: 22px; }
   nav { margin-left: auto; }
@@ -165,7 +229,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     transition: color .2s, background .2s;
   }
   nav a:hover { color: var(--ink); }
-  nav a[aria-current='page'] { color: var(--violet); background: #fff1ea; font-weight: 600; }
+  nav a[aria-current='page'] { color: var(--violet); background: var(--accent-soft); font-weight: 600; }
   .nav-cta { padding: 11px 20px; }
 
   @media (max-width: 720px) {
@@ -198,4 +262,23 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     color: rgba(255,255,255,.5);
     border-top: 1px solid rgba(255,255,255,.1);
   }
+  .theme-pick { position: fixed; right: 18px; bottom: 18px; z-index: 60; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+  .theme-toggle {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 16px; border-radius: 999px; border: 0;
+    background: var(--ink); color: var(--bg); font-weight: 600; font-size: 14px;
+    box-shadow: 0 12px 30px -10px rgba(0, 0, 0, .45);
+  }
+  .theme-toggle svg { width: 18px; height: 18px; }
+  .theme-menu {
+    order: -1; display: grid; gap: 4px; padding: 8px; min-width: 170px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow);
+  }
+  .theme-menu button {
+    display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 0; border-radius: 10px;
+    background: none; font-size: 14px; font-weight: 500; color: var(--ink-2); text-align: left;
+  }
+  .theme-menu button:hover { background: var(--tint-2); color: var(--ink); }
+  .theme-menu button[aria-pressed='true'] { background: var(--accent-soft); color: var(--ink); font-weight: 700; }
+  .sw { width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, var(--a) 50%, var(--b) 50%); box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
 </style>
