@@ -105,12 +105,12 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     position: absolute;
     border-radius: 50%;
     filter: blur(90px);
-    opacity: .5;
+    opacity: .7;
     animation: drift 22s ease-in-out infinite alternate;
   }
-  .o1 { width: 46vw; height: 46vw; left: -12vw; top: -14vw; background: #5b21b6; }
-  .o2 { width: 38vw; height: 38vw; right: -10vw; top: 18vh; background: #0e7490; animation-duration: 28s; }
-  .o3 { width: 30vw; height: 30vw; left: 30vw; bottom: -18vw; background: #9d174d; opacity: .32; animation-duration: 34s; }
+  .o1 { width: 46vw; height: 46vw; left: -12vw; top: -14vw; background: #c4b5fd; }
+  .o2 { width: 38vw; height: 38vw; right: -10vw; top: 18vh; background: #a5f3fc; animation-duration: 28s; }
+  .o3 { width: 30vw; height: 30vw; left: 30vw; bottom: -18vw; background: #fbcfe8; opacity: .55; animation-duration: 34s; }
   @keyframes drift {
     to { transform: translate3d(6vw, 4vh, 0) scale(1.12); }
   }
@@ -118,8 +118,8 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     position: absolute;
     inset: 0;
     background-image:
-      linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+      linear-gradient(rgba(20, 22, 60, .035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(20, 22, 60, .035) 1px, transparent 1px);
     background-size: 64px 64px;
     mask-image: radial-gradient(ellipse at 50% 0%, #000 20%, transparent 70%);
   }
@@ -138,7 +138,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     gap: 24px;
     padding: 10px 10px 10px 20px;
     border-radius: 999px;
-    background: rgba(12, 12, 24, .55);
+    background: rgba(255, 255, 255, .72);
   }
   .logo {
     display: inline-flex;
@@ -155,7 +155,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     height: 34px;
     border-radius: 10px;
     background: var(--grad);
-    color: #07070d;
+    color: #fff;
   }
   .logo-mark svg { width: 22px; height: 22px; }
   nav { margin-left: auto; }
@@ -169,7 +169,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     transition: color .2s, background .2s;
   }
   nav a:hover { color: var(--ink); }
-  nav a[aria-current='page'] { color: var(--ink); background: rgba(255,255,255,.08); }
+  nav a[aria-current='page'] { color: var(--ink); background: rgba(20, 22, 60, .08); }
   .nav-cta { padding: 11px 20px; }
 
   @media (max-width: 720px) {

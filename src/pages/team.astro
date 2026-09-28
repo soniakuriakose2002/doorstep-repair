@@ -12,7 +12,7 @@ const total = teams.reduce((n, t) => n + t.members.length, 0);
       <span class="eyebrow" data-reveal>Our team</span>
       <h1 class="h-xl" data-reveal style="--d:.06s">The people who <span class="grad-text">come to your door.</span></h1>
       <p class="lead" data-reveal style="--d:.12s">
-        Technicians who repair, riders who carry your phone safely, and a support desk that keeps you posted.
+        Technicians who repair, engineers who install printers, CCTV and Wi-Fi, riders who carry your devices safely, and a support desk that keeps you posted.
       </p>
       <div class="jump" data-reveal style="--d:.18s">
         {teams.map((t) => <a href={`#${t.id}`} class="chip">{t.title} · {t.members.length}</a>)}
@@ -58,7 +58,7 @@ const total = teams.reduce((n, t) => n + t.members.length, 0);
   .page-head { padding: clamp(48px, 8vw, 100px) 0 0; }
   .page-head h1 { margin: 18px 0 20px; max-width: 15ch; }
   .jump { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
-  .jump a:hover { color: var(--ink); border-color: rgba(255,255,255,.25); }
+  .jump a:hover { color: var(--ink); border-color: rgba(20, 22, 60, .25); }
   .team { padding: clamp(48px, 7vw, 80px) 0 0; scroll-margin-top: 90px; }
   .team-head { display: flex; justify-content: space-between; align-items: end; gap: 16px 40px; flex-wrap: wrap; margin-bottom: 28px; }
   .grid { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
@@ -73,7 +73,7 @@ const total = teams.reduce((n, t) => n + t.members.length, 0);
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(300px circle at 50% 0%, hsl(var(--h) 85% 60% / .18), transparent 60%);
+    background: radial-gradient(300px circle at 50% 0%, hsl(var(--h) 85% 60% / .14), transparent 60%);
     pointer-events: none;
   }
   .card:hover { transform: translateY(-6px); border-color: hsl(var(--h) 85% 65% / .5); }
@@ -93,14 +93,15 @@ const total = teams.reduce((n, t) => n + t.members.length, 0);
     border-radius: 50%;
     display: grid;
     place-items: center;
-    background: radial-gradient(circle at 30% 25%, hsl(var(--h) 60% 30%), #0d0d1a 75%);
+    background: radial-gradient(circle at 30% 25%, #fff, hsl(var(--h) 85% 93%) 75%);
+    color: hsl(var(--h) 60% 35%);
     font-family: var(--display);
     font-size: 30px;
     font-weight: 700;
   }
   .card h3 { font-size: 20px; }
-  .role { color: hsl(var(--h) 90% 75%); font-size: 14px; font-weight: 500; margin-top: 4px; }
+  .role { color: hsl(var(--h) 60% 42%); font-size: 14px; font-weight: 500; margin-top: 4px; }
   .skills { list-style: none; padding: 0; margin: 16px 0 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
-  .skills li { padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.06); font-size: 12px; color: var(--ink-2); }
+  .skills li { padding: 4px 10px; border-radius: 999px; background: rgba(20, 22, 60, .06); font-size: 12px; color: var(--ink-2); }
   .note { font-size: 13px; color: var(--ink-3); text-align: center; }
 </style>

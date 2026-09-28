@@ -1,17 +1,22 @@
 ---
 import Base from '../layouts/Base.astro';
-import { serviceModes, issues, price, site } from '../data/site';
-import { brands, modelCount } from '../data/brands';
+import { serviceModes, price, site } from '../data/site';
+import { categories, totals, iconPaths } from '../data/devices';
 import { coverage } from '../data/coverage';
 
 const payload = JSON.stringify({
-  brands: brands.map((b) => ({ id: b.id, name: b.name, models: b.models })),
+  categories: categories.map((c) => ({
+    id: c.id,
+    name: c.name,
+    onsiteOnly: !!c.onsiteOnly,
+    issues: c.issues,
+    brands: c.brands.map((b) => ({ id: b.id, name: b.name, models: b.models })),
+  })),
   coverage,
 });
-const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 ---
 
-<Base title="Services" description="Doorstep repair and pickup & service for every major phone brand. Coverage areas, all models, ₹0 estimates.">
+<Base title="Services" description="Doorstep repair and pickup & service for phones, laptops, desktops, printers, CCTV and networking. Coverage areas, all brands and models, ₹0 estimates.">
   <script type="application/json" id="svc-data" set:html={payload} />
 
   <section class="page-head">
@@ -19,8 +24,8 @@ const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
       <span class="eyebrow" data-reveal>Services</span>
       <h1 class="h-xl" data-reveal style="--d:.06s">Doorstep repair, <span class="grad-text">or we pick it up.</span></h1>
       <p class="lead" data-reveal style="--d:.12s">
-        Choose how you want the repair done, check that we reach your area, then pick your phone.
-        {brands.length} brands and {modelCount}+ models, every estimate {price()}.
+        Choose how you want the service done, check that we reach your area, then pick your device.
+        {totals.categories} device types, {totals.brands} brands and {totals.models}+ models, every estimate {price()}.
       </p>
     </div>
   </section>
@@ -42,6 +47,9 @@ const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
             <span class="mode-title">{m.title}</span>
             <span class="mode-short">{m.short}</span>
             <span class="mode-body">{m.body}</span>
+            <span class="mode-devices">
+              {categories.filter((c) => m.id === 'doorstep' || !c.onsiteOnly).map((c) => <span>{c.name}</span>)}
+            </span>
             <span class="mode-fee">Visit / pickup fee <span class="price-tag">{price()}</span></span>
           </button>
         ))}
@@ -81,45 +89,63 @@ const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     <div class="wrap">
       <div class="cat-head">
         <div>
-          <span class="eyebrow" data-reveal>Mobile repair catalog</span>
-          <h2 class="h-lg" data-reveal style="--d:.06s">Every brand, every model</h2>
+          <span class="eyebrow" data-reveal>Repair catalog</span>
+          <h2 class="h-lg" data-reveal style="--d:.06s">Every device, every brand</h2>
         </div>
         <label class="search" data-reveal style="--d:.12s">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-          <input type="search" placeholder="Search a model, e.g. S24" data-model-search autocomplete="off" aria-label="Search models" />
+          <input type="search" placeholder="Search e.g. S24, LaserJet, Hikvision" data-model-search autocomplete="off" aria-label="Search models" />
         </label>
       </div>
 
-      <div class="brand-chips" role="group" aria-label="Filter by brand">
-        <button type="button" class="bchip" data-brand-filter="all" aria-pressed="true">All brands</button>
-        {brands.map((b) => (
-          <button type="button" class="bchip" data-brand-filter={b.id} aria-pressed="false" style={`--h:${b.hue}`}>
-            {b.name} <small>{b.models.length}</small>
+      <div class="cat-tabs" role="group" aria-label="Filter by device type">
+        <button type="button" class="cat-tab" data-cat-filter="all" aria-pressed="true" style="--h:250">
+          <span class="cat-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
+          All devices
+        </button>
+        {categories.map((c) => (
+          <button type="button" class="cat-tab" data-cat-filter={c.id} aria-pressed="false" style={`--h:${c.hue}`}>
+            <span class="cat-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" set:html={iconPaths[c.icon]} /></span>
+            {c.name}
           </button>
         ))}
       </div>
 
-      <div class="brands">
-        {brands.map((b) => (
-          <div class="brand" data-brand={b.id} style={`--h:${b.hue}`}>
-            <div class="brand-head">
-              <span class="brand-dot" aria-hidden="true"></span>
-              <h3>{b.name}</h3>
-              <span class="brand-count" data-brand-count>{b.models.length} models</span>
+      <div class="cats">
+        {categories.map((c) => (
+          <div class="cat" data-cat={c.id} style={`--ch:${c.hue}`}>
+            <div class="cat-title">
+              <span class="cat-ico big" aria-hidden="true" style={`--h:${c.hue}`}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" set:html={iconPaths[c.icon]} /></span>
+              <div>
+                <h3>{c.name}</h3>
+                <p>{c.short}{c.onsiteOnly && ' · installed on-site'}</p>
+              </div>
             </div>
-            <ul class="models">
-              {b.models.map((m) => (
-                <li>
-                  <button type="button" class="model" data-model={m} data-model-brand={b.id} data-q={`${b.name} ${m}`.toLowerCase()}>
-                    <span class="model-name">{m}</span>
-                    <span class="model-price">from <span class="price-tag">{price()}</span></span>
-                  </button>
-                </li>
-              ))}
+            <ul class="cat-issues">
+              {c.issues.map((iss) => <li>{iss} <span class="price-tag">{price()}</span></li>)}
             </ul>
+            {c.brands.map((b) => (
+              <div class="brand" data-brand={b.id} style={`--h:${b.hue}`}>
+                <div class="brand-head">
+                  <span class="brand-dot" aria-hidden="true"></span>
+                  <h4>{b.name}</h4>
+                  <span class="brand-count" data-brand-count>{b.models.length} models</span>
+                </div>
+                <ul class="models">
+                  {b.models.map((m) => (
+                    <li>
+                      <button type="button" class="model" data-model={m} data-model-brand={b.id} data-model-cat={c.id} data-q={`${c.name} ${b.name} ${m}`.toLowerCase()}>
+                        <span class="model-name">{m}</span>
+                        <span class="model-price">from <span class="price-tag">{price()}</span></span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
         ))}
-        <p class="empty" data-empty hidden>No model matches that search. Try just the number, e.g. “15”.</p>
+        <p class="empty" data-empty hidden>Nothing matches that search. Try a shorter word, e.g. “15” or “Canon”.</p>
       </div>
     </div>
   </section>
@@ -138,6 +164,7 @@ const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
               <label class="seg-radio"><input type="radio" name="mode" value={m.id} checked={i === 0} /><span>{m.title}</span></label>
             ))}
           </div>
+          <p class="hint" data-onsite-hint hidden>This device is installed on-site, so it is booked as Doorstep Service.</p>
         </fieldset>
 
         <fieldset>
@@ -146,23 +173,20 @@ const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
         </fieldset>
 
         <fieldset>
-          <legend><span>3</span>Your phone</legend>
+          <legend><span>3</span>Your device</legend>
+          <select name="category" required data-f-cat>
+            <option value="">Device type</option>
+            {categories.map((c) => <option value={c.id}>{c.name}</option>)}
+          </select>
           <div class="two">
-            <select name="brand" required data-f-brand>
-              <option value="">Brand</option>
-              {brands.map((b) => <option value={b.id}>{b.name}</option>)}
-            </select>
+            <select name="brand" required data-f-brand disabled><option value="">Brand</option></select>
             <select name="model" required data-f-model disabled><option value="">Model</option></select>
           </div>
         </fieldset>
 
         <fieldset>
-          <legend><span>4</span>What needs fixing?</legend>
-          <div class="issues">
-            {issues.map((iss) => (
-              <label class="issue-chk"><input type="checkbox" name="issue" value={iss} /><span>{iss}</span></label>
-            ))}
-          </div>
+          <legend><span>4</span>What do you need?</legend>
+          <div class="issues" data-f-issues><p class="hint">Pick a device type first.</p></div>
         </fieldset>
 
         <div class="two">
@@ -179,8 +203,8 @@ const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
         <dl>
           <div><dt>Service</dt><dd data-s-mode>Doorstep Service</dd></div>
           <div><dt>Area</dt><dd data-s-area>—</dd></div>
-          <div><dt>Phone</dt><dd data-s-phone>—</dd></div>
-          <div><dt>Repairs</dt><dd data-s-issues>—</dd></div>
+          <div><dt>Device</dt><dd data-s-device>—</dd></div>
+          <div><dt>Needs</dt><dd data-s-issues>—</dd></div>
         </dl>
         <ul class="bill">
           <li><span>Repair estimate</span><span class="price-tag">{price()}</span></li>
@@ -194,8 +218,9 @@ const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 </Base>
 
 <script>
+  type Cat = { id: string; name: string; onsiteOnly: boolean; issues: string[]; brands: { id: string; name: string; models: string[] }[] };
   type Data = {
-    brands: { id: string; name: string; models: string[] }[];
+    categories: Cat[];
     coverage: Record<string, { eta: string; zones: { name: string; areas: string[] }[] }>;
   };
   const data: Data = JSON.parse(document.getElementById('svc-data')!.textContent!);
@@ -203,20 +228,24 @@ const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
   const $$ = <T extends Element = HTMLElement>(s: string, r: ParentNode = document) => [...r.querySelectorAll<T>(s)];
   const titles: Record<string, string> = { doorstep: 'Doorstep Service', pickup: 'Pickup & Service' };
   const norm = (s: string) => s.toLowerCase().replace(/\s+/g, ' ').trim();
+  const esc = (s: string) => s.replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch]!);
 
   const form = $<HTMLFormElement>('[data-book]');
   const fArea = $<HTMLSelectElement>('[data-f-area]');
+  const fCat = $<HTMLSelectElement>('[data-f-cat]');
   const fBrand = $<HTMLSelectElement>('[data-f-brand]');
   const fModel = $<HTMLSelectElement>('[data-f-model]');
+  const fIssues = $('[data-f-issues]');
   const areaSearch = $<HTMLInputElement>('[data-area-search]');
 
   let mode = 'doorstep';
+  const cat = () => data.categories.find((c) => c.id === fCat.value);
 
   // ---------- service mode + coverage ----------
   const fillAreas = () => {
     const keep = fArea.value;
     fArea.innerHTML = '<option value="">Select your area</option>' + data.coverage[mode].zones
-      .map((z) => `<optgroup label="${z.name}">${z.areas.map((a) => `<option>${a}</option>`).join('')}</optgroup>`)
+      .map((z) => `<optgroup label="${esc(z.name)}">${z.areas.map((a) => `<option>${esc(a)}</option>`).join('')}</optgroup>`)
       .join('');
     fArea.value = data.coverage[mode].zones.some((z) => z.areas.includes(keep)) ? keep : '';
   };
@@ -243,21 +272,23 @@ const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     }
   };
 
-  const setMode = (m: string, fromForm = false) => {
+  const setMode = (m: string) => {
     if (!data.coverage[m]) return;
+    // CCTV and networking are installed on-site: they can only be doorstep.
+    if (m === 'pickup' && cat()?.onsiteOnly) m = 'doorstep';
     mode = m;
     $$('[data-mode]').forEach((c) => c.setAttribute('aria-checked', String(c.dataset.mode === m)));
     $$('[data-zones]').forEach((z) => (z.hidden = z.dataset.zones !== m));
     $('[data-cov-title]').textContent = titles[m];
     $('[data-cov-eta]').textContent = data.coverage[m].eta;
-    if (!fromForm) $$<HTMLInputElement>('input[name="mode"]').forEach((r) => (r.checked = r.value === m));
+    $$<HTMLInputElement>('input[name="mode"]').forEach((r) => (r.checked = r.value === m));
     fillAreas();
     filterAreas();
     summary();
   };
 
   $$('[data-mode]').forEach((c) => c.addEventListener('click', () => setMode(c.dataset.mode!)));
-  $$<HTMLInputElement>('input[name="mode"]').forEach((r) => r.addEventListener('change', () => setMode(r.value, true)));
+  $$<HTMLInputElement>('input[name="mode"]').forEach((r) => r.addEventListener('change', () => setMode(r.value)));
   areaSearch.addEventListener('input', filterAreas);
   $('[data-cov-result]').addEventListener('click', (e) => {
     const b = (e.target as HTMLElement).closest<HTMLElement>('[data-switch]');
@@ -270,43 +301,64 @@ const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
   }));
 
   // ---------- catalog ----------
-  let brandFilter = 'all';
+  let catFilter = 'all';
   const modelSearch = $<HTMLInputElement>('[data-model-search]');
   const filterCatalog = () => {
     const q = norm(modelSearch.value);
     let any = false;
-    $$('[data-brand]').forEach((block) => {
-      const brandOk = brandFilter === 'all' || block.dataset.brand === brandFilter;
-      let n = 0;
-      $$<HTMLButtonElement>('.model', block).forEach((m) => {
-        const ok = brandOk && (!q || m.dataset.q!.includes(q));
-        m.parentElement!.hidden = !ok;
-        if (ok) n++;
+    $$('[data-cat]').forEach((catEl) => {
+      const catOk = catFilter === 'all' || catEl.dataset.cat === catFilter;
+      let catN = 0;
+      $$('[data-brand]', catEl).forEach((block) => {
+        let n = 0;
+        $$<HTMLButtonElement>('.model', block).forEach((m) => {
+          const ok = catOk && (!q || m.dataset.q!.includes(q));
+          m.parentElement!.hidden = !ok;
+          if (ok) n++;
+        });
+        block.hidden = n === 0;
+        $('[data-brand-count]', block).textContent = `${n} model${n === 1 ? '' : 's'}`;
+        catN += n;
       });
-      block.hidden = n === 0;
-      $('[data-brand-count]', block).textContent = `${n} model${n === 1 ? '' : 's'}`;
-      if (n) any = true;
+      catEl.hidden = catN === 0;
+      if (catN) any = true;
     });
     $('[data-empty]').hidden = any;
   };
-  $$('[data-brand-filter]').forEach((b) => b.addEventListener('click', () => {
-    brandFilter = b.dataset.brandFilter!;
-    $$('[data-brand-filter]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  const setCat = (id: string) => {
+    catFilter = id;
+    $$('[data-cat-filter]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.catFilter === id)));
     filterCatalog();
-  }));
+  };
+  $$('[data-cat-filter]').forEach((b) => b.addEventListener('click', () => setCat(b.dataset.catFilter!)));
   modelSearch.addEventListener('input', filterCatalog);
 
   // ---------- booking ----------
-  const fillModels = (keep = '') => {
-    const brand = data.brands.find((b) => b.id === fBrand.value);
-    fModel.disabled = !brand;
-    fModel.innerHTML = '<option value="">Model</option>' + (brand?.models.map((m) => `<option>${m}</option>`).join('') ?? '');
-    if (keep) fModel.value = keep;
+  const fillBrands = (keep = '') => {
+    const c = cat();
+    fBrand.disabled = !c;
+    fBrand.innerHTML = '<option value="">Brand</option>' + (c?.brands.map((b) => `<option value="${b.id}">${esc(b.name)}</option>`).join('') ?? '');
+    fBrand.value = keep;
+    fIssues.innerHTML = c
+      ? c.issues.map((iss) => `<label class="issue-chk"><input type="checkbox" name="issue" value="${esc(iss)}" /><span>${esc(iss)}</span></label>`).join('')
+      : '<p class="hint">Pick a device type first.</p>';
+    const onsite = !!c?.onsiteOnly;
+    $<HTMLInputElement>('input[name="mode"][value="pickup"]').disabled = onsite;
+    $('[data-onsite-hint]').hidden = !onsite;
+    if (onsite && mode === 'pickup') setMode('doorstep');
   };
+  const fillModels = (keep = '') => {
+    const brand = cat()?.brands.find((b) => b.id === fBrand.value);
+    fModel.disabled = !brand;
+    fModel.innerHTML = '<option value="">Model</option>' + (brand?.models.map((m) => `<option>${esc(m)}</option>`).join('') ?? '');
+    fModel.value = keep;
+  };
+  fCat.addEventListener('change', () => { fillBrands(); fillModels(); summary(); });
   fBrand.addEventListener('change', () => { fillModels(); summary(); });
 
   $$<HTMLButtonElement>('.model').forEach((m) => m.addEventListener('click', () => {
-    fBrand.value = m.dataset.modelBrand!;
+    fCat.value = m.dataset.modelCat!;
+    fillBrands(m.dataset.modelBrand!);
     fillModels(m.dataset.model!);
     summary();
     $('#book').scrollIntoView({ behavior: 'smooth' });
@@ -315,8 +367,9 @@ const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
   function summary() {
     $('[data-s-mode]').textContent = titles[mode];
     $('[data-s-area]').textContent = fArea.value || '—';
-    const brand = data.brands.find((b) => b.id === fBrand.value);
-    $('[data-s-phone]').textContent = brand ? `${brand.name}${fModel.value ? ' · ' + fModel.value : ''}` : '—';
+    const c = cat();
+    const brand = c?.brands.find((b) => b.id === fBrand.value);
+    $('[data-s-device]').textContent = c ? [c.name, brand?.name, fModel.value].filter(Boolean).join(' · ') : '—';
     const iss = $$<HTMLInputElement>('input[name="issue"]:checked').map((i) => i.value);
     $('[data-s-issues]').textContent = iss.length ? iss.join(', ') : '—';
   }
@@ -326,8 +379,8 @@ const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     e.preventDefault();
     const msg = $('[data-form-msg]');
     const fd = new FormData(form);
-    const missing = ['area', 'brand', 'model', 'name', 'phone'].filter((k) => !String(fd.get(k) ?? '').trim());
-    if (!fd.getAll('issue').length) missing.push('a repair');
+    const missing = ['area', 'category', 'brand', 'model', 'name', 'phone'].filter((k) => !String(fd.get(k) ?? '').trim());
+    if (!fd.getAll('issue').length) missing.push('what you need');
     if (missing.length) {
       msg.className = 'form-msg err';
       msg.textContent = `Please add: ${missing.join(', ')}.`;
@@ -337,9 +390,12 @@ const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     msg.textContent = `Thanks, ${fd.get('name')}. Your ${titles[mode].toLowerCase()} request for ${fd.get('model')} is noted — estimate ₹0. (Demo: bookings are not sent anywhere yet.)`;
   });
 
-  // Start from ?mode= when linked from the home page.
-  const start = new URLSearchParams(location.search).get('mode');
-  setMode(start && data.coverage[start] ? start : 'doorstep');
+  // Deep links from the home page: ?mode=pickup, ?cat=printer
+  const q = new URLSearchParams(location.search);
+  const startCat = q.get('cat');
+  if (startCat && data.categories.some((c) => c.id === startCat)) setCat(startCat);
+  const startMode = q.get('mode');
+  setMode(startMode && data.coverage[startMode] ? startMode : 'doorstep');
 </script>
 
 <style>
@@ -354,18 +410,18 @@ const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     display: grid;
     gap: 8px;
     justify-items: start;
+    align-content: start;
     text-align: left;
     padding: 28px;
     transition: border-color .3s, box-shadow .3s, transform .3s, background .3s;
   }
   .mode-card:hover { transform: translateY(-3px); }
   .mode-card[aria-checked='true'] {
-    border-color: transparent;
     background:
-      linear-gradient(#10101d, #10101d) padding-box,
+      linear-gradient(var(--surface), var(--surface)) padding-box,
       var(--grad) border-box;
     border: 1.5px solid transparent;
-    box-shadow: 0 20px 60px -20px rgba(139, 92, 246, .7);
+    box-shadow: 0 24px 60px -24px rgba(124, 58, 237, .5);
   }
   .mode-radio {
     position: absolute;
@@ -377,13 +433,15 @@ const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     border: 2px solid var(--ink-3);
     transition: border-color .2s, box-shadow .2s;
   }
-  [aria-checked='true'] > .mode-radio { border-color: var(--cyan); box-shadow: inset 0 0 0 4px #10101d, inset 0 0 0 12px var(--cyan); }
-  .mode-icon { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 15px; background: rgba(255, 255, 255, .07); margin-bottom: 8px; transition: background .3s, color .3s; }
-  [aria-checked='true'] .mode-icon { background: var(--grad); color: #07070d; }
+  [aria-checked='true'] > .mode-radio { border-color: var(--violet); box-shadow: inset 0 0 0 4px var(--surface), inset 0 0 0 12px var(--violet); }
+  .mode-icon { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 15px; background: var(--tint-2); margin-bottom: 8px; transition: background .3s, color .3s; }
+  [aria-checked='true'] .mode-icon { background: var(--grad); color: #fff; }
   .mode-icon svg { width: 26px; height: 26px; }
   .mode-title { font-family: var(--display); font-size: 24px; font-weight: 600; }
-  .mode-short { color: var(--cyan); font-weight: 500; font-size: 15px; }
+  .mode-short { color: var(--violet); font-weight: 500; font-size: 15px; }
   .mode-body { color: var(--ink-2); font-size: 15px; }
+  .mode-devices { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .mode-devices span { padding: 3px 10px; border-radius: 999px; background: var(--tint); border: 1px solid var(--line); font-size: 12px; color: var(--ink-2); }
   .mode-fee { margin-top: 6px; font-size: 14px; color: var(--ink-3); }
   @media (max-width: 720px) { .mode-pick { grid-template-columns: 1fr; } }
 
@@ -393,7 +451,7 @@ const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
   .cov-eta { color: var(--ink-2); margin-top: 6px; }
   .cov-result { min-height: 1.6em; margin: 14px 0 4px; color: var(--ink-2); }
   .cov-result :global(b) { color: var(--lime); }
-  .cov-result :global(.linkish) { border: 0; background: none; padding: 0; color: var(--cyan); text-decoration: underline; }
+  .cov-result :global(.linkish) { border: 0; background: none; padding: 0; color: var(--violet); text-decoration: underline; }
   .zones { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 22px; margin-top: 10px; animation: fadeUp .5s both; }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } }
   .zone h3 { font-family: var(--body); font-size: 13px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 10px; }
@@ -403,15 +461,15 @@ const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     padding: 7px 13px;
     border-radius: 999px;
     border: 1px solid var(--line);
-    background: rgba(255, 255, 255, .04);
+    background: var(--surface);
     font-size: 14px;
     color: var(--ink-2);
     transition: all .2s;
   }
-  .area:hover { color: var(--ink); border-color: rgba(255, 255, 255, .25); }
-  .area.hit { color: #07070d; background: var(--lime); border-color: var(--lime); }
-  .area.picked { color: #07070d; background: var(--cyan); border-color: var(--cyan); }
-  .area.dim { opacity: .3; }
+  .area:hover { color: var(--ink); border-color: var(--violet); }
+  .area.hit { color: #fff; background: var(--lime); border-color: var(--lime); }
+  .area.picked { color: #fff; background: var(--violet); border-color: var(--violet); }
+  .area.dim { opacity: .35; }
   .cov-note { margin-top: 22px; font-size: 13px; color: var(--ink-3); }
 
   .search {
@@ -420,53 +478,67 @@ const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     gap: 10px;
     padding: 0 16px;
     height: 48px;
-    min-width: min(320px, 100%);
+    min-width: min(340px, 100%);
     border-radius: 999px;
     border: 1px solid var(--line);
-    background: rgba(255, 255, 255, .05);
+    background: var(--surface);
     transition: border-color .2s;
   }
-  .search:focus-within { border-color: var(--cyan); }
+  .search:focus-within { border-color: var(--violet); }
   .search svg { width: 18px; height: 18px; color: var(--ink-3); flex: none; }
   .search input { flex: 1; min-width: 0; border: 0; background: none; outline: none; color: var(--ink); font: inherit; }
 
   /* catalog */
   .cat-head { display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap; }
   .cat-head h2 { margin-top: 14px; }
-  .brand-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 28px 0 32px; }
-  .bchip {
-    padding: 8px 14px;
+  .cat-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 28px 0 36px; }
+  .cat-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px 6px 6px;
     border-radius: 999px;
     border: 1px solid var(--line);
-    background: rgba(255, 255, 255, .04);
+    background: var(--surface);
     font-size: 14px;
+    font-weight: 500;
     color: var(--ink-2);
     transition: all .2s;
   }
-  .bchip small { color: var(--ink-3); margin-left: 4px; }
-  .bchip:hover { color: var(--ink); }
-  .bchip[aria-pressed='true'] { background: var(--ink); color: #07070d; border-color: var(--ink); }
-  .bchip[aria-pressed='true'] small { color: #55576d; }
-  .brands { display: grid; gap: 36px; }
-  .brand-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
-  .brand-dot { width: 12px; height: 12px; border-radius: 50%; background: hsl(var(--h) 90% 65%); box-shadow: 0 0 14px hsl(var(--h) 90% 60%); }
-  .brand-head h3 { font-size: 22px; }
+  .cat-tab:hover { color: var(--ink); border-color: hsl(var(--h) 70% 55% / .5); }
+  .cat-tab[aria-pressed='true'] { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .cat-ico { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: hsl(var(--h) 85% 94%); color: hsl(var(--h) 65% 42%); flex: none; }
+  .cat-ico svg { width: 17px; height: 17px; }
+  .cat-ico.big { width: 52px; height: 52px; border-radius: 16px; }
+  .cat-ico.big svg { width: 26px; height: 26px; }
+  .cats { display: grid; gap: 56px; }
+  .cat { display: grid; gap: 22px; scroll-margin-top: 100px; }
+  .cat-title { display: flex; align-items: center; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+  .cat-title h3 { font-size: clamp(24px, 2.6vw, 32px); }
+  .cat-title p { color: var(--ink-3); font-size: 15px; }
+  .cat-issues { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .cat-issues li { padding: 6px 12px; border-radius: 10px; background: hsl(var(--ch) 85% 96%); border: 1px solid hsl(var(--ch) 60% 85%); font-size: 13px; color: var(--ink-2); }
+  .cat-issues .price-tag { margin-left: 4px; }
+  .brand-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .brand-dot { width: 10px; height: 10px; border-radius: 50%; background: hsl(var(--h) 80% 55%); box-shadow: 0 0 10px hsl(var(--h) 80% 60% / .7); }
+  .brand-head h4 { font-size: 19px; }
   .brand-count { font-size: 13px; color: var(--ink-3); }
   .models { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
   .model {
     width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: start;
     gap: 4px;
-    padding: 14px 16px;
+    padding: 13px 16px;
     border-radius: 14px;
     border: 1px solid var(--line);
-    background: rgba(255, 255, 255, .03);
+    background: var(--surface);
     text-align: left;
-    transition: border-color .2s, background .2s, transform .2s;
+    transition: border-color .2s, box-shadow .2s, transform .2s;
   }
-  .model:hover { transform: translateY(-2px); border-color: hsl(var(--h) 80% 60% / .6); background: hsl(var(--h) 80% 60% / .08); }
+  .model:hover { transform: translateY(-2px); border-color: hsl(var(--h) 70% 55% / .55); box-shadow: 0 10px 24px -14px hsl(var(--h) 70% 45% / .6); }
   .model-name { font-weight: 500; }
   .model-price { font-size: 13px; color: var(--ink-3); }
   .empty { color: var(--ink-2); }
@@ -475,9 +547,9 @@ const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
   .book { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 20px; align-items: start; }
   .book-form { padding: clamp(22px, 3vw, 36px); display: grid; gap: 22px; }
   .book-form h2 { margin-top: -8px; }
-  fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 10px; }
+  fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 10px; min-width: 0; }
   legend { display: flex; align-items: center; gap: 10px; font-weight: 600; margin-bottom: 10px; }
-  legend span { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--grad); color: #07070d; font-size: 12px; }
+  legend span { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--grad); color: #fff; font-size: 12px; }
   .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   select, .book-form input:not([type='radio']):not([type='checkbox']) {
     width: 100%;
@@ -485,26 +557,28 @@ const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     padding: 0 14px;
     border-radius: 12px;
     border: 1px solid var(--line);
-    background: #0f0f1c;
+    background: var(--surface);
     color: var(--ink);
     font: inherit;
     outline: none;
   }
-  select:focus, .book-form input:focus { border-color: var(--cyan); }
+  select:focus, .book-form input:focus { border-color: var(--violet); }
   select:disabled { opacity: .5; }
+  .hint { font-size: 13px; color: var(--ink-3); }
   .seg-radio { position: relative; }
   .seg-radio input { position: absolute; opacity: 0; }
   .seg-radio span { display: block; padding: 9px 16px; border-radius: 999px; font-size: 14px; color: var(--ink-2); cursor: pointer; }
-  .seg-radio input:checked + span { background: var(--ink); color: #07070d; }
-  .seg-radio input:focus-visible + span { outline: 2px solid var(--cyan); }
+  .seg-radio input:checked + span { background: var(--ink); color: #fff; }
+  .seg-radio input:disabled + span { opacity: .4; cursor: not-allowed; text-decoration: line-through; }
+  .seg-radio input:focus-visible + span { outline: 2px solid var(--violet); }
   .issues { display: flex; flex-wrap: wrap; gap: 8px; }
-  .issue-chk { position: relative; }
-  .issue-chk input { position: absolute; opacity: 0; }
-  .issue-chk span { display: block; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); font-size: 14px; color: var(--ink-2); cursor: pointer; transition: all .2s; }
-  .issue-chk input:checked + span { background: rgba(34, 211, 238, .15); border-color: var(--cyan); color: var(--ink); }
-  .issue-chk input:focus-visible + span { outline: 2px solid var(--cyan); }
-  .form-msg { min-height: 0; font-size: 14px; }
-  .form-msg.err { color: #fda4af; }
+  .issues :global(.issue-chk) { position: relative; }
+  .issues :global(.issue-chk input) { position: absolute; opacity: 0; }
+  .issues :global(.issue-chk span) { display: block; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 14px; color: var(--ink-2); cursor: pointer; transition: all .2s; }
+  .issues :global(.issue-chk input:checked + span) { background: rgba(124, 58, 237, .1); border-color: var(--violet); color: var(--ink); }
+  .issues :global(.issue-chk input:focus-visible + span) { outline: 2px solid var(--violet); }
+  .form-msg { font-size: 14px; }
+  .form-msg.err { color: #be123c; }
   .form-msg.ok { color: var(--lime); }
   .book-form .btn { justify-self: start; }
 
