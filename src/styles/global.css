@@ -22,7 +22,7 @@
   --chip-line-l: 85%;
   --head-case: none;
 
-  /* Green (default) — from the hero mockup: green-black, grid, bright green */
+  /* Green — dark green-black (from the Danat mockup). Only via the Theme menu. */
   --bg: #07120e;
   --surface: #0d1c17;
   --glass: #0d1c17;
@@ -40,7 +40,7 @@
   --accent-soft: rgba(47, 208, 127, .12);
   --glow: #0f5c38;
   --on-accent: #04120c;
-  --media-hue: 0deg;
+  --media-hue: -70deg;
   --line: rgba(255, 255, 255, 0.08);
   --tint: rgba(255, 255, 255, 0.04);
   --tint-2: rgba(255, 255, 255, 0.07);
@@ -66,7 +66,7 @@
   color-scheme: light;
 }
 :root[data-theme='blue'] {
-  /* Blue — white + royal blue */
+  /* Blue (default, set on <html>) — white + royal blue */
   --bg: #f4f7fc;
   --ink: #0b1f3a;
   --ink-2: #44546c;
@@ -80,7 +80,7 @@
   --accent-soft: #e8efff;
   --glow: #bcd3ff;
   --on-accent: #ffffff;
-  --media-hue: 75deg;
+  --media-hue: 0deg;
   --line: rgba(11, 31, 58, 0.1);
   --tint: rgba(11, 31, 58, 0.04);
   --tint-2: rgba(11, 31, 58, 0.07);
@@ -100,7 +100,7 @@
   --a2: 255, 90, 95;
   --accent-soft: #ffe8ea;
   --glow: #ffc2c6;
-  --media-hue: -160deg;
+  --media-hue: 135deg;
   --line: rgba(20, 20, 20, 0.1);
   --tint: rgba(20, 20, 20, 0.04);
   --tint-2: rgba(20, 20, 20, 0.07);
@@ -119,7 +119,7 @@
   --a2: 34, 195, 166;
   --accent-soft: #dcf5f1;
   --glow: #a8e8dd;
-  --media-hue: 25deg;
+  --media-hue: -45deg;
   --line: rgba(13, 43, 46, 0.1);
   --tint: rgba(13, 43, 46, 0.04);
   --tint-2: rgba(13, 43, 46, 0.07);
@@ -139,7 +139,7 @@
   --accent-soft: #fff4cf;
   --glow: #ffe38a;
   --on-accent: #17171a;
-  --media-hue: -105deg;
+  --media-hue: -175deg;
   --line: rgba(23, 23, 26, 0.1);
   --tint: rgba(23, 23, 26, 0.04);
   --tint-2: rgba(23, 23, 26, 0.07);
@@ -158,7 +158,7 @@
   --a2: 255, 138, 0;
   --accent-soft: #fff1ea;
   --glow: #ffb38a;
-  --media-hue: -130deg;
+  --media-hue: 160deg;
 }
 
 :root[data-theme='slate'] {
@@ -178,7 +178,7 @@
   --a2: 0, 179, 255;
   --accent-soft: #dde7ff;
   --glow: #b5c9f5;
-  --media-hue: 75deg;
+  --media-hue: 0deg;
   --line: rgba(30, 42, 59, 0.12);
   --tint: rgba(30, 42, 59, 0.05);
   --tint-2: rgba(30, 42, 59, 0.08);

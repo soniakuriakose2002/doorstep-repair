@@ -13,7 +13,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="blue">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -31,7 +31,8 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
         const ok = ['green', 'blue', 'red', 'teal', 'yellow', 'orange', 'slate'];
         let t = new URLSearchParams(location.search).get('theme');
         try { if (t && ok.includes(t)) localStorage.setItem('theme', t); else t = localStorage.getItem('theme'); } catch {}
-        if (t && ok.includes(t) && t !== 'green') document.documentElement.dataset.theme = t;
+        if (t === 'green') delete document.documentElement.dataset.theme;
+        else if (t && ok.includes(t)) document.documentElement.dataset.theme = t;
       })();
     </script>
   </head>  <body>
