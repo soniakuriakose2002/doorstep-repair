@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import { site, nav } from '../data/site';
+import { categories, iconPaths } from '../data/devices';
 
 interface Props {
   title?: string;
@@ -10,6 +11,24 @@ interface Props {
 const { title, description = `${site.tagline} — screens, batteries and more for every major phone brand.` } = Astro.props;
 const fullTitle = title ? `${title} · ${site.name}` : `${site.name} — ${site.tagline}`;
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+
+// Mega menu under Services (modelled on 800fixing.com). Every link lands on
+// the Services page — the site stays three pages.
+const cat = (id: string) => categories.find((c) => c.id === id)!;
+const brandLink = (catId: string, q: string) => `/services?cat=${catId}&q=${encodeURIComponent(q)}#catalog`;
+const mega = [
+  { title: 'Device Repairs', items: categories.filter((c) => !['cctv', 'network', 'data'].includes(c.id)).map((c) => ({ label: c.name, href: `/services?cat=${c.id}#catalog`, icon: c.icon })) },
+  { title: 'Phone Brands', items: cat('mobile').brands.slice(0, 8).map((b) => ({ label: b.name, href: brandLink('mobile', b.name.split(' ')[0]) })) },
+  { title: 'Computer Brands', items: cat('laptop').brands.map((b) => ({ label: b.name.replace('Apple ', ''), href: brandLink('laptop', b.name.replace('Apple ', '')) })) },
+  { title: 'More Services', items: [
+    { label: 'CCTV Installation', href: '/services?cat=cctv#catalog', icon: 'cctv' },
+    { label: 'Networking & Wi-Fi', href: '/services?cat=network#catalog', icon: 'network' },
+    { label: 'Data Recovery', href: '/services?cat=data#catalog', icon: 'drive' },
+    { label: 'Doorstep Service', href: '/services?mode=doorstep#modes' },
+    { label: 'Pickup & Service', href: '/services?mode=pickup#modes' },
+    { label: 'Book a repair', href: '/services#book' },
+  ] },
+] as { title: string; items: { label: string; href: string; icon?: keyof typeof iconPaths }[] }[];
 ---
 
 <!doctype html>
@@ -35,7 +54,8 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
         else if (t && ok.includes(t)) document.documentElement.dataset.theme = t;
       })();
     </script>
-  </head>  <body>
+  </head>
+  <body>
     <div class="aurora" aria-hidden="true">
       <span class="orb o1"></span>
       <span class="grid"></span>
@@ -51,7 +71,32 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
         </a>
         <nav aria-label="Main">
           <ul>
-            {nav.map((n) => (
+            {nav.map((n) => n.href === '/services' ? (
+              <li class="has-mega">
+                <a href={n.href} aria-current={path === n.href ? 'page' : undefined} aria-haspopup="true">
+                  {n.label}
+                  <svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+                </a>
+                <div class="mega" role="region" aria-label="Services menu">
+                  {mega.map((col) => (
+                    <div class="mega-col">
+                      <h3>{col.title}</h3>
+                      <ul>
+                        {col.items.map((it) => (
+                          <li>
+                            <a href={it.href} class="mega-item">
+                              {it.icon && <svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" set:html={iconPaths[it.icon]} />}
+                              <span>{it.label}</span>
+                              <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </li>
+            ) : (
               <li>
                 <a href={n.href} aria-current={path === n.href ? 'page' : undefined}>{n.label}</a>
               </li>
@@ -282,4 +327,61 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
   .theme-menu button:hover { background: var(--tint-2); color: var(--ink); }
   .theme-menu button[aria-pressed='true'] { background: var(--accent-soft); color: var(--ink); font-weight: 700; }
   .sw { width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, var(--a) 50%, var(--b) 50%); box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
+  /* Mega menu under Services */
+  .nav-inner { position: relative; }
+  .has-mega > a { display: inline-flex; align-items: center; gap: 4px; }
+  .caret { width: 14px; height: 14px; transition: transform .25s; }
+  .mega {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 12px);
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    padding: 16px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    box-shadow: 0 30px 70px -30px rgba(15, 27, 45, .35), var(--shadow);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px);
+    transition: opacity .2s, transform .2s, visibility 0s .2s;
+    z-index: 70;
+  }
+  /* invisible bridge so the pointer can travel from the link into the panel */
+  .mega::before { content: ''; position: absolute; left: 0; right: 0; top: -16px; height: 16px; }
+  .has-mega:hover .mega,
+  .has-mega:focus-within .mega {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition: opacity .2s, transform .2s;
+  }
+  .has-mega:hover .caret, .has-mega:focus-within .caret { transform: rotate(180deg); }
+  .mega-col { padding: 14px; border-radius: 18px; background: var(--tint); border: 1px solid var(--line); }
+  .mega-col h3 { font-size: 15px; font-weight: 800; letter-spacing: -.01em; margin: 2px 4px 12px; color: var(--ink); }
+  .mega-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  nav .mega-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 12px;
+    border-radius: 12px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+    transition: border-color .2s, color .2s, transform .2s;
+  }
+  nav .mega-item:hover { border-color: var(--violet); color: var(--violet); transform: translateX(2px); }
+  .mega-item span { flex: 1; }
+  .mi { width: 18px; height: 18px; color: var(--violet); flex: none; }
+  .chev { width: 12px; height: 12px; color: var(--ink-3); flex: none; }
+  @media (max-width: 900px) {
+    .mega { display: none; }
+    .caret { display: none; }
+  }
 </style>

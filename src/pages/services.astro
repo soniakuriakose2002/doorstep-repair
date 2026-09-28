@@ -390,10 +390,12 @@ const payload = JSON.stringify({
     msg.textContent = `Thanks, ${fd.get('name')}. Your ${titles[mode].toLowerCase()} request for ${fd.get('model')} is noted — estimate ₹0. (Demo: bookings are not sent anywhere yet.)`;
   });
 
-  // Deep links from the home page: ?mode=pickup, ?cat=printer
+  // Deep links from the home page and nav menu: ?mode=pickup, ?cat=printer, ?q=Samsung
   const q = new URLSearchParams(location.search);
   const startCat = q.get('cat');
   if (startCat && data.categories.some((c) => c.id === startCat)) setCat(startCat);
+  const startQ = q.get('q');
+  if (startQ) { modelSearch.value = startQ; filterCatalog(); }
   const startMode = q.get('mode');
   setMode(startMode && data.coverage[startMode] ? startMode : 'doorstep');
 </script>
