@@ -10,7 +10,10 @@ const v = (file: string) => {
   try { return `/media/${file}?v=${Math.floor(statSync(`public/media/${file}`).mtimeMs / 1000)}`; } catch { return `/media/${file}`; }
 };
 const IMG = v('hero.jpg');
-const VID = v('hero.mp4');
+// Video option: the Kling AI clip (source: ~/Downloads/kling_20260928_VIDEO_3D_isometr_5718_0.mp4,
+// re-encoded silent at 1600px). The rendered hero.mp4 is kept but not shown.
+const VID = v('kling.mp4');
+const VID_POSTER = v('kling.jpg');
 
 type Format = 'image' | 'post' | 'video';
 interface Props {
@@ -49,7 +52,7 @@ const show = (f: Format) => !format || format === f;
       )}
       {show('video') && (
         <div class="media m-video" data-kind="video">
-          <video data-src={VID} poster={IMG} muted loop playsinline preload="none" aria-label="Animated repair showcase"></video>
+          <video data-src={VID} poster={VID_POSTER} muted loop playsinline preload="none" aria-label="3D isometric repair showcase"></video>
           <span class="live"><i></i>Video</span>
         </div>
       )}

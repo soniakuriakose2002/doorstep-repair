@@ -184,7 +184,7 @@
   --tint-2: rgba(30, 42, 59, 0.08);
 }
 
-.m-image img, .m-video video, .post-img img { filter: hue-rotate(var(--media-hue, 0deg)); }
+.m-image img, .post-img img { filter: hue-rotate(var(--media-hue, 0deg)); }
 
 *, *::before, *::after { box-sizing: border-box; }
 [hidden] { display: none !important; }
