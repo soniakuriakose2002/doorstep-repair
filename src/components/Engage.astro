@@ -104,18 +104,28 @@ const perks: Record<string, string[]> = {
 </div>
 <!-- Left slide-in -->
 <aside class="sl" data-slide-in hidden aria-label="Need help?">
-  <button type="button" class="sl-x" data-sl-x aria-label="Close">×</button>
-  <span class="sl-wave" aria-hidden="true">👋</span>
-  <b>Before you go…</b>
-  <p>What do you need fixed today?</p>
-  <div class="sl-chips">
-    {categories.map((c) => (
-      <a target="_blank" rel="noopener" href={`https://wa.me/${tel}?text=${encodeURIComponent(`Hi Danat, I need help with my ${c.name}.`)}`}>{c.name}</a>
-    ))}
+  <div class="sl-head">
+    <button type="button" class="sl-x" data-sl-x aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <span class="sl-av"><img src="/brand/danat-logo.png" alt="" width="44" height="44" /><i></i></span>
+    <div>
+      <b>Leaving already? 👋</b>
+      <small><i class="dot"></i>We reply on WhatsApp</small>
+    </div>
   </div>
-  <a class="sl-cta" href="/#book-services">See all services & book →</a>
+  <div class="sl-body">
+    <p>What do you need fixed today? Tap one — we'll reply on WhatsApp.</p>
+    <div class="sl-grid">
+      {categories.filter((c) => !['tablet', 'desktop', 'itsupport'].includes(c.id)).map((c, i) => (
+        <a class="sl-tile" style={`--h:${c.hue}; --i:${i}`} target="_blank" rel="noopener" href={`https://wa.me/${tel}?text=${encodeURIComponent(`Hi Danat, I need help with my ${c.name}.`)}`}>
+          <span class="sl-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" set:html={iconPaths[c.icon]} /></span>
+          <span>{c.name.replace(' & MacBooks', '').replace(' Installation', '').replace(' & Wi-Fi', '')}</span>
+        </a>
+      ))}
+    </div>
+    <a class="sl-cta" target="_blank" rel="noopener" href={`https://wa.me/${tel}?text=${encodeURIComponent('Hi Danat, I need help with a repair.')}`}><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg> Chat with us on WhatsApp</a>
+    <a class="sl-all" href="/#book-services">See all services →</a>
+  </div>
 </aside>
-
 <script>
   const idle = document.querySelector<HTMLElement>('[data-idle]');
   const sl = document.querySelector<HTMLElement>('[data-slide-in]');
@@ -328,16 +338,30 @@ const perks: Record<string, string[]> = {
     .ig-thumb-art { width: 44px; height: 38px; }
     .ig-form { padding: 26px 22px; }
   }
-  .sl { position: fixed; left: 18px; bottom: 120px; z-index: 86; width: min(320px, calc(100% - 36px)); display: grid; gap: 8px; padding: 22px; background: var(--surface); border: 1px solid var(--line); border-radius: 22px; box-shadow: 0 30px 70px -20px rgba(0,0,0,.45); transform: translateX(-120%); transition: transform .55s cubic-bezier(.2,1.1,.3,1); }
+  .sl { position: fixed; left: 18px; bottom: 110px; z-index: 86; width: min(340px, calc(100% - 36px)); background: #fff; border-radius: 26px; overflow: hidden; box-shadow: 0 30px 70px -20px rgba(0,0,0,.45); color: #16211b; transform: translateX(-120%) rotate(-4deg); transition: transform .6s cubic-bezier(.2,1.15,.3,1); }
   .sl[hidden] { display: none; }
   .sl.in { transform: none; }
-  .sl-x { position: absolute; right: 12px; top: 12px; width: 30px; height: 30px; border: 0; border-radius: 50%; background: var(--tint-2); font-size: 18px; line-height: 1; color: var(--ink); }
-  .sl-wave { font-size: 30px; animation: wave 1.6s ease-in-out infinite; transform-origin: 70% 80%; display: inline-block; width: max-content; }
-  @keyframes wave { 0%, 60%, 100% { transform: rotate(0); } 10%, 30% { transform: rotate(16deg); } 20%, 40% { transform: rotate(-10deg); } }
-  .sl b { font-size: 20px; font-family: var(--display); }
-  .sl p { font-size: 14px; color: var(--ink-2); }
-  .sl-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0; }
-  .sl-chips a { padding: 6px 11px; border-radius: 999px; border: 1px solid var(--line); font-size: 12.5px; font-weight: 600; color: var(--ink-2); }
-  .sl-chips a:hover { border-color: #25d366; color: #1f7a3a; background: #e8faf0; }
-  .sl-cta { font-size: 13.5px; font-weight: 700; color: var(--violet); }
-</style>
+  .sl-head { position: relative; display: flex; align-items: center; gap: 12px; padding: 20px 20px 18px; color: #fff; background: linear-gradient(135deg, #1f9a52, #0f6b37); overflow: hidden; }
+  .sl-head::after { content: ''; position: absolute; right: -40px; top: -60px; width: 160px; height: 160px; border-radius: 50%; background: rgba(255,255,255,.1); }
+  .sl-x { position: absolute; right: 12px; top: 12px; z-index: 2; display: grid; place-items: center; width: 30px; height: 30px; border: 0; border-radius: 50%; background: rgba(255,255,255,.18); color: #fff; }
+  .sl-x svg { width: 15px; height: 15px; }
+  .sl-av { position: relative; flex: none; width: 48px; height: 48px; border-radius: 50%; background: #fff; display: grid; place-items: center; box-shadow: 0 0 0 3px rgba(255,255,255,.3); }
+  .sl-av img { width: 36px; height: 36px; object-fit: contain; }
+  .sl-av i { position: absolute; right: 0; bottom: 1px; width: 12px; height: 12px; border-radius: 50%; background: #4ade80; border: 2px solid #0f6b37; }
+  .sl-head b { display: block; font-family: var(--display); font-size: 19px; }
+  .sl-head small { display: flex; align-items: center; gap: 6px; font-size: 12.5px; opacity: .9; }
+  .sl-head .dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; animation: slPulse 1.6s infinite; }
+  @keyframes slPulse { 50% { opacity: .3; } }
+  .sl-body { display: grid; gap: 14px; padding: 18px 18px 20px; }
+  .sl-body p { font-size: 14px; color: #4a5750; }
+  .sl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .sl-tile { display: grid; justify-items: center; gap: 6px; padding: 12px 4px 10px; border-radius: 16px; background: #f4f7f5; font-size: 12px; font-weight: 600; text-align: center; line-height: 1.2; color: #26322b; transition: transform .2s, background .2s; }
+  .sl.in .sl-tile { animation: slIn .45s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(.25s + var(--i) * .05s); }
+  @keyframes slIn { from { opacity: 0; transform: translateY(10px) scale(.9); } }
+  .sl-tile:hover { transform: translateY(-3px); background: hsl(var(--h) 70% 94%); }
+  .sl-ico { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; background: #fff; color: hsl(var(--h) 60% 40%); box-shadow: 0 4px 10px -6px rgba(0,0,0,.3); }
+  .sl-ico svg { width: 20px; height: 20px; }
+  .sl-cta { display: flex; align-items: center; justify-content: center; gap: 10px; height: 50px; border-radius: 14px; background: #25d366; color: #fff; font-weight: 700; font-size: 15px; box-shadow: 0 12px 24px -12px rgba(37,211,102,.9); transition: transform .2s; }
+  .sl-cta:hover { transform: translateY(-2px); }
+  .sl-cta svg { width: 20px; height: 20px; }
+  .sl-all { justify-self: center; font-size: 13.5px; font-weight: 700; color: #1f8a4c; }</style>
