@@ -15,27 +15,7 @@ export const site = {
   phone: { display: '+968 7832 3116', tel: '+96878323116' },
   address: 'Computer Street, Ruwi, PO Box 502, PC 118, Sultanate of Oman',
   branches: ['Ruwi, Muscat', 'Sohar', 'Salalah'],
-  whatsapp: '96878323116',
-  social: {
-    facebook: 'https://www.facebook.com/DanatCSOman/',
-    instagram: 'https://www.instagram.com/computersupermarketruwi/',
-  },
 };
-
-export const whatsappLink = (message = 'Hello Danat — I need a repair for my') =>
-  `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(message)}`;
-
-// Branches (copied from the Danat project's verified data). Only Ruwi's street
-// address and phone are published; Sohar and Salalah are located by city, and
-// the UI says so rather than inventing an address. Opening hours are unknown.
-export const branchList = [
-  { id: 'muscat', tab: 'Muscat', name: 'Danat Ruwi', city: 'Ruwi, Muscat', address: 'Computer Street, Ruwi, PO Box 502, PC 118', phone: '+968 7832 3116', tel: '+96878323116', lat: 23.593, lon: 58.556, precise: true, head: true },
-  { id: 'sohar', tab: 'Sohar', name: 'Danat Sohar', city: 'Sohar, Al Batinah North', address: null, phone: null, tel: null, lat: 24.347, lon: 56.709, precise: false, head: false },
-  { id: 'salalah', tab: 'Salalah', name: 'Danat Salalah', city: 'Salalah, Dhofar', address: null, phone: null, tel: null, lat: 17.019, lon: 54.089, precise: false, head: false },
-];
-
-// Brands Danat carries — from the company's own catalogue export.
-export const brandsCarried = ['HP', 'Dell', 'Acer', 'ASUS', 'Apple', 'Lenovo', 'Canon', 'Epson', 'Hikvision', 'Dahua', 'Uniview', 'EZVIZ', 'TP-Link', 'Zebra', 'AOC', 'Panasonic'];
 
 // Manager instruction: no real prices for now (shown as OMR 0). Every amount on the site
 // comes from here, so switching to real pricing later is one change.

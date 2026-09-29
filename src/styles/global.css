@@ -1,3 +1,5 @@
+@font-face { font-family: 'Schibsted Grotesk'; src: url('/fonts/schibsted.woff2') format('woff2'); font-weight: 400 900; font-display: swap; }
+@font-face { font-family: 'Plus Jakarta Sans'; src: url('/fonts/jakarta.woff2') format('woff2'); font-weight: 200 800; font-display: swap; }
 /*
   Themes. Pick one with the palette button (bottom-right) or ?theme=<id>.
   Each theme sets the same tokens; --media-hue shifts the baked orange video
@@ -9,7 +11,7 @@
   --glass-2: #ffffff;
   --lime: #12a150;
   --radius: 20px;
-  --display: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --display: 'Schibsted Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif;
   --body: 'Plus Jakarta Sans', system-ui, sans-serif;
   --grad: linear-gradient(120deg, var(--violet), var(--blue));
   --grad-hot: linear-gradient(120deg, var(--violet), var(--blue));
@@ -51,7 +53,7 @@
   --head-case: uppercase;
   color-scheme: dark;}
 
-:root[data-theme='blue'], :root[data-theme='red'], :root[data-theme='teal'],
+:root[data-theme='danat'], :root[data-theme='blue'], :root[data-theme='red'], :root[data-theme='teal'],
 :root[data-theme='yellow'], :root[data-theme='orange'], :root[data-theme='slate'] {
   --surface: #ffffff;
   --glass: #ffffff;
@@ -65,6 +67,29 @@
   --shadow: 0 1px 2px rgba(15, 27, 45, .05), 0 14px 34px -18px rgba(15, 27, 45, .22);
   color-scheme: light;
 }
+:root[data-theme='danat'] {
+  /* Danat (default) — warm off-white, deep green-black ink, Danat green */
+  --bg: #f4f6f2;
+  --ink: #0f1c15;
+  --ink-2: #4a5a51;
+  --ink-3: #87948c;
+  --navy: #0c1811;
+  --violet: #2e8b46;
+  --blue: #59aa54;
+  --cyan: #247a3a;
+  --lime: #238a45;
+  --a1: 46, 139, 70;
+  --a2: 89, 170, 84;
+  --accent-soft: #e4f1e3;
+  --glow: #bfe0c0;
+  --on-accent: #ffffff;
+  --media-hue: -70deg;
+  --line: rgba(15, 28, 21, 0.1);
+  --tint: rgba(15, 28, 21, 0.04);
+  --tint-2: rgba(15, 28, 21, 0.07);
+  --shadow: 0 1px 2px rgba(15, 28, 21, .05), 0 16px 36px -22px rgba(15, 28, 21, .28);
+}
+
 :root[data-theme='blue'] {
   /* Blue (default, set on <html>) — white + royal blue */
   --bg: #f4f7fc;
@@ -345,3 +370,78 @@ img, video, svg { display: block; max-width: 100%; }
 }
 
 :focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
+
+/* ================================================================
+   Design refresh — applies to every theme.
+   Stronger type, solid accents instead of gradient text, a dark hero
+   stage for the media, calmer cards and more breathing room.
+   ================================================================ */
+h1, h2, h3, h4 { letter-spacing: -0.035em; font-weight: 800; }
+.h-xl { letter-spacing: -0.04em; line-height: .98; }
+.h-lg { letter-spacing: -0.035em; line-height: 1.02; }
+.lead { line-height: 1.65; }
+.eyebrow { color: var(--cyan); font-weight: 700; letter-spacing: .16em; }
+.eyebrow::before { background: currentColor; width: 22px; }
+
+/* solid accent with a soft marker underline instead of the shimmering gradient */
+.grad-text {
+  animation: none; color: var(--cyan); -webkit-text-fill-color: currentColor;
+  background: linear-gradient(transparent 64%, var(--accent-soft) 64%, var(--accent-soft) 92%, transparent 92%);
+  background-size: auto; -webkit-background-clip: border-box; background-clip: border-box;
+  padding: 0 .06em; border-radius: 4px;
+}
+
+.btn { padding: 15px 26px; font-weight: 700; letter-spacing: -.005em; }
+.btn-primary { background: var(--violet); box-shadow: 0 14px 30px -14px rgba(var(--a1), .8); }
+.btn-primary:hover { background: var(--cyan); box-shadow: 0 18px 36px -14px rgba(var(--a1), .8); }
+.glass { border-radius: 24px; }
+a.glass, .issue.glass, .mode.glass { transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s, border-color .35s; }
+a.glass:hover, .issue.glass:hover { transform: translateY(-4px); border-color: rgba(var(--a1), .35); box-shadow: 0 26px 50px -30px rgba(var(--a1), .55); }
+.section { padding: clamp(80px, 11vw, 140px) 0; }
+
+/* dark hero stage: the media sits in a proper frame, text reads white */
+:root .hero {
+  position: relative; isolation: isolate; color: #fff !important;
+  margin: 12px clamp(8px, 1.5vw, 20px) 0; padding: clamp(40px, 6vw, 84px) 0 clamp(48px, 6vw, 80px);
+  border-radius: 34px; overflow: hidden;
+  background:
+    radial-gradient(60% 70% at 85% 20%, rgba(var(--a2), .28), transparent 60%),
+    radial-gradient(50% 60% at 0% 100%, rgba(var(--a1), .22), transparent 65%),
+    linear-gradient(160deg, color-mix(in oklab, var(--navy) 92%, #fff) 0%, var(--navy) 100%);
+}
+:root .hero::after { content: ''; position: absolute; inset: 0; z-index: -1; opacity: .5;
+  background-image: linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+  background-size: 56px 56px; -webkit-mask: radial-gradient(70% 80% at 60% 30%, #000, transparent); mask: radial-gradient(70% 80% at 60% 30%, #000, transparent); }
+:root .hero h1, :root .hero .devices-line, :root .hero .hero-facts b { color: #fff !important; }
+:root .hero .grad-text { color: var(--blue) !important; background: none; padding: 0; }
+:root .hero .lead { color: rgba(255,255,255,.72) !important; }
+:root .hero .eyebrow { color: var(--blue) !important; }
+:root .hero .hero-facts { color: rgba(255,255,255,.55) !important; border-top: 1px solid rgba(255,255,255,.12); padding-top: 22px; }
+:root .hero .btn:not(.btn-primary) { background: rgba(255,255,255,.08) !important; color: #fff !important; border-color: rgba(255,255,255,.18) !important; }
+:root .hero .btn:not(.btn-primary):hover { background: rgba(255,255,255,.16) !important; }
+:root .hero .price-tag { color: var(--blue) !important; }
+:root .hero .lab-panel { background: rgba(255,255,255,.06) !important; border-color: rgba(255,255,255,.12) !important; box-shadow: none; backdrop-filter: blur(10px); color: #fff !important; }
+:root .hero .lab-label, :root .hero .lab-foot { color: rgba(255,255,255,.55) !important; }
+:root .hero .lab-foot { border-color: rgba(255,255,255,.12) !important; }
+:root .hero .lab-now b { color: #fff !important; }
+:root .hero .lab-link { color: var(--blue) !important; }
+:root .hero .seg { background: rgba(255,255,255,.06) !important; border-color: rgba(255,255,255,.12) !important; }
+:root .hero .seg button { color: rgba(255,255,255,.7) !important; }
+:root .hero .seg button[aria-pressed='true'] { background: #fff; color: var(--navy) !important; }
+
+/* brand band: quieter, bigger */
+:root .marquee-item { letter-spacing: -.03em; }
+
+/* page headers (Services, Our Team) share the hero's dark stage */
+:root .page-head {
+  position: relative; isolation: isolate; color: #fff !important;
+  margin: 12px clamp(8px, 1.5vw, 20px) 0; padding: clamp(56px, 7vw, 96px) 0 clamp(48px, 6vw, 72px) !important;
+  border-radius: 34px; overflow: hidden;
+  background: radial-gradient(55% 80% at 90% 10%, rgba(var(--a2), .3), transparent 60%),
+    linear-gradient(160deg, color-mix(in oklab, var(--navy) 92%, #fff) 0%, var(--navy) 100%);
+}
+:root .page-head h1 { color: #fff !important; }
+:root .page-head .grad-text { color: var(--blue) !important; background: none; padding: 0; }
+:root .page-head .lead, :root .page-head p { color: rgba(255,255,255,.72) !important; }
+:root .page-head .eyebrow { color: var(--blue) !important; }
+:root .page-head .chip { background: rgba(255,255,255,.08) !important; border-color: rgba(255,255,255,.16) !important; color: rgba(255,255,255,.85) !important; }

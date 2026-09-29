@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import { site, nav, price, whatsappLink, branchList } from '../data/site';
+import { site, nav, price } from '../data/site';
 import { categories, iconPaths } from '../data/devices';
 
 interface Props {
@@ -12,31 +12,30 @@ const { title, description = `${site.tagline} — screens, batteries and more fo
 const fullTitle = title ? `${title} · ${site.name}` : `${site.name} — ${site.tagline}`;
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 
-const footerBrands = ['Apple', 'Samsung', 'Google Pixel', 'Dell', 'HP', 'Lenovo'].map((name) => {
-  const c = categories.find((x) => x.brands.some((b) => b.name.startsWith(name)))!;
-  return { label: name, href: `/services?cat=${c.id}&q=${encodeURIComponent(name)}#catalog` };
-});
-
 // Services mega menu. Every link lands on the Services page — the site stays three pages.
+const brandLink = (catId: string, q: string) => `/services?cat=${catId}&q=${encodeURIComponent(q)}#catalog`;
+const cat = (id: string) => categories.find((c) => c.id === id)!;
+const megaHero = cat('mobile');
+const megaTiles = ['laptop', 'printer', 'cctv', 'network', 'data'].map(cat);
+const megaBrands = [
+  ...cat('mobile').brands.slice(0, 6).map((b) => ({ label: b.name, href: brandLink('mobile', b.name.split(' ')[0]) })),
+  ...cat('laptop').brands.slice(1, 6).map((b) => ({ label: b.name, href: brandLink('laptop', b.name) })),
+];
 ---
 
 <!doctype html>
-<html lang="en" data-theme="blue">
+<html lang="en" data-theme="danat">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
+    <link rel="preload" href="/fonts/schibsted.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/jakarta.woff2" as="font" type="font/woff2" crossorigin />
     <script is:inline>
       (() => {
-        const ok = ['green', 'blue', 'red', 'teal', 'yellow', 'orange', 'slate'];
+        const ok = ['danat', 'green', 'blue', 'red', 'teal', 'yellow', 'orange', 'slate'];
         let t = new URLSearchParams(location.search).get('theme');
         try { if (t && ok.includes(t)) localStorage.setItem('theme', t); else t = localStorage.getItem('theme'); } catch {}
         if (t === 'green') delete document.documentElement.dataset.theme;
@@ -68,32 +67,35 @@ const footerBrands = ['Apple', 'Samsung', 'Google Pixel', 'Dell', 'HP', 'Lenovo'
                   <svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
                 </a>
                 <div class="mega" role="region" aria-label="Services menu">
-                  <ul class="d-list">
-                    {categories.map((c, i) => (
-                      <li>
-                        <a href={`/services?cat=${c.id}#catalog`} class:list={['d-item', { on: i === 0 }]} data-d={c.id}>
-                          <svg class="d-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={iconPaths[c.icon]} />
-                          {c.name}
-                          <svg class="d-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                  <div class="d-panels">
-                    {categories.map((c, i) => (
-                      <div class:list={['d-panel', { on: i === 0 }]} data-dp={c.id}>
-                        <h4>{c.name}</h4>
-                        <p>{c.short}</p>
-                        <ul>
-                          {c.brands.slice(0, 10).map((b) => <li><a href={`/services?cat=${c.id}&q=${encodeURIComponent(b.name)}#catalog`}>{b.name}</a></li>)}
-                        </ul>
-                        <a class="d-all" href={`/services?cat=${c.id}#catalog`}>See all {c.brands.reduce((n, b) => n + b.models.length, 0)} models →</a>
+                  <a class="b-tile b-hero" style="--i:0" href={`/services?cat=${megaHero.id}#catalog`}>
+                    <span class="b-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span>
+                    <span class="b-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" set:html={iconPaths[megaHero.icon]} /></span>
+                    <strong>{megaHero.name}</strong>
+                    <small>{megaHero.short}. Every major brand, at your door or picked up.</small>
+                    <span class="b-count">{megaHero.brands.length} brands · {megaHero.brands.reduce((n, b) => n + b.models.length, 0)} models</span>
+                  </a>
+                  {megaTiles.map((c, i) => (
+                    <a class="b-tile" href={`/services?cat=${c.id}#catalog`} style={`--h:${c.hue}; --i:${i + 1}`}>
+                      <span class="b-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span>
+                      <span class="b-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" set:html={iconPaths[c.icon]} /></span>
+                      <strong>{c.name}</strong>
+                      <small>{c.short}</small>
+                    </a>
+                  ))}
+                  <a class="b-tile b-cta" style="--i:6" href="/services#book">
+                    <span class="b-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span>
+                    <span class="b-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span>
+                    <span class="b-live"><i></i>Technicians available now</span>
+                    <strong>Book a repair</strong>
+                    <small>Doorstep or pickup across {site.country} · <em>{price()}</em></small>
+                  </a>
+                  <div class="b-brands" style="--i:7">
+                    <span>Brands</span>
+                    <div class="b-marquee">
+                      <div class="b-track">
+                        {[...megaBrands, ...megaBrands].map((b, i) => <a href={b.href} tabindex={i >= megaBrands.length ? -1 : undefined} aria-hidden={i >= megaBrands.length ? 'true' : undefined}>{b.label}</a>)}
                       </div>
-                    ))}
-                  </div>
-                  <div class="d-foot">
-                    <span>Doorstep or pickup across {site.country} · estimate <b>{price()}</b></span>
-                    <a href="/services#book">Book a repair</a>
+                    </div>
                   </div>
                 </div>
               </li>
@@ -113,55 +115,25 @@ const footerBrands = ['Apple', 'Samsung', 'Google Pixel', 'Dell', 'HP', 'Lenovo'
     </main>
 
     <footer class="footer">
-      <div class="wrap footer-grid">
-        <div class="f-brand">
-          <a href="/" class="logo">
-            <picture class="logo-img"><source srcset="/brand/danat-logo.webp" type="image/webp" /><img src="/brand/danat-logo.png" alt="" width="40" height="40" /></picture>
-            {site.name}
-          </a>
-          <p class="muted">Electronics repair across {site.country} since {site.since} — phones, laptops, computers, printers, CCTV and networking, at your door, by pickup or in-store.</p>
-          <div class="f-social">
-            <a href={site.social.facebook} target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 8h3V4h-3a5 5 0 0 0-5 5v2H7v4h2v7h4v-7h3l1-4h-4V9a1 1 0 0 1 1-1z"/></svg></a>
-            <a href={site.social.instagram} target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>
-            <a href={whatsappLink()} target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg></a>
-          </div>
-        </div>
+      <div class="wrap footer-inner">
         <div>
-          <h4>Quick links</h4>
-          <ul>
-            {nav.map((n) => <li><a href={n.href}>{n.label}</a></li>)}
-            <li><a href="/services#book">Book a repair</a></li>
-            <li><a href="/services#faq">FAQ</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4>Head office</h4>
-          <ul class="f-contact">
+          <a href="/" class="logo">{site.name}</a>
+          <p class="muted">{site.tagline}. Doorstep repair and pickup across {site.country} since {site.since} — branches in {site.branches.join(', ')}.</p>
+          <ul class="contact">
             <li><a href={`tel:${site.phone.tel}`}>{site.phone.display}</a></li>
             <li><a href={`mailto:${site.email}`}>{site.email}</a></li>
             <li>{site.address}</li>
           </ul>
         </div>
-        <div>
-          <h4>Branches</h4>
-          <ul>{branchList.map((b) => <li><a href={`/#branches`}>{b.name}</a></li>)}</ul>
-        </div>
-        <div>
-          <h4>Devices</h4>
-          <ul>{categories.map((c) => <li><a href={`/services?cat=${c.id}#catalog`}>{c.name}</a></li>)}</ul>
-        </div>
-        <div>
-          <h4>Popular brands</h4>
-          <ul>{footerBrands.map((b) => <li><a href={b.href}>{b.label}</a></li>)}</ul>
-        </div>
+        <ul class="footer-nav">
+          {nav.map((n) => <li><a href={n.href}>{n.label}</a></li>)}
+        </ul>
       </div>
       <div class="wrap footer-base">
-        <span>© {new Date().getFullYear()} {site.name}. All rights reserved.</span>
+        <span>© {new Date().getFullYear()} {site.name}</span>
         <span>All estimates shown as {price()} — pricing to be announced.</span>
       </div>
     </footer>
-
-    <a class="wa-float" href={whatsappLink()} target="_blank" rel="noopener" aria-label="Chat on WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg></a>
 
     <div class="theme-pick" data-theme-pick>
       <button type="button" class="theme-toggle" aria-expanded="false" aria-label="Change colour theme">
@@ -170,6 +142,7 @@ const footerBrands = ['Apple', 'Samsung', 'Google Pixel', 'Dell', 'HP', 'Lenovo'
       </button>
       <div class="theme-menu" role="group" aria-label="Colour theme" hidden>
         {[
+          ['danat', 'Danat', '#2e8b46', '#f4f6f2'],
           ['green', 'Green', '#2fd07f', '#07120e'],
           ['blue', 'Blue', '#1d4ed8', '#f4f7fc'],
           ['red', 'Red', '#e11d2e', '#faf7f7'],
@@ -199,40 +172,24 @@ const footerBrands = ['Apple', 'Samsung', 'Google Pixel', 'Dell', 'HP', 'Lenovo'
       onScroll();
       window.addEventListener('scroll', onScroll, { passive: true });
 
-      // Services dropdown. Opens on hover — but not when a page loads with the
-      // pointer already over it: it arms only after the pointer has been
-      // outside the menu once. Clicking a link closes and disarms it.
+      // Services menu: open on real pointer entry (not when a page loads under
+      // the pointer), close after a link is clicked.
       const megaLi = document.querySelector<HTMLElement>('.has-mega');
       if (megaLi) {
         let t = 0;
-        let armed = false;
-        const close = () => { clearTimeout(t); megaLi.classList.remove('open'); };
-        document.addEventListener('pointermove', (e) => { if (!megaLi.contains(e.target as Node)) armed = true; }, { passive: true });
-        megaLi.addEventListener('pointerenter', () => { if (!armed) return; clearTimeout(t); t = window.setTimeout(() => megaLi.classList.add('open'), 60); });
-        megaLi.addEventListener('pointerleave', () => { clearTimeout(t); t = window.setTimeout(close, 140); });
-        megaLi.addEventListener('focusin', () => megaLi.classList.add('open'));
-        megaLi.addEventListener('focusout', (e) => { if (!megaLi.contains(e.relatedTarget as Node)) close(); });
-        megaLi.addEventListener('keydown', (e) => { if (e.key === 'Escape') { close(); megaLi.querySelector<HTMLElement>('a')?.focus(); } });
-        // Hovering a device shows its brands on the right
-        const items = megaLi.querySelectorAll<HTMLElement>('[data-d]');
-        const panels = megaLi.querySelectorAll<HTMLElement>('[data-dp]');
-        const show = (id: string) => {
-          items.forEach((x) => x.classList.toggle('on', x.dataset.d === id));
-          panels.forEach((x) => x.classList.toggle('on', x.dataset.dp === id));
-        };
-        // Small hover intent so a diagonal move toward the brands doesn't flip the panel.
-        let dt = 0;
-        items.forEach((x) => {
-          x.addEventListener('pointerenter', () => { clearTimeout(dt); dt = window.setTimeout(() => { if (x.matches(':hover')) show(x.dataset.d!); }, 90); });
-          x.addEventListener('pointerleave', () => clearTimeout(dt));
-          x.addEventListener('focus', () => show(x.dataset.d!));
-        });
+        megaLi.addEventListener('pointerenter', () => { clearTimeout(t); t = window.setTimeout(() => megaLi.classList.add('open'), 80); });
+        megaLi.addEventListener('pointerleave', () => { clearTimeout(t); t = window.setTimeout(() => megaLi.classList.remove('open'), 120); });
+        megaLi.querySelectorAll<HTMLElement>('.b-tile').forEach((tile) => tile.addEventListener('pointermove', (e) => {
+          const r = tile.getBoundingClientRect();
+          tile.style.setProperty('--mx', `$${e.clientX - r.left}px`);
+          tile.style.setProperty('--my', `$${e.clientY - r.top}px`);
+        }));
         megaLi.querySelectorAll('.mega a').forEach((a) => a.addEventListener('click', () => {
-          close();
-          armed = false;
+          megaLi.classList.remove('open');
           (document.activeElement as HTMLElement | null)?.blur();
         }));
       }
+
       // Theme switcher
       const pick = document.querySelector<HTMLElement>('[data-theme-pick]')!;
       const menu = pick.querySelector<HTMLElement>('.theme-menu')!;
@@ -361,20 +318,16 @@ const footerBrands = ['Apple', 'Samsung', 'Google Pixel', 'Dell', 'HP', 'Lenovo'
 
   .footer { margin-top: 40px; background: var(--navy); color: #fff; border-radius: 32px 32px 0 0; }
   .footer .logo { color: #fff; }
-  .footer-grid { display: grid; grid-template-columns: 1.35fr .7fr 1.55fr .8fr 1.05fr .8fr; gap: 26px; padding: 56px 0 36px; }
-  .footer h4 { font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.5); margin-bottom: 14px; }
-  .footer-grid ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; font-size: 14px; }
-  .footer-grid ul a { color: rgba(255,255,255,.78); transition: color .15s; }
-  .footer-grid ul a:hover { color: #fff; }
-  .f-contact li { color: rgba(255,255,255,.78); line-height: 1.45; }
-  .f-contact a[href^="mailto"] { font-size: 13px; white-space: nowrap; }
-  .muted { color: rgba(255,255,255,.6); margin-top: 14px; max-width: 38ch; font-size: 14px; }
-  .f-social { display: flex; gap: 10px; margin-top: 20px; }
-  .f-social a { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,.08); color: #fff; transition: background .2s, transform .2s; }
-  .f-social a:hover { background: var(--violet); transform: translateY(-2px); }
-  .f-social svg { width: 18px; height: 18px; }
-  @media (max-width: 1000px) { .footer-grid { grid-template-columns: 1fr 1fr 1fr; } .f-brand { grid-column: 1 / -1; } }
-  @media (max-width: 560px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+  .footer-inner {
+    display: flex;
+    justify-content: space-between;
+    gap: 32px;
+    flex-wrap: wrap;
+    padding: 48px 0 32px;
+  }
+  .muted { color: rgba(255,255,255,.6); margin-top: 10px; max-width: 42ch; }
+  .footer-nav { list-style: none; margin: 0; padding: 0; display: flex; gap: 24px; color: rgba(255,255,255,.75); }
+  .footer-nav a:hover { color: var(--violet); }
   .footer-base {
     display: flex;
     justify-content: space-between;
@@ -385,16 +338,6 @@ const footerBrands = ['Apple', 'Samsung', 'Google Pixel', 'Dell', 'HP', 'Lenovo'
     color: rgba(255,255,255,.5);
     border-top: 1px solid rgba(255,255,255,.1);
   }
-  .wa-float {
-    position: fixed; right: 18px; bottom: 84px; z-index: 60;
-    display: grid; place-items: center; width: 58px; height: 58px; border-radius: 50%;
-    background: #25d366; color: #fff; box-shadow: 0 12px 30px -8px rgba(37, 211, 102, .6);
-    transition: transform .2s;
-  }
-  .wa-float::after { content: ''; position: absolute; inset: 0; border-radius: 50%; box-shadow: 0 0 0 0 rgba(37,211,102,.5); animation: waPulse 2.4s infinite; }
-  @keyframes waPulse { 70% { box-shadow: 0 0 0 16px rgba(37,211,102,0); } 100% { box-shadow: 0 0 0 0 rgba(37,211,102,0); } }
-  .wa-float:hover { transform: scale(1.08); }
-  .wa-float svg { width: 30px; height: 30px; }
   .theme-pick { position: fixed; right: 18px; bottom: 18px; z-index: 60; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
   .theme-toggle {
     display: inline-flex; align-items: center; gap: 8px;
@@ -414,54 +357,118 @@ const footerBrands = ['Apple', 'Samsung', 'Google Pixel', 'Dell', 'HP', 'Lenovo'
   .theme-menu button:hover { background: var(--tint-2); color: var(--ink); }
   .theme-menu button[aria-pressed='true'] { background: var(--accent-soft); color: var(--ink); font-weight: 700; }
   .sw { width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, var(--a) 50%, var(--b) 50%); box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
-  /* Services dropdown — compact: device list · brand preview · footer */
-  .has-mega { position: relative; }
+  /* Services mega menu — bento grid */
+  .nav-inner { position: relative; }
   .has-mega > a { display: inline-flex; align-items: center; gap: 4px; }
   .caret { width: 14px; height: 14px; transition: transform .25s; }
   .mega {
     position: absolute;
-    top: calc(100% + 18px);
-    left: 50%;
-    width: 680px;
-    margin-left: -340px;
+    left: 0;
+    right: 0;
+    top: calc(100% + 12px);
     display: grid;
-    grid-template-columns: 270px 1fr;
+    grid-template-columns: 1.35fr 1fr 1fr 1fr;
+    grid-template-rows: 168px 168px auto;
+    gap: 10px;
+    padding: 12px;
     background: var(--surface);
     border: 1px solid var(--line);
-    border-radius: 20px;
-    box-shadow: 0 24px 60px -24px rgba(15, 27, 45, .35), var(--shadow);
+    border-radius: 28px;
+    box-shadow: 0 40px 80px -30px rgba(15, 27, 45, .4), var(--shadow);
     opacity: 0;
     visibility: hidden;
-    transform: translateY(8px) scale(.98);
+    transform: translateY(10px) scale(.985);
     transform-origin: top center;
-    transition: opacity .18s, transform .22s cubic-bezier(.2,.8,.2,1), visibility 0s .22s;
+    transition: opacity .22s, transform .22s cubic-bezier(.2,.8,.2,1), visibility 0s .22s;
     z-index: 70;
   }
-  .mega::before { content: ''; position: absolute; left: 0; right: 0; top: -20px; height: 20px; }
-  .has-mega.open .mega { opacity: 1; visibility: visible; transform: none; transition: opacity .18s, transform .22s cubic-bezier(.2,.8,.2,1); }
-  .has-mega.open .caret { transform: rotate(180deg); }
+  /* invisible bridge so the pointer can travel from the link into the panel */
+  .mega::before { content: ''; position: absolute; left: 0; right: 0; top: -16px; height: 16px; }
+  .has-mega.open .mega,
+  .has-mega:focus-within .mega { opacity: 1; visibility: visible; transform: none; transition: opacity .22s, transform .3s cubic-bezier(.2,.8,.2,1); }
+  .has-mega.open .caret, .has-mega:focus-within .caret { transform: rotate(180deg); }
   .mega ul { list-style: none; margin: 0; padding: 0; }
-  nav .d-list { display: grid; gap: 2px; align-content: start; padding: 10px; background: var(--tint); border-right: 1px solid var(--line); border-radius: 20px 0 0 0; }
-  nav .d-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; white-space: nowrap; border-radius: 10px; font-size: 14px; font-weight: 600; color: var(--ink-2); transition: background .15s, color .15s; }
-  .d-item svg.d-ico { width: 18px; height: 18px; color: var(--ink-3); flex: none; transition: color .15s; }
-  .d-item .d-go { width: 14px; height: 14px; margin-left: auto; opacity: 0; transform: translateX(-4px); transition: opacity .15s, transform .15s; }
-  nav .d-item.on { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(15,27,45,.08); }
-  .d-item.on svg.d-ico { color: var(--violet); }
-  .d-item.on .d-go { opacity: 1; transform: none; color: var(--violet); }
-  .d-panels { position: relative; padding: 18px 20px; min-height: 100%; }
-  .d-panel { display: none; }
-  .d-panel.on { display: block; animation: dIn .25s cubic-bezier(.2,.8,.2,1); }
-  @keyframes dIn { from { opacity: 0; transform: translateX(8px); } }
-  .d-panel h4 { font-size: 16px; font-weight: 800; }
-  .d-panel > p { font-size: 13px; color: var(--ink-3); margin: 2px 0 14px; }
-  nav .d-panel ul { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 10px; }
-  nav .d-panel ul a { display: block; padding: 6px 8px; margin-left: -8px; border-radius: 8px; font-size: 14px; color: var(--ink-2); transition: background .15s, color .15s; }
-  nav .d-panel ul a:hover { background: var(--tint-2); color: var(--violet); }
-  nav .d-panel .d-all { display: inline-block; margin-top: 12px; padding: 0; font-size: 13px; font-weight: 700; color: var(--violet); }
-  .d-foot { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-2); }
-  .d-foot b { color: var(--lime); }
-  nav .d-foot a { margin-left: auto; padding: 8px 14px; border-radius: 999px; background: var(--violet); color: var(--on-accent); font-weight: 700; font-size: 13px; }
-  @media (max-width: 900px) {
+
+  nav .b-tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 18px;
+    border-radius: 20px;
+    background: hsl(var(--h) 70% var(--chip-l));
+    color: var(--ink);
+    overflow: hidden;
+    transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s;
+  }
+  nav .b-tile:hover { transform: translateY(-3px); box-shadow: 0 16px 30px -18px hsl(var(--h) 60% 35% / .6); }
+  .b-ico { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--surface); color: hsl(var(--h) 65% var(--chip-ink-l)); margin-bottom: auto; }
+  .b-ico svg { width: 21px; height: 21px; }
+  .b-tile strong { font-size: 15px; font-weight: 800; letter-spacing: -.01em; margin-top: 14px; }
+  .b-tile small { font-size: 12px; line-height: 1.35; color: var(--ink-2); }
+  .b-arrow { position: absolute; right: 14px; top: 14px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); color: var(--ink); opacity: 0; transform: translate(-4px, 4px); transition: opacity .2s, transform .2s; }
+  .b-arrow svg { width: 14px; height: 14px; }
+  nav .b-tile:hover .b-arrow { opacity: 1; transform: none; }
+
+  nav .b-hero { grid-row: span 2; background: var(--grad); color: var(--on-accent); padding: 24px; }
+  .b-hero .b-ico { width: 52px; height: 52px; border-radius: 16px; background: rgba(255,255,255,.18); color: inherit; }
+  .b-hero .b-ico svg { width: 28px; height: 28px; }
+  .b-hero strong { font-size: 24px; line-height: 1.1; }
+  .b-hero small { color: inherit; opacity: .85; font-size: 13px; }
+  .b-hero .b-count { margin-top: 10px; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; opacity: .75; }
+  .b-hero::after { content: ''; position: absolute; right: -50px; top: -50px; width: 180px; height: 180px; border-radius: 50%; background: rgba(255,255,255,.12); }
+
+  nav .b-cta { background: var(--ink); color: var(--bg); }
+  .b-cta small { color: inherit; opacity: .7; }
+  .b-cta .b-ico { background: rgba(255,255,255,.12); color: inherit; }
+  .b-cta em { font-style: normal; color: var(--lime); }
+
+  .b-brands { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 12px 14px 6px; }
+  .b-brands > span { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin-right: 6px; }
+  nav .b-brands a { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); font-size: 13px; font-weight: 600; color: var(--ink-2); transition: border-color .15s, color .15s, background .15s; }
+  nav .b-brands a:hover { border-color: var(--violet); color: var(--violet); background: var(--accent-soft); }
+  /* --- motion --- */
+  .mega > * { opacity: 0; transform: translateY(14px); }
+  .has-mega.open .mega > *, .has-mega:focus-within .mega > * {
+    animation: bIn .5s cubic-bezier(.2,.8,.2,1) forwards;
+    animation-delay: calc(var(--i, 0) * 45ms + 40ms);
+  }
+  @keyframes bIn { to { opacity: 1; transform: none; } }
+  /* cursor spotlight (--mx/--my set by script) */
+  nav .b-tile::before {
+    content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,.55), transparent 60%);
+    opacity: 0; transition: opacity .25s;
+  }
+  nav .b-tile:hover::before { opacity: 1; }
+  nav .b-cta::before, nav .b-hero::before { background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,.18), transparent 60%); }
+  nav .b-tile:hover .b-ico svg { animation: bBounce .6s cubic-bezier(.3,1.6,.5,1); }
+  @keyframes bBounce { 0% { transform: scale(1) rotate(0); } 40% { transform: scale(1.22) rotate(-8deg); } 100% { transform: scale(1) rotate(0); } }
+  /* hero tile: drifting gradient, sweeping shine, floating icon */
+  nav .b-hero { background: linear-gradient(120deg, var(--violet), var(--blue), var(--violet)); background-size: 220% 220%; animation: bDrift 7s ease-in-out infinite; }
+  .has-mega.open .mega > .b-hero { animation: bIn .5s cubic-bezier(.2,.8,.2,1) forwards, bDrift 7s ease-in-out infinite; }
+  @keyframes bDrift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+  .b-hero .b-ico { animation: bFloat 3.2s ease-in-out infinite; }
+  @keyframes bFloat { 50% { transform: translateY(-7px); } }
+  .b-hero > strong::after {
+    content: ''; position: absolute; top: 0; left: -60%; width: 40%; height: 100%;
+    background: linear-gradient(100deg, transparent, rgba(255,255,255,.28), transparent);
+    transform: skewX(-18deg); animation: bShine 4.5s ease-in-out infinite; pointer-events: none;
+  }
+  @keyframes bShine { 0%, 55% { left: -60%; } 100% { left: 130%; } }
+  /* live dot on the CTA tile */
+  .b-live { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--lime); }
+  .b-live i { width: 8px; height: 8px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 0 0 rgba(18,161,80,.6); animation: bPulse 1.8s infinite; }
+  @keyframes bPulse { 70% { box-shadow: 0 0 0 9px rgba(18,161,80,0); } 100% { box-shadow: 0 0 0 0 rgba(18,161,80,0); } }
+  .b-cta strong { margin-top: 4px; }
+  /* scrolling brands */
+  .b-brands { flex-wrap: nowrap; }
+  .b-marquee { flex: 1; overflow: hidden; mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
+  .b-track { display: flex; gap: 8px; width: max-content; animation: bMarquee 28s linear infinite; }
+  .b-brands:hover .b-track { animation-play-state: paused; }
+  @keyframes bMarquee { to { transform: translateX(calc(-50% - 4px)); } }
+  nav .b-track a { white-space: nowrap; }
+  @media (prefers-reduced-motion: reduce) { .mega > * { opacity: 1; transform: none; } }  @media (max-width: 900px) {
     .mega { display: none; }
     .caret { display: none; }
   }
