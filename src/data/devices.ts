@@ -33,7 +33,7 @@ export const categories: Category[] = [
     short: 'Glass, batteries and charging faults',
     icon: 'tablet',
     hue: 200,
-    issues: ['Screen / glass', 'Battery replacement', 'Charging port', 'Buttons', 'Software & data'],
+    issues: ['Screen / glass', 'Display / touch not working', 'Battery replacement', 'Charging port', 'Buttons', 'Software & data'],
     brands: [
       { id: 'ipad', name: 'Apple iPad', hue: 210, models: ['iPad Pro 13" (M4)', 'iPad Pro 11" (M4)', 'iPad Air 13" (M3)', 'iPad Air 11" (M3)', 'iPad (A16)', 'iPad 10th gen', 'iPad 9th gen', 'iPad mini (A17 Pro)', 'iPad mini 6'] },
       { id: 'galaxy-tab', name: 'Samsung Galaxy Tab', hue: 230, models: ['Galaxy Tab S10 Ultra', 'Galaxy Tab S10+', 'Galaxy Tab S9 FE', 'Galaxy Tab S9', 'Galaxy Tab A9+', 'Galaxy Tab A9'] },

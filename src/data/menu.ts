@@ -12,6 +12,7 @@ export const issueNotes: Record<string, string> = {
   'Software & data': 'OS update and troubleshooting',
   'Screen / glass': 'Cracked glass or display',
   Buttons: 'Power and volume keys',
+  'Display / touch not working': 'Lines, dead pixels, no touch',
   'Keyboard / trackpad': 'Keys, backlight, trackpad',
   'Hinge repair': 'Loose or broken hinges',
   'Not powering on': 'No power, no display',
