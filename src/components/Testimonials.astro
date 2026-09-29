@@ -26,24 +26,40 @@ const cols = [0, 1, 2].map((k) => reviews.map((r, i) => ({ r, i })).filter(({ i 
         <a href="/services#book" class="btn btn-primary">Book a repair</a>
       </div>
     </div>
-    <div class="wall">
-      {cols.map((col, k) => (
-        <div class:list={['wcol', `wcol-${k}`]}>
-          <div class="wtrack">
-            {[...col, ...col].map(({ r, i }, n) => (
-              <figure class:list={['wc', { hero: i === 0 }]} aria-hidden={n >= col.length ? 'true' : undefined}>
-                <div class="wc-top">
-                  <span class="wc-tag">{r.service}</span>
-                  <span class="st">{stars(r.rating).map((on) => <svg viewBox="0 0 24 24" class:list={[{ off: !on }]} set:html={star} />)}</span>
-                </div>
-                <blockquote>“{r.text}”</blockquote>
-                <figcaption><span class="av">{r.area[0]}</span><span><b>{r.name}</b><small>{r.area}</small></span></figcaption>
-              </figure>
-            ))}
+    <div class="fwall" data-fwall>
+      <div class="feat">
+        {reviews.map((r, i) => (
+          <figure class:list={['wc', 'hero', 'fq', { on: i === 0 }]} data-fq={i}>
+            <div class="wc-top">
+              <span class="wc-tag">{r.service}</span>
+              <span class="st">{stars(r.rating).map((on) => <svg viewBox="0 0 24 24" class:list={[{ off: !on }]} set:html={star} />)}</span>
+            </div>
+            <blockquote>“{r.text}”</blockquote>
+            <figcaption><span class="av">{r.area[0]}</span><span><b>{r.name}</b><small>{r.area}</small></span></figcaption>
+          </figure>
+        ))}
+        <div class="feat-bar"><i data-fbar></i></div>
+      </div>
+      <div class="flipgrid">
+        {[1, 2, 3, 4].map((start, k) => (
+          <div class="slot" data-slot={k}>
+            <div class="slot-in">
+              {reviews.map((r, i) => (
+                <figure class:list={['wc', 'fc', { on: i === start }]} data-fc={i}>
+                  <div class="wc-top">
+                    <span class="wc-tag">{r.service}</span>
+                    <span class="st">{stars(r.rating).map((on) => <svg viewBox="0 0 24 24" class:list={[{ off: !on }]} set:html={star} />)}</span>
+                  </div>
+                  <blockquote>“{r.text}”</blockquote>
+                  <figcaption><span class="av">{r.area[0]}</span><span><b>{r.name}</b><small>{r.area}</small></span></figcaption>
+                </figure>
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
+  </div>
   </div>
 </div>
 
@@ -119,25 +135,27 @@ const cols = [0, 1, 2].map((k) => reviews.map((r, i) => ({ r, i })).filter(({ i 
   .w-head { display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap; margin-bottom: 36px; }
   .w-head h2 { margin-top: 12px; }
   .w-side { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-  .wall {
-    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px;
-    height: 640px; overflow: hidden;
-    mask-image: linear-gradient(transparent, #000 12%, #000 88%, transparent);
-  }
-  .wcol { min-width: 0; }
-  .wtrack { display: flex; flex-direction: column; gap: 20px; animation: wUp 32s linear infinite; }
-  .wcol-1 .wtrack { animation-name: wDown; animation-duration: 38s; }
-  .wcol-2 .wtrack { animation-duration: 28s; }
-  .wall:hover .wtrack { animation-play-state: paused; }
-  @keyframes wUp { from { transform: translateY(0); } to { transform: translateY(calc(-50% - 10px)); } }
-  @keyframes wDown { from { transform: translateY(calc(-50% - 10px)); } to { transform: translateY(0); } }
-  @media (max-width: 900px) {
-    .wall { grid-template-columns: 1fr 1fr; height: 560px; }
-    .wcol-2 { display: none; }
-  }
-  @media (max-width: 560px) { .wall { grid-template-columns: 1fr; } .wcol-1 { display: none; } }
-  @media (prefers-reduced-motion: reduce) { .wtrack { animation: none; } .wall { height: auto; mask-image: none; } }
-  .wc { position: relative; overflow: hidden; margin: 0; padding: 26px; display: grid; gap: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 24px; box-shadow: var(--shadow); transition: transform .3s, box-shadow .3s; }
+  .fwall { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 20px; }
+  .feat { position: relative; display: grid; }
+  .fq { grid-area: 1 / 1; opacity: 0; transform: scale(.97); transition: opacity .7s, transform .9s cubic-bezier(.2,.8,.2,1); pointer-events: none; }
+  .fq.on { opacity: 1; transform: none; pointer-events: auto; }
+  .feat .wc.hero blockquote { font-size: clamp(22px, 2.2vw, 30px); }
+  .feat-bar { position: absolute; left: 30px; right: 30px; bottom: 22px; height: 3px; border-radius: 3px; background: rgba(255,255,255,.2); overflow: hidden; z-index: 2; }
+  .feat-bar i { display: block; height: 100%; width: 0; background: #fff; }
+  .feat-bar i.run { animation: fbar var(--fms, 7000ms) linear forwards; }
+  .fwall.paused .feat-bar i.run { animation-play-state: paused; }
+  @keyframes fbar { to { width: 100%; } }
+  .feat .wc.hero { padding-bottom: 48px; }
+  .flipgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .slot { perspective: 1200px; display: grid; }
+  .slot-in { display: grid; transform-style: preserve-3d; transition: transform .38s cubic-bezier(.4,0,.2,1); }
+  .slot.flip .slot-in { transform: rotateX(90deg); }
+  .fc { grid-area: 1 / 1; visibility: hidden; }
+  .fc.on { visibility: visible; }
+  .fc blockquote { font-size: 15px !important; }
+  @media (max-width: 900px) { .fwall { grid-template-columns: 1fr; } }
+  @media (max-width: 560px) { .flipgrid { grid-template-columns: 1fr; } }
+  @media (prefers-reduced-motion: reduce) { .slot-in, .fq { transition: none; } }  .wc { position: relative; overflow: hidden; margin: 0; padding: 26px; display: grid; gap: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 24px; box-shadow: var(--shadow); transition: transform .3s, box-shadow .3s; }
   .wc:hover { transform: translateY(-5px) rotate(-.4deg); box-shadow: 0 30px 50px -30px rgba(15,27,45,.45); }
   .wc-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
   .wc-tag { padding: 5px 11px; border-radius: 999px; background: var(--accent-soft); color: var(--violet); font-size: 12px; font-weight: 700; }
@@ -194,6 +212,44 @@ const cols = [0, 1, 2].map((k) => reviews.map((r, i) => ({ r, i })).filter(({ i 
 </style>
 
 <script>
+  // Review wall: featured card cross-fades; the 2×2 grid flips one card at a time.
+  const fw = document.querySelector<HTMLElement>('[data-fwall]');
+  if (fw) {
+    const n = fw.querySelectorAll('[data-fq]').length;
+    const slots = [...fw.querySelectorAll<HTMLElement>('[data-slot]')];
+    const bar = fw.querySelector<HTMLElement>('[data-fbar]')!;
+    let feat = 0;
+    const shown = [1, 2, 3, 4];
+    let turn = 0, timer = 0, paused = false;
+    const FLIP = 2400, FEAT_EVERY = 3;
+    fw.style.setProperty('--fms', `${FLIP * FEAT_EVERY}ms`);
+    const spare = () => [...Array(n).keys()].find((i) => i !== feat && !shown.includes(i))!;
+    const restartBar = () => { bar.classList.remove('run'); void bar.offsetWidth; bar.classList.add('run'); };
+    const setFeat = (i: number) => {
+      feat = i;
+      fw.querySelectorAll<HTMLElement>('[data-fq]').forEach((q) => q.classList.toggle('on', Number(q.dataset.fq) === i));
+      restartBar();
+    };
+    const flipSlot = (k: number, to: number) => {
+      const s = slots[k];
+      s.classList.add('flip');
+      setTimeout(() => {
+        s.querySelectorAll<HTMLElement>('[data-fc]').forEach((f) => f.classList.toggle('on', Number(f.dataset.fc) === to));
+        s.classList.remove('flip');
+      }, 380);
+      shown[k] = to;
+    };
+    const tick = () => {
+      turn++;
+      if (turn % FEAT_EVERY === 0) setFeat(spare());
+      else flipSlot(turn % slots.length, spare());
+      timer = window.setTimeout(tick, FLIP);
+    };
+    fw.addEventListener('pointerenter', () => { paused = true; fw.classList.add('paused'); clearTimeout(timer); });
+    fw.addEventListener('pointerleave', () => { paused = false; fw.classList.remove('paused'); timer = window.setTimeout(tick, 900); });
+    restartBar();
+    timer = window.setTimeout(tick, FLIP);
+  }
   const spot = document.querySelector<HTMLElement>('[data-spot]');
   if (spot) {
     const qs = [...spot.querySelectorAll<HTMLElement>('[data-sq]')];
