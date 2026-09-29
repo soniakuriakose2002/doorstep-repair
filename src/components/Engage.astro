@@ -7,6 +7,8 @@
 // Each shows at most once per browser session, and never on top of another popup.
 import { site, price } from '../data/site';
 import { categories, iconPaths } from '../data/devices';
+import DeviceArt from './DeviceArt.astro';
+import { artFor } from '../data/menu';
 const label: Record<string, string> = { mobile: 'Mobile repair', laptop: 'Laptop repair', printer: 'Printer repair', cctv: 'CCTV installation', network: 'Wi-Fi & networking', data: 'Data recovery' };
 
 const tel = site.phone.tel.replace('+', '');
@@ -29,9 +31,15 @@ const pitch: Record<string, string> = {
     <h2 id="ig-title">Book your slot</h2>
     <div class="ig-slider">
       {slides.map((c, i) => (
-        <div class:list={['ig-slide', { on: i === 0 }]} data-slide={i}>
-          <span class="ig-circle" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" set:html={iconPaths[c.icon]} /></span>
+        <div class:list={['ig-slide', { on: i === 0 }]} data-slide={i} style={`--h:${c.hue}`}>
+          <span class="ig-blob b1"></span><span class="ig-blob b2"></span>
+          <span class="ig-circle" aria-hidden="true">
+            <span class="ig-orbit o1"><i></i></span><span class="ig-orbit o2"><i></i></span>
+            <span class="ig-art"><DeviceArt kind={artFor[c.id]} /></span>
+            {[0,1,2,3,4].map((k) => <span class="ig-spark" style={`--k:${k}`}>✦</span>)}
+          </span>
           <div class="ig-txt">
+            <span class="ig-tag">{String(i + 1).padStart(2, '0')} / {String(slides.length).padStart(2, '0')}</span>
             <b>{label[c.id]}</b>
             <p>{pitch[c.id]}</p>
             <a class="ig-go" target="_blank" rel="noopener" href={`https://wa.me/${tel}?text=${encodeURIComponent(`Hi Danat, I want to book a ${label[c.id].toLowerCase()}.`)}`}><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg> Book {label[c.id].toLowerCase()}</a>
@@ -41,6 +49,7 @@ const pitch: Record<string, string> = {
       <button type="button" class="ig-arrow prev" data-prev aria-label="Previous">‹</button>
       <button type="button" class="ig-arrow next" data-next aria-label="Next">›</button>
     </div>
+    <div class="ig-prog"><i data-prog></i></div>
     <div class="ig-dots">{slides.map((_, i) => <button type="button" data-dot={i} class:list={[{ on: i === 0 }]} aria-label={`Slide ${i + 1}`}></button>)}</div>
     <form class="ig-quick" data-quick>
       <label for="ig-contact">Your phone or email</label>
@@ -87,7 +96,8 @@ const pitch: Record<string, string> = {
       slides.forEach((s, k) => s.classList.toggle('on', k === cur));
       dots.forEach((d, k) => d.classList.toggle('on', k === cur));
       clearTimeout(slideT);
-      slideT = window.setTimeout(() => go(cur + 1), 3200);
+      slideT = window.setTimeout(() => go(cur + 1), 3600);
+      const pb = idle.querySelector<HTMLElement>('[data-prog]')!; pb.classList.remove('run'); void pb.offsetWidth; pb.classList.add('run');
     };
     dots.forEach((d, k) => d.addEventListener('click', () => go(k)));
     idle.querySelector('[data-prev]')!.addEventListener('click', () => go(cur - 1));
@@ -155,26 +165,45 @@ const pitch: Record<string, string> = {
   .ig.in .ig-card { transform: none; opacity: 1; }
   .ig-x { position: absolute; right: 16px; top: 16px; z-index: 2; width: 36px; height: 36px; border: 0; border-radius: 50%; background: var(--tint-2); color: var(--ink); font-size: 20px; line-height: 1; }
   .ig-card h2 { font-size: 28px; margin: 4px 0 18px; }
-  .ig-slider { position: relative; display: grid; height: 226px; border-radius: 20px; overflow: hidden;
-    background: radial-gradient(circle at 25% 50%, color-mix(in srgb, var(--violet) 70%, #000) 0, transparent 60%), linear-gradient(135deg, color-mix(in srgb, var(--violet) 55%, #000), color-mix(in srgb, var(--violet) 25%, #000)); }
-  .ig-slide { grid-area: 1 / 1; display: grid; grid-template-columns: 170px 1fr; align-items: center; gap: 18px; padding: 0 44px 0 30px; color: #fff; opacity: 0; transform: translateX(24px); transition: opacity .45s, transform .55s cubic-bezier(.2,.8,.2,1); pointer-events: none; }
+  .ig-slider { position: relative; display: grid; height: 250px; border-radius: 22px; overflow: hidden; background: #0b1510; }
+  .ig-slide { grid-area: 1 / 1; position: relative; display: grid; grid-template-columns: 190px 1fr; align-items: center; gap: 16px; padding: 0 48px 0 26px; color: #fff; overflow: hidden;
+    background: linear-gradient(125deg, hsl(var(--h) 55% 22%), hsl(var(--h) 60% 12%) 60%, hsl(calc(var(--h) + 40) 50% 16%));
+    opacity: 0; transform: scale(1.06); transition: opacity .6s, transform .9s cubic-bezier(.2,.8,.2,1); pointer-events: none; }
   .ig-slide.on { opacity: 1; transform: none; pointer-events: auto; }
-  .ig-circle { position: relative; display: grid; place-items: center; width: 140px; height: 140px; border-radius: 50%; background: color-mix(in srgb, var(--violet) 60%, #fff 8%); color: #fff; }
-  .ig-circle::before { content: ''; position: absolute; inset: -22px; border-radius: 50%; border: 1px dashed rgba(255,255,255,.28); animation: igSpin 18s linear infinite; }
+  .ig-blob { position: absolute; border-radius: 50%; filter: blur(40px); opacity: .55; pointer-events: none; }
+  .b1 { width: 220px; height: 220px; left: -40px; top: -60px; background: hsl(var(--h) 80% 50%); animation: igDrift 7s ease-in-out infinite alternate; }
+  .b2 { width: 180px; height: 180px; right: -30px; bottom: -70px; background: hsl(calc(var(--h) + 60) 80% 55%); animation: igDrift 9s ease-in-out infinite alternate-reverse; }
+  @keyframes igDrift { to { transform: translate(40px, 30px) scale(1.2); } }
+  .ig-orbit { position: absolute; inset: 0; border-radius: 50%; border: 1.5px dashed rgba(255,255,255,.3); animation: igSpin 10s linear infinite; }
+  .o2 { inset: 22px; border-style: solid; border-color: rgba(255,255,255,.14); animation-duration: 6s; animation-direction: reverse; }
+  .ig-orbit i { position: absolute; top: -5px; left: 50%; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: #fff; box-shadow: 0 0 12px #fff, 0 0 24px hsl(var(--h) 90% 60%); }
   @keyframes igSpin { to { transform: rotate(360deg); } }
-  .ig-circle svg { width: 64px; height: 64px; }
-  .ig-slide.on .ig-circle svg { animation: igPop .6s cubic-bezier(.3,1.6,.5,1); }
-  @keyframes igPop { from { transform: scale(.6); opacity: 0; } }
-  .ig-txt { display: grid; gap: 8px; justify-items: start; }
-  .ig-txt b { font-family: var(--display); font-size: 26px; line-height: 1.1; }
-  .ig-txt p { font-size: 14px; color: rgba(255,255,255,.82); line-height: 1.45; }
-  .ig-go { display: inline-flex; align-items: center; gap: 8px; margin-top: 4px; padding: 10px 16px; border-radius: 10px; background: #25d366; color: #fff; font-weight: 700; font-size: 14px; transition: transform .2s; }
-  .ig-go:hover { transform: translateY(-2px); }
-  .ig-go svg { width: 16px; height: 16px; }
-  .ig-arrow { position: absolute; top: 50%; z-index: 2; width: 34px; height: 34px; margin-top: -17px; border: 0; border-radius: 50%; background: rgba(255,255,255,.18); color: #fff; font-size: 22px; line-height: 1; backdrop-filter: blur(4px); transition: background .2s; }
+  .ig-art { position: relative; width: 130px; height: 130px; animation: igFloat 3s ease-in-out infinite; filter: drop-shadow(0 14px 18px rgba(0,0,0,.45)); }
+  @keyframes igFloat { 50% { transform: translateY(-10px) rotate(-3deg); } }
+  .ig-slide.on .ig-art { animation: igIn .8s cubic-bezier(.3,1.5,.5,1) both, igFloat 3s ease-in-out .8s infinite; }
+  @keyframes igIn { from { opacity: 0; transform: scale(.4) rotate(-20deg); } }
+  .ig-spark { position: absolute; color: #fff6c4; font-size: 12px; opacity: 0; left: calc(10% + var(--k) * 20%); top: calc(15% + (var(--k) * 37%) - (var(--k) * var(--k) * 6%)); animation: igTw 2.4s ease-in-out infinite; animation-delay: calc(var(--k) * .45s); }
+  @keyframes igTw { 50% { opacity: 1; transform: scale(1.4) rotate(45deg); } }
+  .ig-slide.on .ig-txt > * { animation: igUp .6s cubic-bezier(.2,.8,.2,1) both; }
+  .ig-slide.on .ig-txt > :nth-child(2) { animation-delay: .08s; } .ig-slide.on .ig-txt > :nth-child(3) { animation-delay: .16s; } .ig-slide.on .ig-txt > :nth-child(4) { animation-delay: .24s; }
+  @keyframes igUp { from { opacity: 0; transform: translateY(16px); } }
+  .ig-tag { font-size: 11px; font-weight: 800; letter-spacing: .14em; color: hsl(var(--h) 90% 80%); }
+  .ig-go::after { content: ''; position: absolute; top: 0; left: -60%; width: 40%; height: 100%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.5), transparent); transform: skewX(-20deg); animation: igShine 2.6s ease-in-out infinite; }
+  @keyframes igShine { 0%, 50% { left: -60%; } 100% { left: 140%; } }
+  .ig-prog { height: 3px; margin-top: 12px; border-radius: 3px; background: var(--line); overflow: hidden; }
+  .ig-prog i { display: block; height: 100%; width: 0; background: var(--violet); }
+  .ig-prog i.run { animation: igProg 3.6s linear forwards; }
+  @keyframes igProg { to { width: 100%; } }
+  .ig-card:hover .ig-prog i.run { animation-play-state: paused; }  .ig-circle { position: relative; z-index: 1; display: grid; place-items: center; width: 170px; height: 170px; }
+  .ig-txt { position: relative; z-index: 1; display: grid; gap: 8px; justify-items: start; }
+  .ig-txt b { font-family: var(--display); font-size: 28px; line-height: 1.05; }
+  .ig-txt p { font-size: 14px; color: rgba(255,255,255,.8); line-height: 1.45; }
+  .ig-go { display: inline-flex; align-items: center; gap: 8px; margin-top: 4px; padding: 11px 18px; border-radius: 999px; background: #25d366; color: #fff; font-weight: 700; font-size: 14px; box-shadow: 0 10px 24px -8px rgba(37,211,102,.8); position: relative; overflow: hidden; transition: transform .2s; }
+  .ig-go:hover { transform: translateY(-2px) scale(1.03); }
+  .ig-go svg { width: 16px; height: 16px; flex: none; }  .ig-arrow { position: absolute; top: 50%; z-index: 2; width: 34px; height: 34px; margin-top: -17px; border: 0; border-radius: 50%; background: rgba(255,255,255,.18); color: #fff; font-size: 22px; line-height: 1; backdrop-filter: blur(4px); transition: background .2s; }
   .ig-arrow:hover { background: rgba(255,255,255,.32); }
   .ig-arrow.prev { left: 10px; } .ig-arrow.next { right: 10px; }
-  .ig-dots { display: flex; justify-content: center; gap: 6px; margin: 14px 0 18px; }
+  .ig-dots { display: flex; justify-content: center; gap: 6px; margin: 12px 0 18px; }
   .ig-dots button { width: 7px; height: 7px; padding: 0; border: 0; border-radius: 999px; background: var(--line); transition: width .3s, background .3s; }
   .ig-dots button.on { width: 22px; background: var(--violet); }
   .ig-quick label { display: block; font-weight: 700; font-size: 14.5px; margin-bottom: 8px; }
