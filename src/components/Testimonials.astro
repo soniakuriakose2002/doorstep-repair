@@ -27,21 +27,8 @@ const cols = [0, 1, 2].map((k) => reviews.map((r, i) => ({ r, i })).filter(({ i 
       </div>
     </div>
     <div class="fwall" data-fwall>
-      <div class="feat">
-        {reviews.map((r, i) => (
-          <figure class:list={['wc', 'hero', 'fq', { on: i === 0 }]} data-fq={i}>
-            <div class="wc-top">
-              <span class="wc-tag">{r.service}</span>
-              <span class="st">{stars(r.rating).map((on) => <svg viewBox="0 0 24 24" class:list={[{ off: !on }]} set:html={star} />)}</span>
-            </div>
-            <blockquote>“{r.text}”</blockquote>
-            <figcaption><span class="av">{r.area[0]}</span><span><b>{r.name}</b><small>{r.area}</small></span></figcaption>
-          </figure>
-        ))}
-        <div class="feat-bar"><i data-fbar></i></div>
-      </div>
       <div class="flipgrid">
-        {[1, 2, 3, 4].map((start, k) => (
+        {[0, 1, 2].map((start, k) => (
           <div class="slot" data-slot={k}>
             <div class="slot-in">
               {reviews.map((r, i) => (
@@ -135,7 +122,7 @@ const cols = [0, 1, 2].map((k) => reviews.map((r, i) => ({ r, i })).filter(({ i 
   .w-head { display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap; margin-bottom: 36px; }
   .w-head h2 { margin-top: 12px; }
   .w-side { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-  .fwall { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 20px; }
+  .fwall { display: block; }
   .feat { position: relative; display: grid; }
   .fq { grid-area: 1 / 1; opacity: 0; transform: scale(.97); transition: opacity .7s, transform .9s cubic-bezier(.2,.8,.2,1); pointer-events: none; }
   .fq.on { opacity: 1; transform: none; pointer-events: auto; }
@@ -146,14 +133,14 @@ const cols = [0, 1, 2].map((k) => reviews.map((r, i) => ({ r, i })).filter(({ i 
   .fwall.paused .feat-bar i.run { animation-play-state: paused; }
   @keyframes fbar { to { width: 100%; } }
   .feat .wc.hero { padding-bottom: 48px; }
-  .flipgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .flipgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
   .slot { perspective: 1200px; display: grid; }
   .slot-in { display: grid; transform-style: preserve-3d; transition: transform .38s cubic-bezier(.4,0,.2,1); }
   .slot.flip .slot-in { transform: rotateX(90deg); }
   .fc { grid-area: 1 / 1; visibility: hidden; }
   .fc.on { visibility: visible; }
   .fc blockquote { font-size: 15px !important; }
-  @media (max-width: 900px) { .fwall { grid-template-columns: 1fr; } }
+  @media (max-width: 900px) { .flipgrid { grid-template-columns: 1fr 1fr; } .slot:nth-child(3) { display: none; } }
   @media (max-width: 560px) { .flipgrid { grid-template-columns: 1fr; } }
   @media (prefers-reduced-motion: reduce) { .slot-in, .fq { transition: none; } }  .wc { position: relative; overflow: hidden; margin: 0; padding: 26px; display: grid; gap: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 24px; box-shadow: var(--shadow); transition: transform .3s, box-shadow .3s; }
   .wc:hover { transform: translateY(-5px) rotate(-.4deg); box-shadow: 0 30px 50px -30px rgba(15,27,45,.45); }
@@ -212,25 +199,18 @@ const cols = [0, 1, 2].map((k) => reviews.map((r, i) => ({ r, i })).filter(({ i 
 </style>
 
 <script>
-  // Review wall: featured card cross-fades; the 2×2 grid flips one card at a time.
+  // Review wall: three cards, one flips to a new review every few seconds.
   const fw = document.querySelector<HTMLElement>('[data-fwall]');
   if (fw) {
-    const n = fw.querySelectorAll('[data-fq]').length;
     const slots = [...fw.querySelectorAll<HTMLElement>('[data-slot]')];
-    const bar = fw.querySelector<HTMLElement>('[data-fbar]')!;
-    let feat = 0;
-    const shown = [1, 2, 3, 4];
-    let turn = 0, timer = 0, paused = false;
-    const FLIP = 2400, FEAT_EVERY = 3;
-    fw.style.setProperty('--fms', `${FLIP * FEAT_EVERY}ms`);
-    const spare = () => [...Array(n).keys()].find((i) => i !== feat && !shown.includes(i))!;
-    const restartBar = () => { bar.classList.remove('run'); void bar.offsetWidth; bar.classList.add('run'); };
-    const setFeat = (i: number) => {
-      feat = i;
-      fw.querySelectorAll<HTMLElement>('[data-fq]').forEach((q) => q.classList.toggle('on', Number(q.dataset.fq) === i));
-      restartBar();
-    };
-    const flipSlot = (k: number, to: number) => {
+    const n = slots[0].querySelectorAll('[data-fc]').length;
+    const shown = slots.map((_, k) => k);
+    let turn = 0, timer = 0;
+    const EVERY = 3000;
+    const tick = () => {
+      const k = turn++ % slots.length;
+      const spare = [...Array(n).keys()].filter((i) => !shown.includes(i));
+      const to = spare[Math.floor(Math.random() * spare.length)];
       const s = slots[k];
       s.classList.add('flip');
       setTimeout(() => {
@@ -238,17 +218,11 @@ const cols = [0, 1, 2].map((k) => reviews.map((r, i) => ({ r, i })).filter(({ i 
         s.classList.remove('flip');
       }, 380);
       shown[k] = to;
+      timer = window.setTimeout(tick, EVERY);
     };
-    const tick = () => {
-      turn++;
-      if (turn % FEAT_EVERY === 0) setFeat(spare());
-      else flipSlot(turn % slots.length, spare());
-      timer = window.setTimeout(tick, FLIP);
-    };
-    fw.addEventListener('pointerenter', () => { paused = true; fw.classList.add('paused'); clearTimeout(timer); });
-    fw.addEventListener('pointerleave', () => { paused = false; fw.classList.remove('paused'); timer = window.setTimeout(tick, 900); });
-    restartBar();
-    timer = window.setTimeout(tick, FLIP);
+    fw.addEventListener('pointerenter', () => clearTimeout(timer));
+    fw.addEventListener('pointerleave', () => { clearTimeout(timer); timer = window.setTimeout(tick, 900); });
+    timer = window.setTimeout(tick, EVERY);
   }
   const spot = document.querySelector<HTMLElement>('[data-spot]');
   if (spot) {
