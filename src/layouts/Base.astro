@@ -4,6 +4,7 @@ import { site, nav, price } from '../data/site';
 import MegaMenu from '../components/MegaMenu.astro';
 import Popups from '../components/Popups.astro';
 import Engage from '../components/Engage.astro';
+import ChatBot from '../components/ChatBot.astro';
 
 interface Props {
   title?: string;
@@ -47,6 +48,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
   <body>
     <Popups />
     <Engage />
+    <ChatBot />
     <div class="aurora" aria-hidden="true">
       <span class="orb o1"></span>
       <span class="grid"></span>

@@ -5,6 +5,11 @@ import HeroSearch from '../components/HeroSearch.astro';
 import DeviceArt from '../components/DeviceArt.astro';
 import { artFor, note } from '../data/menu';
 
+// Real repair photos supplied by the client (public/media/repairs). Others fall back to the illustration.
+const photo: Record<string, string> = {
+  'mobile:Screen replacement': 'screen', 'mobile:Battery replacement': 'battery', 'mobile:Charging port': 'charging',
+  'mobile:Back glass': 'backglass', 'mobile:Speaker / microphone': 'speaker', 'mobile:Water damage': 'water', 'mobile:Software & data': 'software',
+};
 const heroCopy: Record<string, [string, string]> = {
   mobile: ['Keep Your Phone Working Like New', 'Screen, battery, charging, camera and more – quick and reliable service.'],
   tablet: ['Your Tablet, Good as New', 'Cracked glass, batteries and charging faults fixed fast.'],
@@ -130,7 +135,7 @@ const angles = [
               <div class="bk-grid" role="radiogroup" aria-label={`Services for ${c.name}`}>
                 {c.issues.map((iss, i) => (
                   <button type="button" role="radio" class="bk-card" aria-checked={i === 0 ? 'true' : 'false'} data-name={iss} data-wa={wa(`Hi Danat, I want to book a ${iss} service for my ${c.name.replace(/ &.*$/, '').replace(/s$/, '').toLowerCase()}.`)}>
-                    <span class="bk-pic"><span class="bk-pic-art"><DeviceArt kind={artFor[c.id]} /></span><span class="bk-badge" set:html={`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${issueIcon(iss)}</svg>`} /></span>
+                    <span class:list={['bk-pic', { photo: photo[`${c.id}:${iss}`] }]}>{photo[`${c.id}:${iss}`] ? <img src={`/media/repairs/${photo[`${c.id}:${iss}`]}.jpg`} alt={iss} loading="lazy" width="360" height="200" /> : <span class="bk-pic-art"><DeviceArt kind={artFor[c.id]} /></span>}<span class="bk-badge" set:html={`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${issueIcon(iss)}</svg>`} /></span>
                     <b>{iss}</b>
                     <small>{note(iss)}</small>
                     <span class="bk-foot"><span>From <em>{price()}</em></span><span class="bk-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></span>
@@ -668,11 +673,14 @@ const angles = [
   .bk-card { display: flex; flex-direction: column; gap: 4px; padding: 10px 10px 14px; border: 1.5px solid var(--line); border-radius: 18px; background: var(--surface); text-align: left; transition: border-color .2s, transform .25s, box-shadow .25s; }
   .bk-card:hover { transform: translateY(-4px); box-shadow: 0 18px 30px -20px rgba(0,0,0,.4); }
   .bk-card[aria-checked='true'] { border-color: var(--g); box-shadow: 0 0 0 3px rgba(31,138,76,.12); }
-  .bk-pic { position: relative; display: grid; place-items: center; height: 96px; margin-bottom: 8px; border-radius: 12px; background: linear-gradient(160deg, hsl(var(--h) 60% 96%), hsl(var(--h) 55% 90%)); overflow: hidden; }
+  .bk-pic { position: relative; display: grid; place-items: center; height: 118px; margin-bottom: 8px; border-radius: 12px; background: linear-gradient(160deg, hsl(var(--h) 60% 96%), hsl(var(--h) 55% 90%)); overflow: hidden; }
   .bk-card[aria-checked='true'] .bk-pic { background: linear-gradient(160deg, #eef8f0, #d7efdd); }
+  .bk-pic.photo { background: #111; }
+  .bk-pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .45s cubic-bezier(.2,.8,.2,1); }
+  .bk-card:hover .bk-pic img { transform: scale(1.08); }
   .bk-pic-art { width: 110px; height: 110px; margin-top: 18px; transition: transform .35s; }
   .bk-card:hover .bk-pic-art { transform: scale(1.08) rotate(-3deg); }
-  .bk-badge { position: absolute; left: 8px; top: 8px; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; background: #fff; color: hsl(var(--h) 60% 40%); box-shadow: 0 4px 10px -4px rgba(0,0,0,.25); }
+  .bk-badge { position: absolute; z-index: 1; left: 8px; top: 8px; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; background: #fff; color: hsl(var(--h) 60% 40%); box-shadow: 0 4px 10px -4px rgba(0,0,0,.25); }
   .bk-badge :global(svg) { width: 18px; height: 18px; }
   .bk-card > b { font-size: 15.5px; color: var(--ink); padding: 0 4px; }
   .bk-card > small { font-size: 12.5px; color: var(--ink-3); padding: 0 4px; }
