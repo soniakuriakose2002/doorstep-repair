@@ -150,12 +150,14 @@ const perks: Record<string, string[]> = {
       dots.forEach((d, k) => d.classList.toggle('on', k === cur));
       thumbs.forEach((d, k) => d.classList.toggle('on', k === cur));
       clearTimeout(slideT);
-      slideT = window.setTimeout(() => go(cur + 1), 4500);
+      slideT = window.setTimeout(() => go(cur + 1), 3500);
     };
     dots.forEach((d, k) => d.addEventListener('click', () => go(k)));
     thumbs.forEach((d, k) => d.addEventListener('click', () => go(k)));
-    idle.querySelector('.ig-card')!.addEventListener('pointerenter', () => clearTimeout(slideT));
-    idle.querySelector('.ig-card')!.addEventListener('pointerleave', () => { if (!idle.hidden) go(cur); });
+    // Keep sliding; pause only while the visitor is typing in the form.
+    const form = idle.querySelector('.ig-form')!;
+    form.addEventListener('focusin', () => clearTimeout(slideT));
+    form.addEventListener('focusout', () => { if (!idle.hidden) go(cur); });
 
     // contact mode tabs
     let mode = 'phone';
