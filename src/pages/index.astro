@@ -2,6 +2,8 @@
 import Base from '../layouts/Base.astro';
 import MediaFrame from '../components/MediaFrame.astro';
 import HeroSearch from '../components/HeroSearch.astro';
+import DeviceArt from '../components/DeviceArt.astro';
+import { artFor } from '../data/menu';
 import { reviews, sample } from '../data/reviews';
 import Testimonials from '../components/Testimonials.astro';
 import { serviceModes, price, site } from '../data/site';
@@ -63,29 +65,45 @@ const angles = [
           <span class="eyebrow" data-reveal>Book a service</span>
           <h2 class="h-lg" data-reveal style="--d:.06s">Pick a service, book on WhatsApp</h2>
         </div>
-        <p class="bs-note" data-reveal>Tap <b>Book</b> — WhatsApp opens with your message ready. Just press send.</p>
+        <p class="bs-note" data-reveal>Choose your device and repair — WhatsApp opens with your message ready.</p>
       </div>
-      <div class="sg">
-        {categories.map((c, k) => (
-          <article class="sg-card" style={`--h:${c.hue}; --d:${(k % 3) * .06}s`} data-reveal>
-            <header class="sg-head">
-              <span class="sg-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" set:html={iconPaths[c.icon]} /></span>
-              <h3>{c.name}</h3>
-            </header>
-            <ul>
-              {homeServices.filter((s) => s.cat === c.id).map((s) => (
-                <li>
-                  <a href={s.wa} target="_blank" rel="noopener" class="sg-row">
-                    <span class="sg-name">{s.name}</span>
-                    <span class="sg-price">{s.from}</span>
-                    <span class="sg-go">Book</span>
-                    <span class="sg-wa"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg></span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </article>
-        ))}
+      <div class="bp" data-bp data-reveal>
+        <div class="bp-tabs" role="tablist" aria-label="Choose your device">
+          {categories.map((c, k) => (
+            <button type="button" role="tab" class="bp-tab" data-bp-tab={c.id} aria-selected={k === 0 ? 'true' : 'false'} style={`--h:${c.hue}`}>
+              <span class="bp-ti" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" set:html={iconPaths[c.icon]} /></span>
+              <span>{c.name}</span>
+            </button>
+          ))}
+        </div>
+        <div class="bp-stage">
+          {categories.map((c, k) => (
+            <div class="bp-panel" data-bp-panel={c.id} hidden={k !== 0} style={`--h:${c.hue}`}>
+              <div class="bp-top">
+                <div>
+                  <span class="bp-step">1 · What needs fixing?</span>
+                  <h3>{c.name}</h3>
+                  <p>{c.short}</p>
+                </div>
+                <div class="bp-art"><DeviceArt kind={artFor[c.id]} /></div>
+              </div>
+              <div class="bp-opts" role="radiogroup" aria-label={`Services for ${c.name}`}>
+                {homeServices.filter((s) => s.cat === c.id).map((s, i) => (
+                  <button type="button" role="radio" class="bp-opt" aria-checked={i === 0 ? 'true' : 'false'} data-wa={s.wa} data-name={s.name}>
+                    <span class="bp-check" aria-hidden="true"></span>
+                    <span class="bp-on">{s.name}</span>
+                    <span class="bp-price"><small>from</small> {s.from}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+          <div class="bp-bar">
+            <span class="bp-step">2 · Book it</span>
+            <a class="bp-cta" data-bp-cta href={homeServices[0].wa} target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg> <span>Book <b data-bp-name>{homeServices[0].name}</b> on WhatsApp</span></a>
+            <small>Your message is typed for you — just press send.</small>
+          </div>
+        </div>
       </div>      <p class="bs-more"><a href="/services#catalog">See every brand &amp; model on the Services page →</a></p>
     </div>
   </section>
@@ -237,6 +255,23 @@ const angles = [
   }));
 
 
+  // Booking panel: device tabs → service choice → one WhatsApp button
+  const bp = document.querySelector<HTMLElement>('[data-bp]');
+  if (bp) {
+    const cta = bp.querySelector<HTMLAnchorElement>('[data-bp-cta]')!;
+    const setCta = (opt: HTMLElement) => { cta.href = opt.dataset.wa!; bp.querySelector('[data-bp-name]')!.textContent = opt.dataset.name!; };
+    const pick = (opt: HTMLElement) => {
+      opt.parentElement!.querySelectorAll('.bp-opt').forEach((o) => o.setAttribute('aria-checked', String(o === opt)));
+      setCta(opt);
+    };
+    bp.querySelectorAll<HTMLElement>('.bp-opt').forEach((o) => o.addEventListener('click', () => pick(o)));
+    bp.querySelectorAll<HTMLElement>('[data-bp-tab]').forEach((t) => t.addEventListener('click', () => {
+      bp.querySelectorAll('[data-bp-tab]').forEach((x) => x.setAttribute('aria-selected', String(x === t)));
+      bp.querySelectorAll<HTMLElement>('[data-bp-panel]').forEach((p) => (p.hidden = p.dataset.bpPanel !== t.dataset.bpTab));
+      const panel = bp.querySelector<HTMLElement>(`[data-bp-panel="${t.dataset.bpTab}"]`)!;
+      setCta(panel.querySelector<HTMLElement>('.bp-opt[aria-checked="true"]')!);
+    }));
+  }
   const lab = document.getElementById('lab') ?? document.createElement('div');
   const names: Record<string, string> = { image: 'Image', post: 'Post', video: 'Video', flat: '0° Flat', tilt: '15° Tilt', iso: '3D Isometric' };
   const FORMATS = ['image', 'post', 'video'];
@@ -541,25 +576,45 @@ const angles = [
   .bs-head { display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap; margin-bottom: 22px; }
   .bs-head h2 { margin-top: 12px; }
   .bs-note { max-width: 36ch; color: var(--ink-2); font-size: 15px; }
-  .sg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
-  .sg-card { padding: 22px 22px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 24px; box-shadow: var(--shadow); transition: border-color .3s, transform .3s; }
-  .sg-card:hover { border-color: hsl(var(--h) 55% 50% / .4); transform: translateY(-3px); }
-  .sg-head { display: flex; align-items: center; gap: 12px; padding-bottom: 14px; margin-bottom: 4px; border-bottom: 1px solid var(--line); }
-  .sg-ico { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 13px; background: hsl(var(--h) 70% var(--chip-l, 94%)); color: hsl(var(--h) 65% var(--chip-ink-l, 40%)); flex: none; }
-  .sg-ico svg { width: 22px; height: 22px; }
-  .sg-head h3 { font-size: 18px; }
-  .sg-card ul { list-style: none; margin: 0; padding: 0; }
-  .sg-row { display: flex; align-items: center; gap: 10px; padding: 11px 8px; margin: 0 -8px; border-radius: 12px; transition: background .2s; }
-  .sg-row:hover { background: var(--tint); }
-  .sg-name { flex: 1; min-width: 0; font-size: 14.5px; font-weight: 600; color: var(--ink); }
-  .sg-price { font-size: 13px; font-weight: 700; color: var(--ink-3); white-space: nowrap; }
-  .sg-go { max-width: 0; overflow: hidden; font-size: 13px; font-weight: 700; color: #1f9d55; white-space: nowrap; transition: max-width .3s; }
-  .sg-row:hover .sg-go { max-width: 50px; }
-  .sg-wa { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #e8faf0; color: #25d366; flex: none; transition: background .2s, color .2s; }
-  .sg-wa svg { width: 16px; height: 16px; }
-  .sg-row:hover .sg-wa { background: #25d366; color: #fff; }
-  @media (max-width: 1000px) { .sg { grid-template-columns: 1fr 1fr; } }
-  @media (max-width: 620px) { .sg { grid-template-columns: 1fr; } }  .bs-more { margin-top: 20px; text-align: center; }
+  .bp { display: grid; grid-template-columns: 270px minmax(0, 1fr); background: var(--surface); border: 1px solid var(--line); border-radius: 30px; box-shadow: var(--shadow); overflow: hidden; }
+  .bp-tabs { display: grid; align-content: start; gap: 4px; padding: 14px; background: var(--tint); border-right: 1px solid var(--line); }
+  .bp-tab { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 0; border-radius: 14px; background: none; font-size: 14.5px; font-weight: 600; color: var(--ink-2); text-align: left; transition: background .2s, color .2s; }
+  .bp-tab:hover { background: var(--surface); color: var(--ink); }
+  .bp-tab[aria-selected='true'] { background: var(--surface); color: var(--ink); box-shadow: 0 6px 18px -10px rgba(15,27,45,.35), inset 3px 0 0 hsl(var(--h) 60% 45%); }
+  .bp-ti { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: hsl(var(--h) 70% var(--chip-l, 94%)); color: hsl(var(--h) 65% var(--chip-ink-l, 40%)); flex: none; }
+  .bp-ti svg { width: 18px; height: 18px; }
+  .bp-stage { display: flex; flex-direction: column; min-width: 0; }
+  .bp-panel { padding: 30px 32px 10px; animation: bpIn .45s cubic-bezier(.2,.8,.2,1); }
+  .bp-panel[hidden] { display: none; }
+  @keyframes bpIn { from { opacity: 0; transform: translateX(14px); } }
+  .bp-top { display: grid; grid-template-columns: 1fr 190px; align-items: center; gap: 20px; }
+  .bp-step { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+  .bp-top h3 { font-size: clamp(26px, 2.6vw, 34px); margin: 6px 0 4px; }
+  .bp-top p { color: var(--ink-2); }
+  .bp-art { height: 170px; border-radius: 22px; background: radial-gradient(circle at 50% 45%, hsl(var(--h) 70% var(--chip-l, 94%)), transparent 70%); }
+  .bp-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+  .bp-opt { display: flex; align-items: center; gap: 12px; padding: 16px; border: 1.5px solid var(--line); border-radius: 16px; background: var(--surface); text-align: left; transition: border-color .2s, background .2s, transform .2s; }
+  .bp-opt:hover { transform: translateY(-2px); border-color: hsl(var(--h) 55% 50% / .5); }
+  .bp-opt[aria-checked='true'] { border-color: var(--violet); background: var(--accent-soft); }
+  .bp-check { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--ink-3); flex: none; transition: border-color .2s, box-shadow .2s; }
+  .bp-opt[aria-checked='true'] .bp-check { border-color: var(--violet); box-shadow: inset 0 0 0 4px var(--surface), inset 0 0 0 10px var(--violet); }
+  .bp-on { flex: 1; font-weight: 700; font-size: 15px; color: var(--ink); }
+  .bp-price { font-size: 13px; font-weight: 800; color: var(--lime); white-space: nowrap; }
+  .bp-price small { font-weight: 500; color: var(--ink-3); }
+  .bp-bar { margin-top: auto; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 22px 32px 28px; }
+  .bp-cta { display: inline-flex; align-items: center; gap: 12px; padding: 16px 26px; border-radius: 999px; background: #25d366; color: #fff; font-weight: 700; font-size: 16px; box-shadow: 0 16px 34px -14px rgba(37,211,102,.8); transition: transform .2s, background .2s; }
+  .bp-cta:hover { background: #1ebe5b; transform: translateY(-2px); }
+  .bp-cta svg { width: 22px; height: 22px; }
+  .bp-bar small { color: var(--ink-3); font-size: 13px; }
+  @media (max-width: 900px) {
+    .bp { grid-template-columns: 1fr; }
+    .bp-tabs { display: flex; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+    .bp-tab { flex: none; }
+    .bp-top { grid-template-columns: 1fr; }
+    .bp-art { display: none; }
+    .bp-panel, .bp-bar { padding-left: 20px; padding-right: 20px; }
+  }
+  @media (max-width: 560px) { .bp-opts { grid-template-columns: 1fr; } }  .bs-more { margin-top: 20px; text-align: center; }
   .bs-more a { font-weight: 700; color: var(--violet); }
 
   .tight-sec { padding-top: 30px; padding-bottom: 50px; }
