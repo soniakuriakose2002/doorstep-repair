@@ -9,6 +9,8 @@ const star = '<path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-
 const times = ['9:14', '11:02', '13:47', '16:20', '18:05', '20:31'];
 const rowA = reviews.filter((_, i) => i % 2 === 0);
 const rowB = reviews.filter((_, i) => i % 2 === 1);
+// Wall: three columns, each scrolling vertically (middle one reversed).
+const cols = [0, 1, 2].map((k) => reviews.map((r, i) => ({ r, i })).filter(({ i }) => i % 3 === k));
 ---
 
 <!-- 1 · Review wall -->
@@ -25,15 +27,21 @@ const rowB = reviews.filter((_, i) => i % 2 === 1);
       </div>
     </div>
     <div class="wall">
-      {reviews.map((r, i) => (
-        <figure class:list={['wc', { hero: i === 0 }]} data-reveal style={`--d:${i * .07}s`}>
-          <div class="wc-top">
-            <span class="wc-tag">{r.service}</span>
-            <span class="st">{stars(r.rating).map((on) => <svg viewBox="0 0 24 24" class:list={[{ off: !on }]} set:html={star} />)}</span>
+      {cols.map((col, k) => (
+        <div class:list={['wcol', `wcol-${k}`]}>
+          <div class="wtrack">
+            {[...col, ...col].map(({ r, i }, n) => (
+              <figure class:list={['wc', { hero: i === 0 }]} aria-hidden={n >= col.length ? 'true' : undefined}>
+                <div class="wc-top">
+                  <span class="wc-tag">{r.service}</span>
+                  <span class="st">{stars(r.rating).map((on) => <svg viewBox="0 0 24 24" class:list={[{ off: !on }]} set:html={star} />)}</span>
+                </div>
+                <blockquote>“{r.text}”</blockquote>
+                <figcaption><span class="av">{r.area[0]}</span><span><b>{r.name}</b><small>{r.area}</small></span></figcaption>
+              </figure>
+            ))}
           </div>
-          <blockquote>“{r.text}”</blockquote>
-          <figcaption><span class="av">{r.area[0]}</span><span><b>{r.name}</b><small>{r.area}</small></span></figcaption>
-        </figure>
+        </div>
       ))}
     </div>
   </div>
@@ -111,8 +119,25 @@ const rowB = reviews.filter((_, i) => i % 2 === 1);
   .w-head { display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap; margin-bottom: 36px; }
   .w-head h2 { margin-top: 12px; }
   .w-side { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-  .wall { columns: 3 300px; column-gap: 20px; }
-  .wc { break-inside: avoid; margin: 0 0 20px; padding: 26px; display: grid; gap: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 24px; box-shadow: var(--shadow); transition: transform .3s, box-shadow .3s; }
+  .wall {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px;
+    height: 640px; overflow: hidden;
+    mask-image: linear-gradient(transparent, #000 12%, #000 88%, transparent);
+  }
+  .wcol { min-width: 0; }
+  .wtrack { display: flex; flex-direction: column; gap: 20px; animation: wUp 32s linear infinite; }
+  .wcol-1 .wtrack { animation-name: wDown; animation-duration: 38s; }
+  .wcol-2 .wtrack { animation-duration: 28s; }
+  .wall:hover .wtrack { animation-play-state: paused; }
+  @keyframes wUp { from { transform: translateY(0); } to { transform: translateY(calc(-50% - 10px)); } }
+  @keyframes wDown { from { transform: translateY(calc(-50% - 10px)); } to { transform: translateY(0); } }
+  @media (max-width: 900px) {
+    .wall { grid-template-columns: 1fr 1fr; height: 560px; }
+    .wcol-2 { display: none; }
+  }
+  @media (max-width: 560px) { .wall { grid-template-columns: 1fr; } .wcol-1 { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .wtrack { animation: none; } .wall { height: auto; mask-image: none; } }
+  .wc { position: relative; overflow: hidden; margin: 0; padding: 26px; display: grid; gap: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 24px; box-shadow: var(--shadow); transition: transform .3s, box-shadow .3s; }
   .wc:hover { transform: translateY(-5px) rotate(-.4deg); box-shadow: 0 30px 50px -30px rgba(15,27,45,.45); }
   .wc-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
   .wc-tag { padding: 5px 11px; border-radius: 999px; background: var(--accent-soft); color: var(--violet); font-size: 12px; font-weight: 700; }
@@ -120,7 +145,10 @@ const rowB = reviews.filter((_, i) => i % 2 === 1);
   .wc figcaption { display: flex; align-items: center; gap: 12px; }
   .wc figcaption b { display: block; font-size: 14.5px; }
   .wc figcaption small { font-size: 12.5px; color: var(--ink-3); }
-  .wc.hero { background: linear-gradient(150deg, var(--violet), color-mix(in srgb, var(--violet) 55%, #000)); color: #fff; border: 0; padding: 34px 30px; }
+  .wc.hero { background: linear-gradient(150deg, var(--violet), color-mix(in srgb, var(--violet) 55%, #000), var(--violet)); background-size: 200% 200%; animation: heroDrift 8s ease-in-out infinite; color: #fff; border: 0; padding: 34px 30px; }
+  @keyframes heroDrift { 50% { background-position: 100% 100%; } }
+  .wc.hero::after { content: ''; position: absolute; top: 0; left: -60%; width: 45%; height: 100%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.18), transparent); transform: skewX(-18deg); animation: heroShine 5s ease-in-out infinite; pointer-events: none; }
+  @keyframes heroShine { 0%, 50% { left: -60%; } 100% { left: 140%; } }
   .wc.hero blockquote { font-size: 24px; line-height: 1.35; font-weight: 700; letter-spacing: -.01em; }
   .wc.hero .wc-tag { background: rgba(255,255,255,.16); color: #fff; }
   .wc.hero figcaption small { color: rgba(255,255,255,.7); }
