@@ -3,6 +3,16 @@ import Base from '../layouts/Base.astro';
 import { serviceModes, price, site } from '../data/site';
 import { categories, totals, iconPaths } from '../data/devices';
 import { coverage } from '../data/coverage';
+import ServiceCart from '../components/ServiceCart.astro';
+
+// Common questions, answered from how this site's service actually works.
+const faqs = [
+  { q: 'Is there a charge if you only inspect the device?', a: `No. Diagnosis and the visit or pickup are shown as ${price()} — you get an estimate before any work starts.` },
+  { q: 'How long does a repair take?', a: 'Most phone and laptop repairs are done on the spot during a doorstep visit. Pickup repairs come back in 24–48 hours; board-level work can take longer and we tell you upfront.' },
+  { q: 'Which devices can be repaired at my door?', a: 'Phones, tablets, laptops, desktops and printers can be done at your door or picked up. CCTV and networking are always installed on-site.' },
+  { q: 'Is my data safe?', a: 'Your data stays on your device. We only access what the repair needs, and data recovery jobs are handled in our lab.' },
+  { q: 'Which areas do you cover?', a: `Areas around our ${site.branches.length} branches — ${site.branches.join(', ')}. Check your area in the coverage section above.` },
+];
 
 const payload = JSON.stringify({
   categories: categories.map((c) => ({
@@ -81,6 +91,16 @@ const payload = JSON.stringify({
         ))}
         <p class="cov-note">Area not listed? Book anyway — we confirm coverage before the visit. Coverage shown is around our {site.branches.length} branches in {site.country}.</p>
       </div>
+    </div>
+  </section>
+
+  <!-- ============ SERVICE CART (like urbancompany.com) ============ -->
+  <section class="section tight" id="cart">
+    <div class="wrap">
+      <span class="eyebrow" data-reveal>Pick your services</span>
+      <h2 class="h-lg" data-reveal style="--d:.06s">Add what you need</h2>
+      <p class="lead cart-lead" data-reveal style="--d:.1s">Choose a device, add the repairs to your cart, then book them in one go.</p>
+      <ServiceCart />
     </div>
   </section>
 
@@ -213,6 +233,24 @@ const payload = JSON.stringify({
         </ul>
         <p class="bill-note">Prices are not live yet — every amount is shown as {price()}.</p>
       </aside>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section class="section tight" id="faq">
+    <div class="wrap faq">
+      <div>
+        <span class="eyebrow" data-reveal>FAQ</span>
+        <h2 class="h-lg" data-reveal style="--d:.06s">Frequently asked questions</h2>
+      </div>
+      <div class="faq-list">
+        {faqs.map((f, i) => (
+          <details class="faq-item" open={i === 0} data-reveal style={`--d:${i * .05}s`}>
+            <summary>{f.q}</summary>
+            <p>{f.a}</p>
+          </details>
+        ))}
+      </div>
     </div>
   </section>
 </Base>
@@ -377,6 +415,19 @@ const payload = JSON.stringify({
   }
   form.addEventListener('change', summary);
 
+  // Cart → booking: device from the first item, tick every item of that device.
+  document.addEventListener('cart:checkout', (e) => {
+    const lines = (e as CustomEvent<{ cat: string; name: string }[]>).detail;
+    if (!lines.length) return;
+    fCat.value = lines[0].cat;
+    fillBrands();
+    fillModels();
+    const names = new Set(lines.filter((l) => l.cat === lines[0].cat).map((l) => l.name));
+    $$<HTMLInputElement>('input[name="issue"]').forEach((i) => (i.checked = names.has(i.value)));
+    summary();
+    $('#book').scrollIntoView({ behavior: 'smooth' });
+  });
+
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const msg = $('[data-form-msg]');
@@ -410,6 +461,17 @@ const payload = JSON.stringify({
 </script>
 
 <style>
+  .cart-lead { margin: 12px 0 28px; }
+  .faq { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 40px; align-items: start; }
+  .faq h2 { margin-top: 14px; }
+  .faq-list { display: grid; gap: 10px; }
+  .faq-item { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); }
+  .faq-item summary { padding: 18px 20px; font-weight: 700; cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item summary::after { content: '+'; color: var(--violet); font-size: 20px; line-height: 1; }
+  .faq-item[open] summary::after { content: '−'; }
+  .faq-item p { padding: 0 20px 18px; color: var(--ink-2); }
+  @media (max-width: 860px) { .faq { grid-template-columns: 1fr; } }
   .page-head { padding: clamp(48px, 8vw, 100px) 0 20px; }
   .page-head h1 { margin: 18px 0 20px; max-width: 16ch; }
   .section.tight { padding: clamp(48px, 7vw, 88px) 0; }
