@@ -144,25 +144,28 @@ const payload = JSON.stringify({
             <ul class="cat-issues">
               {c.issues.map((iss) => <li>{iss} <span class="price-tag">{price()}</span></li>)}
             </ul>
+            <div class="brands">
             {c.brands.map((b) => (
-              <div class="brand" data-brand={b.id} style={`--h:${b.hue}`}>
-                <div class="brand-head">
+              <details class="brand" data-brand={b.id} style={`--h:${b.hue}`}>
+                <summary class="brand-head">
                   <span class="brand-dot" aria-hidden="true"></span>
                   <h4>{b.name}</h4>
                   <span class="brand-count" data-brand-count>{b.models.length} models</span>
-                </div>
+                  <svg class="brand-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+                </summary>
                 <ul class="models">
                   {b.models.map((m) => (
                     <li>
                       <button type="button" class="model" data-model={m} data-model-brand={b.id} data-model-cat={c.id} data-q={`${c.name} ${b.name} ${m}`.toLowerCase()}>
                         <span class="model-name">{m}</span>
-                        <span class="model-price">from <span class="price-tag">{price()}</span></span>
+                        <span class="price-tag">{price()}</span>
                       </button>
                     </li>
                   ))}
                 </ul>
-              </div>
+              </details>
             ))}
+            </div>
           </div>
         ))}
         <p class="empty" data-empty hidden>Nothing matches that search. Try a shorter word, e.g. “15” or “Canon”.</p>
@@ -357,6 +360,8 @@ const payload = JSON.stringify({
           if (ok) n++;
         });
         block.hidden = n === 0;
+        // Brands stay collapsed; a search opens the brands it matches.
+        (block as HTMLDetailsElement).open = !!q && n > 0;
         $('[data-brand-count]', block).textContent = `${n} model${n === 1 ? '' : 's'}`;
         catN += n;
       });
@@ -584,7 +589,7 @@ const payload = JSON.stringify({
   .cat-ico svg { width: 17px; height: 17px; }
   .cat-ico.big { width: 52px; height: 52px; border-radius: 16px; }
   .cat-ico.big svg { width: 26px; height: 26px; }
-  .cats { display: grid; gap: 56px; }
+  .cats { display: grid; gap: 40px; }
   .cat { display: grid; gap: 22px; scroll-margin-top: 100px; }
   .cat-title { display: flex; align-items: center; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
   .cat-title h3 { font-size: clamp(24px, 2.6vw, 32px); }
@@ -592,27 +597,32 @@ const payload = JSON.stringify({
   .cat-issues { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
   .cat-issues li { padding: 6px 12px; border-radius: 10px; background: hsl(var(--ch) 60% var(--chip-l)); border: 1px solid hsl(var(--ch) 50% var(--chip-line-l)); font-size: 13px; color: var(--ink-2); }
   .cat-issues .price-tag { margin-left: 4px; }
-  .brand-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .brands { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+  .brand { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); transition: border-color .2s; }
+  .brand[open] { grid-column: 1 / -1; border-color: hsl(var(--h) 70% 55% / .45); }
+  .brand-head { display: flex; align-items: center; gap: 12px; padding: 14px 16px; cursor: pointer; list-style: none; }
+  .brand-head::-webkit-details-marker { display: none; }
+  .brand-head:hover h4 { color: var(--violet); }
+  .brand-chev { width: 16px; height: 16px; margin-left: auto; color: var(--ink-3); transition: transform .25s; }
+  .brand[open] .brand-chev { transform: rotate(180deg); }
   .brand-dot { width: 10px; height: 10px; border-radius: 50%; background: hsl(var(--h) 80% 55%); box-shadow: 0 0 10px hsl(var(--h) 80% 60% / .7); }
-  .brand-head h4 { font-size: 19px; }
+  .brand-head h4 { font-size: 16px; transition: color .2s; }
   .brand-count { font-size: 13px; color: var(--ink-3); }
-  .models { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+  .models { list-style: none; padding: 0 16px 16px; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
   .model {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: start;
-    gap: 4px;
-    padding: 13px 16px;
-    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border-radius: 999px;
     border: 1px solid var(--line);
     background: var(--surface);
     text-align: left;
     transition: border-color .2s, box-shadow .2s, transform .2s;
   }
-  .model:hover { transform: translateY(-2px); border-color: hsl(var(--h) 70% 55% / .55); box-shadow: 0 10px 24px -14px hsl(var(--h) 70% 45% / .6); }
-  .model-name { font-weight: 500; }
+  .model:hover { border-color: hsl(var(--h) 70% 55% / .6); background: hsl(var(--h) 70% var(--chip-l)); }
+  .model-name { font-weight: 500; font-size: 14px; }
+  .model .price-tag { font-size: 12px; }
   .model-price { font-size: 13px; color: var(--ink-3); }
   .empty { color: var(--ink-2); }
 
