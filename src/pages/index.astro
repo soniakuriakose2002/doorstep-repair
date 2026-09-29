@@ -6,6 +6,14 @@ import { reviews, sample } from '../data/reviews';
 import Testimonials from '../components/Testimonials.astro';
 import { serviceModes, price, site } from '../data/site';
 import { categories, totals, iconPaths } from '../data/devices';
+import { coverage } from '../data/coverage';
+import { homeServices, milestones, awards, awardsSample, wa } from '../data/home';
+import { statSync } from 'node:fs';
+
+const stamp = (f: string) => { try { return `/media/${f}?v=${Math.floor(statSync(`public/media/${f}`).mtimeMs / 1000)}`; } catch { return `/media/${f}`; } };
+const heroVideo = stamp('kling.mp4');
+const heroPoster = stamp('kling.jpg');
+const coverageCount = new Set(Object.values(coverage).flatMap((m) => m.zones.flatMap((z) => z.areas))).size;
 
 const allBrands = [...new Set(categories.flatMap((c) => c.brands.map((b) => b.name)))];
 
@@ -22,63 +30,62 @@ const angles = [
 ---
 
 <Base>
-  <!-- ============ HERO + MEDIA ANGLE LAB ============ -->
-  <section class="hero">
-    <div class="wrap hero-grid">
-      <div class="hero-copy">
-        <span class="eyebrow" data-reveal>Doorstep electronics repair</span>
-        <h1 class="h-xl" data-reveal style="--d:.08s">
-          Technology, <span class="grad-text">repaired right.</span>
-        </h1>
-        <p class="devices-line" data-reveal style="--d:.12s">Phone &bull; Laptop &bull; Computer &bull; Printer &bull; CCTV &bull; Networking</p>
-        <p class="lead" data-reveal style="--d:.16s">
-          A technician comes to your door, or we pick it up and bring it back repaired.
-          The estimate is <span class="price-tag">{price()}</span>.
-        </p>
-        <div data-reveal style="--d:.2s"><HeroSearch /></div>
-        <div class="hero-cta" data-reveal style="--d:.24s">
-          <a href="/services#book" class="btn btn-primary">
-            Book doorstep repair
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-          </a>
-          <a href="/services" class="btn">See brands & areas</a>
-        </div>
-        <ul class="hero-facts" data-reveal style="--d:.32s">
-          <li><b>{totals.categories}</b> device types</li>
-          <li><b>{totals.models}+</b> models</li>
-          <li><b>{price()}</b> estimate</li>
-        </ul>
+  <!-- ============ HERO: background video + Book Your Slot ============ -->
+  <section class="vhero">
+    <video class="vhero-video" src={heroVideo} poster={heroPoster} autoplay muted loop playsinline preload="metadata" aria-hidden="true"></video>
+    <div class="vhero-shade" aria-hidden="true"></div>
+    <div class="wrap vhero-in">
+      <span class="eyebrow" data-reveal>Doorstep electronics repair · {site.country}</span>
+      <h1 class="h-xl" data-reveal style="--d:.08s">Technology, <span class="grad-text">repaired right.</span></h1>
+      <p class="devices-line" data-reveal style="--d:.12s">Phone &bull; Laptop &bull; Computer &bull; Printer &bull; CCTV &bull; Networking</p>
+      <div class="vhero-cta" data-reveal style="--d:.18s">
+        <a href="#book-services" class="btn btn-primary btn-xl" data-scroll>
+          Book Your Slot
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+        </a>
+        <a href={wa('Hi Danat, I want to book a repair.')} target="_blank" rel="noopener" class="btn btn-wa"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg> WhatsApp us</a>
       </div>
+      <div class="vhero-search" data-reveal style="--d:.24s"><HeroSearch /></div>
+      <ul class="hero-facts" data-reveal style="--d:.3s">
+        <li><b>{homeServices.length}+</b> services</li>
+        <li><b>{site.branches.length}</b> branches</li>
+        <li><b>{site.since}</b> since</li>
+      </ul>
+    </div>
+    <a href="#book-services" class="vhero-down" data-scroll aria-label="Scroll to services"><span></span></a>
+  </section>
 
-      <div class="lab" id="lab" data-format="video" data-angle="tilt" data-reveal style="--d:.2s">
-        <MediaFrame />
-        <div class="lab-panel glass">
-          <div class="lab-row">
-            <span class="lab-label">Format</span>
-            <div class="seg" role="group" aria-label="Media format">
-              {formats.map((f) => <button type="button" data-set-format={f.id} aria-pressed={f.id === 'video' ? 'true' : 'false'}>{f.label}</button>)}
-            </div>
-          </div>
-          <div class="lab-row">
-            <span class="lab-label">Angle</span>
-            <div class="seg" role="group" aria-label="Media angle">
-              {angles.map((a) => <button type="button" data-set-angle={a.id} aria-pressed={a.id === 'tilt' ? 'true' : 'false'}>{a.label}</button>)}
-            </div>
-          </div>
-          <div class="lab-foot">
-            <span class="lab-now">Showing <b data-now>Video · 15° Tilt</b></span>
-            <button type="button" class="lab-link" data-copy>Copy link to this look</button>
-          </div>
+  <!-- ============ BOOK A SERVICE (30–40 services, WhatsApp) ============ -->
+  <section class="section" id="book-services">
+    <div class="wrap">
+      <div class="bs-head">
+        <div>
+          <span class="eyebrow" data-reveal>Book a service</span>
+          <h2 class="h-lg" data-reveal style="--d:.06s">Pick a service, book on WhatsApp</h2>
         </div>
+        <p class="bs-note" data-reveal>Tap <b>Book</b> — WhatsApp opens with your message ready. Just press send.</p>
       </div>
+      <div class="bs-chips" role="group" aria-label="Filter services">
+        <button type="button" data-bs="all" aria-pressed="true">All <small>{homeServices.length}</small></button>
+        {categories.map((c) => <button type="button" data-bs={c.id} aria-pressed="false">{c.name} <small>{homeServices.filter((s) => s.cat === c.id).length}</small></button>)}
+      </div>
+      <ul class="bs-grid">
+        {homeServices.map((s, i) => (
+          <li class="bs-card" data-bs-cat={s.cat} style={`--h:${s.hue}; --d:${(i % 8) * .04}s`} data-reveal>
+            <span class="bs-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" set:html={iconPaths[s.icon]} /></span>
+            <span class="bs-txt"><b>{s.name}</b><small>{s.catName}</small></span>
+            <span class="bs-price"><small>From</small>{s.from}</span>
+            <a href={s.wa} target="_blank" rel="noopener" class="bs-book"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg> Book</a>
+          </li>
+        ))}
+      </ul>
+      <p class="bs-more"><a href="/services#catalog">See every brand &amp; model on the Services page →</a></p>
     </div>
   </section>
 
-  <!-- ============ SERVICE MODES ============ -->
-  <section class="section">
+  <!-- ============ SERVICE MODES (short) ============ -->
+  <section class="section tight-sec">
     <div class="wrap">
-      <span class="eyebrow" data-reveal>Two ways to repair</span>
-      <h2 class="h-lg" data-reveal style="--d:.06s">Choose how we reach you</h2>
       <div class="modes">
         {serviceModes.map((m, i) => (
           <a href={`/services?mode=${m.id}#modes`} class="mode glass" data-reveal style={`--d:${.1 + i * .1}s`}>
@@ -90,7 +97,6 @@ const angles = [
               )}
             </span>
             <h3 class="h-md">{m.title}</h3>
-            <p>{m.body}</p>
             <ol class="mode-steps">
               {m.steps.map((s, n) => <li><span>{n + 1}</span>{s}</li>)}
             </ol>
@@ -101,34 +107,14 @@ const angles = [
     </div>
   </section>
 
-  <!-- ============ BRAND MARQUEE + ISSUES ============ -->
-  <section class="section brands-band">
+  <!-- ============ BRAND MARQUEE ============ -->
+  <section class="brands-band">
     <div class="marquee" aria-label="Brands we repair">
       <div class="marquee-track">
         {[...allBrands, ...allBrands].map((b) => <span class="marquee-item">{b}</span>)}
       </div>
     </div>
-    <div class="wrap issues">
-      <div>
-        <span class="eyebrow" data-reveal>What we fix</span>
-        <h2 class="h-lg" data-reveal style="--d:.06s">Every device, all at {price()}</h2>
-        <p class="lead" data-reveal style="--d:.12s">Pricing is not live yet, so every repair shows a zero estimate for now.</p>
-        <a href="/services#catalog" class="btn" data-reveal style="--d:.18s">Browse all brands & models</a>
-      </div>
-      <ul class="issue-grid">
-        {categories.map((c, i) => (
-          <li data-reveal style={`--d:${i * .05}s; --h:${c.hue}`}>
-            <a href={`/services?cat=${c.id}#catalog`} class="issue glass">
-              <span class="issue-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" set:html={iconPaths[c.icon]} /></span>
-              <span class="issue-text"><b>{c.name}</b><small>{c.short}</small></span>
-              <span class="price-tag">{price()}</span>
-            </a>
-          </li>
-        ))}
-      </ul>
-    </div>
   </section>
-
   <!-- ============ WHAT OUR CLIENTS SAY ============ -->
   <section class="section" id="reviews">
     <Testimonials />
@@ -171,19 +157,86 @@ const angles = [
       </div>
     </div>
   </section>
+  <!-- ============ ROADMAP ============ -->
+  <section class="section" id="roadmap">
+    <div class="wrap">
+      <div class="center-head">
+        <span class="eyebrow" data-reveal>Our journey</span>
+        <h2 class="h-lg" data-reveal style="--d:.06s">From one shop to doorstep repair</h2>
+      </div>
+      <ol class="road">
+        {milestones.map((m, i) => (
+          <li class:list={['rm', { tbc: !m.verified || m.year === 'Year TBC' }]} data-reveal style={`--d:${i * .1}s`}>
+            <span class="rm-dot" aria-hidden="true"></span>
+            <span class="rm-year">{m.year}</span>
+            <b>{m.title}</b>
+            <small>{m.text}</small>
+          </li>
+        ))}
+      </ol>
+      <p class="rm-note">Years marked “TBC” are waiting for confirmation from Danat.</p>
+    </div>
+  </section>
+
+  <!-- ============ AWARDS + NETWORK ============ -->
+  <section class="section tight-sec">
+    <div class="wrap an">
+      <div class="aw" data-reveal>
+        <div class="an-h"><span class="eyebrow">Recognition</span><h2 class="h-md">Awards</h2></div>
+        {awardsSample && <span class="an-sample">Sample — awards to be confirmed</span>}
+        <ul>
+          {awards.map((a) => (
+            <li>
+              <span class="aw-medal" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M8.5 14L7 22l5-3 5 3-1.5-8"/></svg></span>
+              <span><b>{a.title}</b><small>{a.by} · {a.year}</small></span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div class="nw" data-reveal style="--d:.1s">
+        <div class="an-h"><span class="eyebrow">Support network</span><h2 class="h-md">Across {site.country}, for brands worldwide</h2></div>
+        <div class="nw-map" aria-hidden="true">
+          <span class="pin" style="--x:74%;--y:30%"><i></i>Ruwi</span>
+          <span class="pin" style="--x:52%;--y:18%"><i></i>Sohar</span>
+          <span class="pin" style="--x:24%;--y:80%"><i></i>Salalah</span>
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M74 30 Q60 20 52 18 M74 30 Q48 58 24 80" /></svg>
+        </div>
+        <ul class="nw-stats">
+          <li><b>{site.branches.length}</b><small>branches</small></li>
+          <li><b>{coverageCount}</b><small>areas covered</small></li>
+          <li><b>{totals.brands}</b><small>global brands</small></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ CTA ============ -->  <section class="section">
     <div class="wrap">
       <div class="cta glass" data-reveal>
         <h2 class="h-lg">Something broken? <span class="grad-text">Stay home.</span></h2>
-        <p class="lead">Pick doorstep or pickup, choose your device, and we take it from there.</p>
-        <a href="/services#book" class="btn btn-primary">Start a booking</a>
+        <div class="vhero-cta center"><a href="#book-services" class="btn btn-primary" data-scroll>Book Your Slot</a><a href={wa('Hi Danat, I want to book a repair.')} target="_blank" rel="noopener" class="btn btn-wa"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg> WhatsApp</a></div>
       </div>
     </div>
   </section>
 </Base>
 
 <script>
-  const lab = document.getElementById('lab')!;
+  // Smooth scroll for Book Your Slot (offset for the sticky nav via scroll-margin)
+  document.querySelectorAll<HTMLAnchorElement>('[data-scroll]').forEach((a) => a.addEventListener('click', (e) => {
+    const t = document.querySelector(a.getAttribute('href')!);
+    if (!t) return;
+    e.preventDefault();
+    t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }));
+
+  // Services grid filter
+  document.querySelectorAll<HTMLButtonElement>('[data-bs]').forEach((b) => b.addEventListener('click', () => {
+    const id = b.dataset.bs!;
+    document.querySelectorAll('[data-bs]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    document.querySelectorAll<HTMLElement>('[data-bs-cat]').forEach((c) => (c.hidden = id !== 'all' && c.dataset.bsCat !== id));
+  }));
+
+  const lab = document.getElementById('lab') ?? document.createElement('div');
   const names: Record<string, string> = { image: 'Image', post: 'Post', video: 'Video', flat: '0° Flat', tilt: '15° Tilt', iso: '3D Isometric' };
   const FORMATS = ['image', 'post', 'video'];
   const ANGLES = ['flat', 'tilt', 'iso'];
@@ -218,7 +271,7 @@ const angles = [
     lab.dataset.angle = angle;
     press('data-set-format', 'aria-pressed', format);
     press('data-set-angle', 'aria-pressed', angle);
-    document.querySelector('[data-now]')!.textContent = `${names[format]} · ${names[angle]}`;
+    const now = document.querySelector('[data-now]'); if (now) now.textContent = `${names[format]} · ${names[angle]}`;
 
     if (writeUrl) {
       const u = new URL(location.href);
@@ -230,7 +283,7 @@ const angles = [
   };
 
   const q = new URLSearchParams(location.search);
-  apply(q.get('format') ?? 'video', q.get('angle') ?? 'tilt', q.has('format') || q.has('angle'));
+  if (document.getElementById('lab')) apply(q.get('format') ?? 'video', q.get('angle') ?? 'tilt', q.has('format') || q.has('angle'));
 
   document.querySelectorAll<HTMLButtonElement>('[data-set-format]').forEach((b) =>
     b.addEventListener('click', () => apply(b.dataset.setFormat!, lab.dataset.angle!)));
@@ -268,19 +321,19 @@ const angles = [
     render();
     schedule(MS);
   }
-  const copy = document.querySelector<HTMLButtonElement>('[data-copy]')!;
-  copy.addEventListener('click', async () => {
+  const copy = document.querySelector<HTMLButtonElement>('[data-copy]');
+  copy?.addEventListener('click', async () => {
     const u = new URL(location.href);
     u.searchParams.set('format', lab.dataset.format!);
     u.searchParams.set('angle', lab.dataset.angle!);
     u.hash = 'lab';
     try {
       await navigator.clipboard.writeText(u.href);
-      copy.textContent = 'Link copied';
+      copy!.textContent = 'Link copied';
     } catch {
-      copy.textContent = u.search;
+      copy!.textContent = u.search;
     }
-    setTimeout(() => (copy.textContent = 'Copy link to this look'), 1800);
+    setTimeout(() => (copy!.textContent = 'Copy link to this look'), 1800);
   });
 </script>
 
@@ -456,4 +509,100 @@ const angles = [
   .tst-tabs button:hover { color: #fff; border-color: #fff; }
   .tst-tabs button[aria-selected='true'] { background: #fff; color: var(--violet); border-color: #fff; }
   @media (max-width: 900px) { .tst { grid-template-columns: 1fr; } .tst-deck { height: 340px; } }
-  @media (prefers-reduced-motion: reduce) { .tq { transition: none; } }</style>
+  @media (prefers-reduced-motion: reduce) { .tq { transition: none; } }  /* ---------- video hero ---------- */
+  .vhero { position: relative; min-height: min(88vh, 860px); display: grid; align-items: center; margin: 0 20px; border-radius: 36px; overflow: hidden; color: #fff; isolation: isolate; }
+  .vhero-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+  .vhero-shade { position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(6,14,10,.88) 0%, rgba(6,14,10,.62) 45%, rgba(6,14,10,.15) 100%), linear-gradient(0deg, rgba(6,14,10,.6), transparent 40%); }
+  .vhero-in { padding: 70px 0 90px; display: grid; justify-items: start; gap: 18px; }
+  .vhero h1 { color: #fff; max-width: 12ch; }
+  .vhero .grad-text { color: var(--blue); -webkit-text-fill-color: currentColor; background: none; padding: 0; }
+  .vhero .eyebrow { color: var(--blue); }
+  .vhero .devices-line { color: rgba(255,255,255,.85); font-weight: 600; font-size: clamp(15px, 1.4vw, 19px); }
+  .vhero-cta { display: flex; gap: 12px; flex-wrap: wrap; }
+  .vhero-cta.center { justify-content: center; }
+  .btn-xl { padding: 18px 34px; font-size: 18px; box-shadow: 0 18px 40px -14px rgba(var(--a1), .8); animation: ctaGlow 2.4s ease-in-out infinite; }
+  .btn-xl svg { width: 20px; height: 20px; animation: ctaBob 1.4s ease-in-out infinite; }
+  @keyframes ctaGlow { 50% { box-shadow: 0 18px 50px -8px rgba(var(--a1), 1); } }
+  @keyframes ctaBob { 50% { transform: translateY(3px); } }
+  .btn-wa { background: #25d366; color: #fff; border-color: #25d366; }
+  .btn-wa:hover { background: #1ebe5b; }
+  .btn-wa svg { width: 18px; height: 18px; }
+  .vhero-search { width: min(620px, 100%); }
+  .vhero .hero-facts { color: rgba(255,255,255,.7); }
+  .vhero .hero-facts b { color: #fff; }
+  .vhero-down { position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); width: 30px; height: 48px; border: 2px solid rgba(255,255,255,.6); border-radius: 20px; }
+  .vhero-down span { position: absolute; left: 50%; top: 9px; width: 4px; height: 9px; margin-left: -2px; border-radius: 2px; background: #fff; animation: wheel 1.6s ease-in-out infinite; }
+  @keyframes wheel { 60% { transform: translateY(14px); opacity: 0; } 61% { transform: none; opacity: 0; } 100% { opacity: 1; } }
+  @media (max-width: 720px) { .vhero { margin: 0 8px; border-radius: 24px; } .vhero-shade { background: rgba(6,14,10,.72); } }
+
+  /* ---------- services grid ---------- */
+  #book-services { scroll-margin-top: 90px; }
+  .bs-head { display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap; margin-bottom: 22px; }
+  .bs-head h2 { margin-top: 12px; }
+  .bs-note { max-width: 36ch; color: var(--ink-2); font-size: 15px; }
+  .bs-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
+  .bs-chips button { padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 13.5px; font-weight: 600; color: var(--ink-2); }
+  .bs-chips small { color: var(--ink-3); margin-left: 2px; }
+  .bs-chips button[aria-pressed='true'] { background: var(--violet); border-color: var(--violet); color: var(--on-accent); }
+  .bs-chips button[aria-pressed='true'] small { color: inherit; opacity: .75; }
+  .bs-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 12px; }
+  .bs-card { display: grid; grid-template-columns: auto 1fr auto; grid-template-rows: auto auto; align-items: center; gap: 10px 12px; padding: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); transition: transform .25s, border-color .25s; }
+  .bs-card[hidden] { display: none; }
+  .bs-card:hover { transform: translateY(-3px); border-color: hsl(var(--h) 60% 50% / .5); }
+  .bs-ico { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 13px; background: hsl(var(--h) 70% var(--chip-l, 94%)); color: hsl(var(--h) 65% var(--chip-ink-l, 40%)); }
+  .bs-ico svg { width: 22px; height: 22px; }
+  .bs-txt b { display: block; font-size: 15px; line-height: 1.25; }
+  .bs-txt small { font-size: 12px; color: var(--ink-3); }
+  .bs-price { display: grid; justify-items: end; font-family: var(--display); font-weight: 800; color: var(--lime); font-size: 16px; line-height: 1.1; }
+  .bs-price small { font-family: var(--body); font-size: 10.5px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: .06em; }
+  .bs-book { grid-column: 1 / -1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; border-radius: 12px; background: #25d366; color: #fff; font-weight: 700; font-size: 14px; transition: background .2s; }
+  .bs-book:hover { background: #1ebe5b; }
+  .bs-book svg { width: 17px; height: 17px; }
+  .bs-more { margin-top: 20px; text-align: center; }
+  .bs-more a { font-weight: 700; color: var(--violet); }
+
+  .tight-sec { padding-top: 30px; padding-bottom: 50px; }
+  .brands-band { padding: 10px 0 30px; }
+  .center-head { text-align: center; display: grid; justify-items: center; gap: 12px; margin-bottom: 40px; }
+
+  /* ---------- roadmap ---------- */
+  .road { list-style: none; margin: 0; padding: 0; position: relative; display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+  .road::before { content: ''; position: absolute; left: 4%; right: 4%; top: 11px; height: 3px; border-radius: 3px; background: linear-gradient(90deg, var(--violet), var(--blue, var(--violet))); }
+  .rm { position: relative; display: grid; justify-items: center; gap: 6px; text-align: center; padding-top: 34px; }
+  .rm-dot { position: absolute; top: 0; width: 25px; height: 25px; border-radius: 50%; background: var(--surface); border: 4px solid var(--violet); box-shadow: 0 0 0 6px rgba(var(--a1), .15); }
+  .rm-year { font-family: var(--display); font-size: 28px; font-weight: 800; color: var(--violet); }
+  .rm b { font-size: 15px; }
+  .rm small { font-size: 13px; color: var(--ink-3); max-width: 22ch; }
+  .rm.tbc .rm-year { font-size: 16px; padding: 4px 10px; border-radius: 999px; background: #fff4d6; color: #8a5a00; }
+  .rm.tbc .rm-dot { border-style: dashed; }
+  .rm-note { margin-top: 26px; text-align: center; font-size: 12.5px; color: var(--ink-3); }
+  @media (max-width: 860px) {
+    .road { grid-template-columns: 1fr; gap: 26px; padding-left: 36px; }
+    .road::before { left: 11px; right: auto; top: 0; bottom: 0; width: 3px; height: auto; }
+    .rm { justify-items: start; text-align: left; padding-top: 0; }
+    .rm-dot { left: -36px; }
+  }
+
+  /* ---------- awards + network ---------- */
+  .an { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .aw, .nw { position: relative; padding: 28px; background: var(--surface); border: 1px solid var(--line); border-radius: 26px; box-shadow: var(--shadow); }
+  .an-h { display: grid; gap: 8px; margin-bottom: 18px; }
+  .an-sample { position: absolute; right: 22px; top: 24px; padding: 4px 10px; border-radius: 999px; background: #fff4d6; color: #8a5a00; font-size: 11.5px; font-weight: 700; }
+  .aw ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .aw li { display: flex; align-items: center; gap: 14px; padding: 12px; border-radius: 16px; background: var(--tint); }
+  .aw-medal { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; background: linear-gradient(140deg, #ffd96a, #f5b400); color: #5a3d00; flex: none; }
+  .aw-medal svg { width: 24px; height: 24px; }
+  .aw b { display: block; }
+  .aw small { font-size: 12.5px; color: var(--ink-3); }
+  .nw-map { position: relative; height: 180px; border-radius: 18px; background: radial-gradient(circle at 60% 40%, var(--accent-soft), var(--tint)); overflow: hidden; }
+  .nw-map svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .nw-map path { fill: none; stroke: var(--violet); stroke-width: .6; stroke-dasharray: 2 2; animation: dash 3s linear infinite; }
+  @keyframes dash { to { stroke-dashoffset: -16; } }
+  .pin { position: absolute; left: var(--x); top: var(--y); z-index: 1; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; }
+  .pin i { width: 12px; height: 12px; border-radius: 50%; background: var(--violet); box-shadow: 0 0 0 0 rgba(var(--a1), .5); animation: pinPulse 2s infinite; }
+  @keyframes pinPulse { 70% { box-shadow: 0 0 0 12px rgba(var(--a1), 0); } }
+  .nw-stats { list-style: none; margin: 18px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .nw-stats li { display: grid; padding: 12px; border-radius: 14px; background: var(--tint); text-align: center; }
+  .nw-stats b { font-family: var(--display); font-size: 26px; color: var(--violet); }
+  .nw-stats small { font-size: 12px; color: var(--ink-3); }
+  @media (max-width: 860px) { .an { grid-template-columns: 1fr; } }</style>

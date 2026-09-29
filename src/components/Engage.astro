@@ -1,0 +1,194 @@
+---
+// Re-engagement (manager brief):
+//  • Idle 35 s (no mouse, scroll, key or touch) → "Book Your Slot" image slider
+//    with a quick phone/email field that sends to WhatsApp.
+//  • Exit intent (pointer leaves through the top) or cursor still for 15 s →
+//    slide-in panel from the LEFT asking what service they need.
+// Each shows at most once per browser session, and never on top of another popup.
+import DeviceArt from './DeviceArt.astro';
+import { site, price } from '../data/site';
+import { artFor } from '../data/menu';
+import { categories } from '../data/devices';
+
+const tel = site.phone.tel.replace('+', '');
+const slides = ['mobile', 'laptop', 'printer', 'cctv', 'network', 'data'].map((id) => categories.find((c) => c.id === id)!);
+const pitch: Record<string, string> = {
+  mobile: 'Screens, batteries and ports — fixed at your door.',
+  laptop: 'Screens, keyboards, batteries and board repair.',
+  printer: 'Jams, print quality and setup — on-site.',
+  cctv: 'Survey, install and phone viewing.',
+  network: 'Wi-Fi dead zones, mesh and cabling.',
+  data: 'Deleted files and dead drives recovered.',
+};
+---
+
+<!-- Idle slider -->
+<div class="ig" data-idle hidden data-tel={tel}>
+  <div class="ig-bg" data-idle-x></div>
+  <div class="ig-card" role="dialog" aria-modal="true" aria-labelledby="ig-title">
+    <button type="button" class="ig-x" data-idle-x aria-label="Close">×</button>
+    <div class="ig-top">
+      <span class="ig-k">Still looking?</span>
+      <h2 id="ig-title">Book Your Slot</h2>
+    </div>
+    <div class="ig-slider">
+      {slides.map((c, i) => (
+        <div class:list={['ig-slide', { on: i === 0 }]} data-slide={i} style={`--h:${c.hue}`}>
+          <div class="ig-art"><DeviceArt kind={artFor[c.id]} /></div>
+          <div class="ig-txt">
+            <b>{c.name}</b>
+            <p>{pitch[c.id]}</p>
+            <span class="ig-price">From {price()}</span>
+            <a class="ig-go" target="_blank" rel="noopener" href={`https://wa.me/${tel}?text=${encodeURIComponent(`Hi Danat, I want to book a ${c.name} repair.`)}`}>Book {c.name.split(' ')[0]} repair →</a>
+          </div>
+        </div>
+      ))}
+      <div class="ig-dots">{slides.map((_, i) => <button type="button" data-dot={i} class:list={[{ on: i === 0 }]} aria-label={`Slide ${i + 1}`}></button>)}</div>
+    </div>
+    <form class="ig-quick" data-quick>
+      <label>
+        <span>Or leave your number / email — we'll get back to you</span>
+        <span class="ig-row">
+          <input name="contact" required placeholder="+968 … or name@email.com" autocomplete="tel" />
+          <button type="submit">Send</button>
+        </span>
+      </label>
+      <p class="ig-msg" data-quick-msg aria-live="polite"></p>
+    </form>
+  </div>
+</div>
+
+<!-- Left slide-in -->
+<aside class="sl" data-slide-in hidden aria-label="Need help?">
+  <button type="button" class="sl-x" data-sl-x aria-label="Close">×</button>
+  <span class="sl-wave" aria-hidden="true">👋</span>
+  <b>Before you go…</b>
+  <p>What do you need fixed today?</p>
+  <div class="sl-chips">
+    {categories.map((c) => (
+      <a target="_blank" rel="noopener" href={`https://wa.me/${tel}?text=${encodeURIComponent(`Hi Danat, I need help with my ${c.name}.`)}`}>{c.name}</a>
+    ))}
+  </div>
+  <a class="sl-cta" href="/#book-services">See all services & book →</a>
+</aside>
+
+<script>
+  const idle = document.querySelector<HTMLElement>('[data-idle]');
+  const sl = document.querySelector<HTMLElement>('[data-slide-in]');
+  if (idle && sl) {
+    const tel = idle.dataset.tel!;
+    const ss = (k: string) => { try { return sessionStorage.getItem(k); } catch { return null; } };
+    const sset = (k: string) => { try { sessionStorage.setItem(k, '1'); } catch {} };
+    const q = new URLSearchParams(location.search);
+    const IDLE_MS = Number(q.get('idle')) * 1000 || 35000;
+    const STILL_MS = Number(q.get('still')) * 1000 || 15000;
+    const busy = () => document.documentElement.style.overflow === 'hidden' || ![...document.querySelectorAll<HTMLElement>('[data-po],[data-sw],[data-idle]')].every((m) => m.hidden);
+
+    // ---- idle slider ----
+    let slideT = 0, cur = 0;
+    const slides = [...idle.querySelectorAll<HTMLElement>('[data-slide]')];
+    const dots = [...idle.querySelectorAll<HTMLElement>('[data-dot]')];
+    const go = (i: number) => {
+      cur = (i + slides.length) % slides.length;
+      slides.forEach((s, k) => s.classList.toggle('on', k === cur));
+      dots.forEach((d, k) => d.classList.toggle('on', k === cur));
+      clearTimeout(slideT);
+      slideT = window.setTimeout(() => go(cur + 1), 3200);
+    };
+    dots.forEach((d, k) => d.addEventListener('click', () => go(k)));
+    const openIdle = () => {
+      if (ss('idle-shown') || busy()) return;
+      sset('idle-shown');
+      hideSl();
+      idle.hidden = false;
+      requestAnimationFrame(() => idle.classList.add('in'));
+      document.documentElement.style.overflow = 'hidden';
+      go(0);
+    };
+    const closeIdle = () => {
+      idle.classList.remove('in');
+      document.documentElement.style.overflow = '';
+      clearTimeout(slideT);
+      setTimeout(() => (idle.hidden = true), 350);
+    };
+    idle.querySelectorAll('[data-idle-x]').forEach((b) => b.addEventListener('click', closeIdle));
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !idle.hidden) closeIdle(); });
+
+    idle.querySelector<HTMLFormElement>('[data-quick]')!.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const v = (new FormData(e.target as HTMLFormElement).get('contact') as string).trim();
+      const msg = idle.querySelector('[data-quick-msg]')!;
+      const ok = /^\+?[\d\s-]{7,}$/.test(v) || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v);
+      if (!ok) { msg.textContent = 'Please enter a phone number or email.'; msg.className = 'ig-msg err'; return; }
+      window.open(`https://wa.me/${tel}?text=${encodeURIComponent(`Hi Danat, please contact me about a repair: ${v}`)}`, '_blank', 'noopener');
+      msg.textContent = 'Thanks — opening WhatsApp to send it to our team.';
+      msg.className = 'ig-msg ok';
+    });
+
+    // ---- left slide-in ----
+    const showSl = () => {
+      if (ss('sl-shown') || busy()) return;
+      sset('sl-shown');
+      sl.hidden = false;
+      requestAnimationFrame(() => sl.classList.add('in'));
+    };
+    const hideSl = () => { sl.classList.remove('in'); setTimeout(() => (sl.hidden = true), 400); };
+    sl.querySelector('[data-sl-x]')!.addEventListener('click', hideSl);
+    document.addEventListener('mouseout', (e) => { if (!e.relatedTarget && e.clientY <= 0) showSl(); });
+
+    // ---- timers ----
+    let idleT = 0, stillT = 0;
+    const armIdle = () => { clearTimeout(idleT); idleT = window.setTimeout(openIdle, IDLE_MS); };
+    const armStill = () => { clearTimeout(stillT); stillT = window.setTimeout(showSl, STILL_MS); };
+    ['scroll', 'keydown', 'touchstart', 'wheel'].forEach((ev) => addEventListener(ev, armIdle, { passive: true }));
+    addEventListener('mousemove', () => { armIdle(); armStill(); }, { passive: true });
+    armIdle();
+    if (matchMedia('(pointer: fine)').matches) armStill();
+  }
+</script>
+
+<style>
+  .ig { position: fixed; inset: 0; z-index: 88; display: grid; place-items: center; padding: 16px; }
+  .ig[hidden] { display: none; }
+  .ig-bg { position: absolute; inset: 0; background: rgba(6,10,9,.6); backdrop-filter: blur(5px); opacity: 0; transition: opacity .35s; }
+  .ig.in .ig-bg { opacity: 1; }
+  .ig-card { position: relative; width: min(720px, 100%); max-height: calc(100vh - 32px); overflow: auto; padding: 26px; background: var(--surface); border-radius: 28px; box-shadow: 0 40px 100px -30px rgba(0,0,0,.6); transform: translateY(30px) scale(.95); opacity: 0; transition: transform .5s cubic-bezier(.2,1.2,.3,1), opacity .35s; }
+  .ig.in .ig-card { transform: none; opacity: 1; }
+  .ig-x { position: absolute; right: 14px; top: 14px; z-index: 2; width: 36px; height: 36px; border: 0; border-radius: 50%; background: var(--tint-2); color: var(--ink); font-size: 22px; line-height: 1; }
+  .ig-k { font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--violet); }
+  .ig-top h2 { font-size: 34px; margin-top: 4px; }
+  .ig-slider { position: relative; margin-top: 16px; display: grid; border-radius: 22px; overflow: hidden; }
+  .ig-slide { grid-area: 1 / 1; display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 10px; padding: 24px; background: linear-gradient(140deg, hsl(var(--h) 70% 95%), hsl(var(--h) 60% 88%)); opacity: 0; transform: translateX(30px); transition: opacity .5s, transform .6s cubic-bezier(.2,.8,.2,1); pointer-events: none; }
+  .ig-slide.on { opacity: 1; transform: none; pointer-events: auto; }
+  .ig-art { height: 200px; }
+  .ig-txt { display: grid; gap: 8px; justify-items: start; }
+  .ig-txt b { font-size: 24px; font-family: var(--display); color: #10241a; }
+  .ig-txt p { color: #3b4a42; font-size: 15px; }
+  .ig-price { font-weight: 800; color: #1f7a3a; }
+  .ig-go { margin-top: 4px; padding: 11px 18px; border-radius: 999px; background: #25d366; color: #fff; font-weight: 700; font-size: 14px; }
+  .ig-dots { position: absolute; left: 0; right: 0; bottom: 12px; display: flex; justify-content: center; gap: 6px; }
+  .ig-dots button { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 999px; background: rgba(0,0,0,.25); transition: width .3s, background .3s; }
+  .ig-dots button.on { width: 24px; background: #1f7a3a; }
+  .ig-quick { margin-top: 18px; }
+  .ig-quick label > span:first-child { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+  .ig-row { display: flex; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  .ig-row input { flex: 1; min-width: 0; height: 50px; padding: 0 16px; border: 0; outline: none; font: inherit; background: var(--surface); color: var(--ink); }
+  .ig-row button { padding: 0 24px; border: 0; background: var(--violet); color: var(--on-accent); font-weight: 700; }
+  .ig-msg { font-size: 13px; margin-top: 8px; }
+  .ig-msg.err { color: #be123c; }
+  .ig-msg.ok { color: var(--lime); }
+  @media (max-width: 620px) { .ig-slide { grid-template-columns: 1fr; } .ig-art { height: 140px; } }
+
+  .sl { position: fixed; left: 18px; bottom: 120px; z-index: 86; width: min(320px, calc(100% - 36px)); display: grid; gap: 8px; padding: 22px; background: var(--surface); border: 1px solid var(--line); border-radius: 22px; box-shadow: 0 30px 70px -20px rgba(0,0,0,.45); transform: translateX(-120%); transition: transform .55s cubic-bezier(.2,1.1,.3,1); }
+  .sl[hidden] { display: none; }
+  .sl.in { transform: none; }
+  .sl-x { position: absolute; right: 12px; top: 12px; width: 30px; height: 30px; border: 0; border-radius: 50%; background: var(--tint-2); font-size: 18px; line-height: 1; color: var(--ink); }
+  .sl-wave { font-size: 30px; animation: wave 1.6s ease-in-out infinite; transform-origin: 70% 80%; display: inline-block; width: max-content; }
+  @keyframes wave { 0%, 60%, 100% { transform: rotate(0); } 10%, 30% { transform: rotate(16deg); } 20%, 40% { transform: rotate(-10deg); } }
+  .sl b { font-size: 20px; font-family: var(--display); }
+  .sl p { font-size: 14px; color: var(--ink-2); }
+  .sl-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0; }
+  .sl-chips a { padding: 6px 11px; border-radius: 999px; border: 1px solid var(--line); font-size: 12.5px; font-weight: 600; color: var(--ink-2); }
+  .sl-chips a:hover { border-color: #25d366; color: #1f7a3a; background: #e8faf0; }
+  .sl-cta { font-size: 13.5px; font-weight: 700; color: var(--violet); }
+</style>
