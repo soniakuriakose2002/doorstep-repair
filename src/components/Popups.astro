@@ -90,12 +90,15 @@ const bar = `Doorstep & pickup repair across ${site.country} — free diagnosis 
 <script>
   const get = (k: string) => { try { return localStorage.getItem(k); } catch { return null; } };
   const put = (k: string, v: string) => { try { localStorage.setItem(k, v); } catch {} };
+  // Offer popup and announcement bar come back on every new visit (browser session).
+  const sget = (k: string) => { try { return sessionStorage.getItem(k); } catch { return null; } };
+  const sput = (k: string, v: string) => { try { sessionStorage.setItem(k, v); } catch {} };
   const q = <T extends HTMLElement>(s: string) => document.querySelector<T>(s)!;
 
   // 1 · announcement bar
   const ann = q('[data-ann]');
-  if (!get('ann-closed')) { ann.hidden = false; document.body.classList.add('has-ann'); }
-  q('[data-ann-x]').addEventListener('click', () => { ann.hidden = true; document.body.classList.remove('has-ann'); put('ann-closed', '1'); });
+  if (!sget('ann-closed')) { ann.hidden = false; document.body.classList.add('has-ann'); }
+  q('[data-ann-x]').addEventListener('click', () => { ann.hidden = true; document.body.classList.remove('has-ann'); sput('ann-closed', '1'); });
 
   // 2 · cookie notice (slides in shortly after load)
   const ck = q('[data-ck]');
@@ -110,16 +113,16 @@ const bar = `Doorstep & pickup repair across ${site.country} — free diagnosis 
   const po = q('[data-po]');
   const today = new Date().toDateString();
   const open = () => { po.hidden = false; requestAnimationFrame(() => po.classList.add('in')); document.documentElement.style.overflow = 'hidden'; };
-  const close = () => { po.classList.remove('in'); document.documentElement.style.overflow = ''; setTimeout(() => (po.hidden = true), 350); put('offer-seen', today); };
+  const close = () => { po.classList.remove('in'); document.documentElement.style.overflow = ''; setTimeout(() => (po.hidden = true), 350); sput('offer-seen', today); };
   // Which offer popup: 'spin' (default) or 'flash' — ?offer=… or Theme › Offer popup
   const qOffer = new URLSearchParams(location.search).get('offer');
   if (qOffer === 'spin' || qOffer === 'flash') put('offer-type', qOffer);
   const offerType = () => (get('offer-type') === 'flash' ? 'flash' : 'spin');
-  (window as any).__offerClosed = () => put('offer-seen', today);
+  (window as any).__offerClosed = () => sput('offer-seen', today);
   (window as any).__openOffer = () => (offerType() === 'spin' ? (window as any).__openSpin?.() : open());
-  if (get('offer-seen') !== today || qOffer) setTimeout(() => (window as any).__openOffer(), (window as any).__poDelay ?? 4000);
+  if (sget('offer-seen') !== today || qOffer) setTimeout(() => (window as any).__openOffer(), (window as any).__poDelay ?? 4000);
   po.querySelectorAll('[data-po-x]').forEach((b) => b.addEventListener('click', close));
-  po.querySelectorAll('[data-po-go]').forEach((b) => b.addEventListener('click', () => put('offer-seen', today)));
+  po.querySelectorAll('[data-po-go]').forEach((b) => b.addEventListener('click', () => sput('offer-seen', today)));
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !po.hidden) close(); });
 
   // side tab: opens the wheel any time

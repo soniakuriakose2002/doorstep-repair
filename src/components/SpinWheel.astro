@@ -102,11 +102,11 @@ const wa = (msg: string) => `https://wa.me/${site.phone.tel.replace('+', '')}?te
     const prizes: { full: string; code: string }[] = JSON.parse(sw.dataset.prizes!);
     const icons = [...(document.querySelector<HTMLTemplateElement>('[data-sw-icons]')!.content.children)];
     const wheel = sw.querySelector<SVGElement>('[data-sw-wheel]')!;
-    const get = (k: string) => { try { return localStorage.getItem(k); } catch { return null; } };
-    const put = (k: string, v: string) => { try { localStorage.setItem(k, v); } catch {} };
+    const get = (k: string) => { try { return sessionStorage.getItem(k); } catch { return null; } };
+    const put = (k: string, v: string) => { try { sessionStorage.setItem(k, v); } catch {} };
     const seg = 360 / prizes.length;
     const angleFor = (i: number) => 360 - (i * seg + seg / 2);
-    if (new URLSearchParams(location.search).get('offer') === 'spin') { try { localStorage.removeItem('spin-won'); } catch {} }
+    if (new URLSearchParams(location.search).get('offer') === 'spin') { try { sessionStorage.removeItem('spin-won'); } catch {} }
 
     const show = (i: number, instant = false) => {
       const p = prizes[i];
