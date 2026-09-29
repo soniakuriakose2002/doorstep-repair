@@ -4,7 +4,7 @@
 // place, so they cannot be booked as pickup.
 import { brands as phoneBrands, type Brand } from './brands';
 
-export type Icon = 'phone' | 'tablet' | 'laptop' | 'desktop' | 'printer' | 'cctv' | 'network' | 'drive';
+export type Icon = 'phone' | 'tablet' | 'laptop' | 'desktop' | 'printer' | 'cctv' | 'network' | 'drive' | 'support';
 
 export interface Category {
   id: string;
@@ -133,6 +133,21 @@ export const categories: Category[] = [
   },
 ];
 
+categories.push({
+  id: 'itsupport',
+  name: 'IT Support',
+  short: 'Software, setup and troubleshooting',
+  icon: 'support',
+  hue: 205,
+  onsiteOnly: true,
+  issues: ['Software installation', 'Email & Microsoft 365 setup', 'Slow computer tune-up', 'Virus & malware removal', 'Printer & network setup', 'Annual maintenance contract'],
+  brands: [
+    { id: 'windows', name: 'Windows PCs', hue: 205, models: ['Windows 11', 'Windows 10', 'Windows Server'] },
+    { id: 'macos', name: 'Apple macOS', hue: 210, models: ['macOS Sequoia', 'macOS Sonoma', 'macOS Ventura'] },
+    { id: 'office', name: 'Office & email', hue: 20, models: ['Microsoft 365', 'Google Workspace', 'Outlook / Exchange'] },
+  ],
+});
+
 export const totals = {
   categories: categories.length,
   brands: categories.reduce((n, c) => n + c.brands.length, 0),
@@ -149,4 +164,5 @@ export const iconPaths: Record<Icon, string> = {
   cctv: '<path d="M3 7.5l13-3.5 2 5.5-13 3.5z"/><path d="M16.5 9l3.5 1.5-1 2.5-3.5-1M7 11.5L6 15H3M3 12.5V18"/>',
   network: '<path d="M2 9a15 15 0 0 1 20 0M5.5 12.5a10 10 0 0 1 13 0M9 16a5 5 0 0 1 6 0"/><circle cx="12" cy="19.5" r="1"/>',
   drive: '<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3 14h18"/><circle cx="17" cy="16.5" r=".8"/>',
+  support: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
 };
