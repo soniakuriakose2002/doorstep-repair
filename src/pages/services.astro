@@ -464,6 +464,8 @@ const payload = JSON.stringify({
   const startMode = q.get('mode');
   setMode(startMode && data.coverage[startMode] ? startMode : 'doorstep');
   // ?area= from the home-page location search: pre-check coverage and pre-fill the booking
+  // Links from the menu land on a section; re-scroll once the page has laid out.
+  if (location.hash) requestAnimationFrame(() => document.querySelector(location.hash)?.scrollIntoView());
   const startArea = q.get('area');
   if (startArea) {
     areaSearch.value = startArea;
