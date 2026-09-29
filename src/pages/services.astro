@@ -104,13 +104,13 @@ const payload = JSON.stringify({
     </div>
   </section>
 
-  <!-- ============ CATALOG ============ -->
+  <!-- ============ CATALOG: device → brand → model ============ -->
   <section class="section tight" id="catalog">
     <div class="wrap">
       <div class="cat-head">
         <div>
           <span class="eyebrow" data-reveal>Repair catalog</span>
-          <h2 class="h-lg" data-reveal style="--d:.06s">Every device, every brand</h2>
+          <h2 class="h-lg" data-reveal style="--d:.06s">Find your device</h2>
         </div>
         <label class="search" data-reveal style="--d:.12s">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
@@ -118,57 +118,54 @@ const payload = JSON.stringify({
         </label>
       </div>
 
-      <div class="cat-tabs" role="group" aria-label="Filter by device type">
-        <button type="button" class="cat-tab" data-cat-filter="all" aria-pressed="true" style="--h:250">
-          <span class="cat-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
-          All devices
-        </button>
-        {categories.map((c) => (
-          <button type="button" class="cat-tab" data-cat-filter={c.id} aria-pressed="false" style={`--h:${c.hue}`}>
-            <span class="cat-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" set:html={iconPaths[c.icon]} /></span>
-            {c.name}
-          </button>
-        ))}
-      </div>
-
-      <div class="cats">
-        {categories.map((c) => (
-          <div class="cat" data-cat={c.id} style={`--ch:${c.hue}`}>
-            <div class="cat-title">
-              <span class="cat-ico big" aria-hidden="true" style={`--h:${c.hue}`}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" set:html={iconPaths[c.icon]} /></span>
-              <div>
-                <h3>{c.name}</h3>
-                <p>{c.short}{c.onsiteOnly && ' · installed on-site'}</p>
-              </div>
-            </div>
-            <ul class="cat-issues">
-              {c.issues.map((iss) => <li>{iss} <span class="price-tag">{price()}</span></li>)}
-            </ul>
-            <div class="brands">
-            {c.brands.map((b) => (
-              <details class="brand" data-brand={b.id} style={`--h:${b.hue}`}>
-                <summary class="brand-head">
-                  <span class="brand-dot" aria-hidden="true"></span>
-                  <h4>{b.name}</h4>
-                  <span class="brand-count" data-brand-count>{b.models.length} models</span>
-                  <svg class="brand-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
-                </summary>
-                <ul class="models">
-                  {b.models.map((m) => (
-                    <li>
-                      <button type="button" class="model" data-model={m} data-model-brand={b.id} data-model-cat={c.id} data-q={`${c.name} ${b.name} ${m}`.toLowerCase()}>
-                        <span class="model-name">{m}</span>
-                        <span class="price-tag">{price()}</span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </details>
+      <div class="finder" data-reveal>
+        <div class="f-col">
+          <div class="f-step"><b>1</b>Device</div>
+          <div class="f-scroll" role="group" aria-label="Device type">
+            {categories.map((c) => (
+              <button type="button" class="f-dev" data-cat-filter={c.id} aria-pressed="false" style={`--h:${c.hue}`}>
+                <span class="cat-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" set:html={iconPaths[c.icon]} /></span>
+                {c.name}
+              </button>
             ))}
-            </div>
           </div>
-        ))}
-        <p class="empty" data-empty hidden>Nothing matches that search. Try a shorter word, e.g. “15” or “Canon”.</p>
+        </div>
+
+        <div class="f-col">
+          <div class="f-step"><b>2</b>Brand · <span data-f-cat-name>Mobile Phones</span></div>
+          <div class="f-scroll f-brands" role="group" aria-label="Brand">
+            {categories.flatMap((c) => c.brands.map((b) => (
+              <button type="button" class="f-brand" data-brand-id={b.id} data-brand-cat={c.id} data-brand-name={b.name} aria-pressed="false" style={`--h:${b.hue}`} hidden={c.id !== 'mobile'}>
+                <span class="f-mono" aria-hidden="true">{b.name[0]}</span>
+                <strong>{b.name}</strong>
+                <small>{b.models.length} models</small>
+              </button>
+            )))}
+          </div>
+        </div>
+
+        <div class="f-col">
+          <div class="f-step"><b>3</b><span data-f-title>Models</span></div>
+          {categories.map((c) => (
+            <div class="f-issues" data-issues-for={c.id} hidden>
+              {c.issues.map((iss) => <span>{iss} · <b class="price-tag">{price()}</b></span>)}
+            </div>
+          ))}
+          <div class="f-scroll">
+            <ul class="f-models">
+              {categories.flatMap((c) => c.brands.flatMap((b) => b.models.map((m) => (
+                <li>
+                  <button type="button" class="model" data-model={m} data-model-brand={b.id} data-model-cat={c.id} data-q={`${c.name} ${b.name} ${m}`.toLowerCase()}>
+                    <span class="model-name">{m}<span class="model-sub">{b.name}</span></span>
+                    <span class="price-tag">{price()}</span>
+                    <span class="model-go">Book →</span>
+                  </button>
+                </li>
+              ))))}
+            </ul>
+            <p class="empty" data-empty hidden>Nothing matches that search. Try a shorter word, e.g. “15” or “Canon”.</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -343,40 +340,44 @@ const payload = JSON.stringify({
     $$('.area').forEach((x) => x.classList.toggle('picked', x === b));
   }));
 
-  // ---------- catalog ----------
-  let catFilter = 'all';
+  // ---------- catalog: device → brand → model finder ----------
   const modelSearch = $<HTMLInputElement>('[data-model-search]');
-  const filterCatalog = () => {
+  let curCat = 'mobile';
+  let curBrand = '';
+  const showModels = () => {
     const q = norm(modelSearch.value);
-    let any = false;
-    $$('[data-cat]').forEach((catEl) => {
-      const catOk = catFilter === 'all' || catEl.dataset.cat === catFilter;
-      let catN = 0;
-      $$('[data-brand]', catEl).forEach((block) => {
-        let n = 0;
-        $$<HTMLButtonElement>('.model', block).forEach((m) => {
-          const ok = catOk && (!q || m.dataset.q!.includes(q));
-          m.parentElement!.hidden = !ok;
-          if (ok) n++;
-        });
-        block.hidden = n === 0;
-        // Brands stay collapsed; a search opens the brands it matches.
-        (block as HTMLDetailsElement).open = !!q && n > 0;
-        $('[data-brand-count]', block).textContent = `${n} model${n === 1 ? '' : 's'}`;
-        catN += n;
-      });
-      catEl.hidden = catN === 0;
-      if (catN) any = true;
+    let n = 0;
+    $$<HTMLButtonElement>('.model').forEach((m) => {
+      const ok = q ? m.dataset.q!.includes(q) : m.dataset.modelCat === curCat && (!curBrand || m.dataset.modelBrand === curBrand);
+      m.parentElement!.hidden = !ok;
+      if (ok) n++;
     });
-    $('[data-empty]').hidden = any;
+    $$('[data-issues-for]').forEach((e) => (e.hidden = !!q || e.dataset.issuesFor !== curCat));
+    const brandName = $$('[data-brand-id]').find((b) => b.dataset.brandId === curBrand && b.dataset.brandCat === curCat)?.dataset.brandName;
+    $('[data-f-title]').textContent = q ? `${n} result${n === 1 ? '' : 's'} for “${modelSearch.value.trim()}”` : brandName ?? `All ${n} models`;
+    $('[data-empty]').hidden = n > 0;
+  };
+  const setBrand = (id: string) => {
+    curBrand = id;
+    $$('[data-brand-id]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.brandCat === curCat && b.dataset.brandId === id)));
+    showModels();
   };
   const setCat = (id: string) => {
-    catFilter = id;
+    if (!data.categories.some((c) => c.id === id)) return;
+    curCat = id;
     $$('[data-cat-filter]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.catFilter === id)));
-    filterCatalog();
+    $$('[data-brand-id]').forEach((b) => (b.hidden = b.dataset.brandCat !== id));
+    $('[data-f-cat-name]').textContent = data.categories.find((c) => c.id === id)!.name;
+    setBrand('');
   };
-  $$('[data-cat-filter]').forEach((b) => b.addEventListener('click', () => setCat(b.dataset.catFilter!)));
-  modelSearch.addEventListener('input', filterCatalog);
+  const filterCatalog = showModels;
+  $$('[data-cat-filter]').forEach((b) => b.addEventListener('click', () => { modelSearch.value = ''; setCat(b.dataset.catFilter!); }));
+  $$('[data-brand-id]').forEach((b) => b.addEventListener('click', () => {
+    modelSearch.value = '';
+    setBrand(curBrand === b.dataset.brandId ? '' : b.dataset.brandId!);
+  }));
+  modelSearch.addEventListener('input', showModels);
+  setCat('mobile');
 
   // ---------- booking ----------
   const fillBrands = (keep = '') => {
@@ -453,7 +454,13 @@ const payload = JSON.stringify({
   const startCat = q.get('cat');
   if (startCat && data.categories.some((c) => c.id === startCat)) setCat(startCat);
   const startQ = q.get('q');
-  if (startQ) { modelSearch.value = startQ; filterCatalog(); }
+  if (startQ) {
+    // A brand name (from the nav menu) selects that brand's tile; anything else is a search.
+    const nq = norm(startQ);
+    const tile = $$('[data-brand-id]').find((b) => b.dataset.brandCat === curCat && norm(b.dataset.brandName!).startsWith(nq));
+    if (tile) setBrand(tile.dataset.brandId!);
+    else { modelSearch.value = startQ; filterCatalog(); }
+  }
   const startMode = q.get('mode');
   setMode(startMode && data.coverage[startMode] ? startMode : 'doorstep');
   // ?area= from the home-page location search: pre-check coverage and pre-fill the booking
@@ -566,65 +573,56 @@ const payload = JSON.stringify({
   .search svg { width: 18px; height: 18px; color: var(--ink-3); flex: none; }
   .search input { flex: 1; min-width: 0; border: 0; background: none; outline: none; color: var(--ink); font: inherit; }
 
-  /* catalog */
-  .cat-head { display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap; }
+  /* catalog: three-step finder (device → brand → model) */
+  .cat-head { display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap; margin-bottom: 28px; }
   .cat-head h2 { margin-top: 14px; }
-  .cat-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 28px 0 36px; }
-  .cat-tab {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 14px 6px 6px;
-    border-radius: 999px;
-    border: 1px solid var(--line);
+  .finder {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr) minmax(0, 1.15fr);
+    height: 560px;
     background: var(--surface);
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--ink-2);
-    transition: all .2s;
-  }
-  .cat-tab:hover { color: var(--ink); border-color: hsl(var(--h) 70% 55% / .5); }
-  .cat-tab[aria-pressed='true'] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-  .cat-ico { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: hsl(var(--h) 70% var(--chip-l)); color: hsl(var(--h) 65% var(--chip-ink-l)); flex: none; }
-  .cat-ico svg { width: 17px; height: 17px; }
-  .cat-ico.big { width: 52px; height: 52px; border-radius: 16px; }
-  .cat-ico.big svg { width: 26px; height: 26px; }
-  .cats { display: grid; gap: 40px; }
-  .cat { display: grid; gap: 22px; scroll-margin-top: 100px; }
-  .cat-title { display: flex; align-items: center; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
-  .cat-title h3 { font-size: clamp(24px, 2.6vw, 32px); }
-  .cat-title p { color: var(--ink-3); font-size: 15px; }
-  .cat-issues { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
-  .cat-issues li { padding: 6px 12px; border-radius: 10px; background: hsl(var(--ch) 60% var(--chip-l)); border: 1px solid hsl(var(--ch) 50% var(--chip-line-l)); font-size: 13px; color: var(--ink-2); }
-  .cat-issues .price-tag { margin-left: 4px; }
-  .brands { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
-  .brand { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); transition: border-color .2s; }
-  .brand[open] { grid-column: 1 / -1; border-color: hsl(var(--h) 70% 55% / .45); }
-  .brand-head { display: flex; align-items: center; gap: 12px; padding: 14px 16px; cursor: pointer; list-style: none; }
-  .brand-head::-webkit-details-marker { display: none; }
-  .brand-head:hover h4 { color: var(--violet); }
-  .brand-chev { width: 16px; height: 16px; margin-left: auto; color: var(--ink-3); transition: transform .25s; }
-  .brand[open] .brand-chev { transform: rotate(180deg); }
-  .brand-dot { width: 10px; height: 10px; border-radius: 50%; background: hsl(var(--h) 80% 55%); box-shadow: 0 0 10px hsl(var(--h) 80% 60% / .7); }
-  .brand-head h4 { font-size: 16px; transition: color .2s; }
-  .brand-count { font-size: 13px; color: var(--ink-3); }
-  .models { list-style: none; padding: 0 16px 16px; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
-  .model {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 12px;
-    border-radius: 999px;
     border: 1px solid var(--line);
-    background: var(--surface);
-    text-align: left;
-    transition: border-color .2s, box-shadow .2s, transform .2s;
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
   }
-  .model:hover { border-color: hsl(var(--h) 70% 55% / .6); background: hsl(var(--h) 70% var(--chip-l)); }
-  .model-name { font-weight: 500; font-size: 14px; }
-  .model .price-tag { font-size: 12px; }
-  .model-price { font-size: 13px; color: var(--ink-3); }
-  .empty { color: var(--ink-2); }
+  .f-col { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--line); }
+  .f-col:last-child { border-right: 0; }
+  .f-step { display: flex; align-items: center; gap: 10px; padding: 16px 18px; border-bottom: 1px solid var(--line); font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); flex: none; }
+  .f-step b { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--violet); color: var(--on-accent); font-size: 12px; letter-spacing: 0; }
+  .f-step span { color: var(--ink); text-transform: none; letter-spacing: 0; font-size: 15px; }
+  .f-scroll { overflow-y: auto; padding: 10px; min-height: 0; flex: 1; }
+  .f-dev { width: 100%; display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 0; border-radius: 12px; background: none; font-size: 14px; font-weight: 600; color: var(--ink-2); text-align: left; transition: background .15s, color .15s; }
+  .f-dev:hover { background: var(--tint-2); color: var(--ink); }
+  .f-dev[aria-pressed='true'] { background: var(--accent-soft); color: var(--ink); box-shadow: inset 3px 0 0 var(--violet); }
+  .cat-ico { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: hsl(var(--h) 70% var(--chip-l)); color: hsl(var(--h) 65% var(--chip-ink-l)); flex: none; }
+  .cat-ico svg { width: 18px; height: 18px; }
+  .f-brands { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; align-content: start; }
+  .f-brand { display: grid; justify-items: center; gap: 6px; padding: 16px 10px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); text-align: center; transition: border-color .2s, transform .2s, box-shadow .2s; }
+  .f-brand:hover { transform: translateY(-2px); border-color: hsl(var(--h) 70% 55% / .5); }
+  .f-brand[aria-pressed='true'] { border-color: var(--violet); box-shadow: 0 0 0 1px var(--violet); background: var(--accent-soft); }
+  .f-mono { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: hsl(var(--h) 70% var(--chip-l)); color: hsl(var(--h) 65% var(--chip-ink-l)); font-weight: 800; font-size: 18px; }
+  .f-brand strong { font-size: 14px; line-height: 1.2; }
+  .f-brand small { font-size: 12px; color: var(--ink-3); }
+  .f-issues { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 14px; border-bottom: 1px solid var(--line); flex: none; }
+  .f-issues span { padding: 4px 10px; border-radius: 999px; background: var(--tint); border: 1px solid var(--line); font-size: 12px; color: var(--ink-2); }
+  .f-models { list-style: none; margin: 0; padding: 0; }
+  .model { width: 100%; display: flex; align-items: center; gap: 12px; padding: 11px 12px; border: 0; border-radius: 10px; background: none; text-align: left; transition: background .15s; }
+  .model:hover { background: var(--tint-2); }
+  .model-name { flex: 1; font-weight: 600; font-size: 14px; }
+  .model-sub { display: block; font-weight: 500; font-size: 12px; color: var(--ink-3); }
+  .model .price-tag { font-size: 13px; }
+  .model-go { font-size: 12px; font-weight: 700; color: var(--violet); opacity: 0; transition: opacity .15s; }
+  .model:hover .model-go, .model:focus-visible .model-go { opacity: 1; }
+  .empty { color: var(--ink-2); padding: 14px; }
+  @media (max-width: 1000px) {
+    .finder { grid-template-columns: 1fr; height: auto; }
+    .f-col { border-right: 0; border-bottom: 1px solid var(--line); }
+    .f-col:first-child .f-scroll { display: flex; overflow-x: auto; gap: 6px; }
+    .f-dev { width: auto; white-space: nowrap; }
+    .f-brands { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+    .f-col:last-child .f-scroll { max-height: 420px; }
+  }
 
   /* booking */
   .book { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 20px; align-items: start; }
