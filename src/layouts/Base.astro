@@ -13,14 +13,6 @@ const fullTitle = title ? `${title} · ${site.name}` : `${site.name} — ${site.
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 
 // Services mega menu. Every link lands on the Services page — the site stays three pages.
-const brandLink = (catId: string, q: string) => `/services?cat=${catId}&q=${encodeURIComponent(q)}#catalog`;
-const cat = (id: string) => categories.find((c) => c.id === id)!;
-const megaHero = cat('mobile');
-const megaTiles = ['laptop', 'printer', 'cctv', 'network', 'data'].map(cat);
-const megaBrands = [
-  ...cat('mobile').brands.slice(0, 6).map((b) => ({ label: b.name, href: brandLink('mobile', b.name.split(' ')[0]) })),
-  ...cat('laptop').brands.slice(1, 6).map((b) => ({ label: b.name, href: brandLink('laptop', b.name) })),
-];
 ---
 
 <!doctype html>
@@ -71,35 +63,32 @@ const megaBrands = [
                   <svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
                 </a>
                 <div class="mega" role="region" aria-label="Services menu">
-                  <a class="b-tile b-hero" style="--i:0" href={`/services?cat=${megaHero.id}#catalog`}>
-                    <span class="b-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span>
-                    <span class="b-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" set:html={iconPaths[megaHero.icon]} /></span>
-                    <strong>{megaHero.name}</strong>
-                    <small>{megaHero.short}. Every major brand, at your door or picked up.</small>
-                    <span class="b-count">{megaHero.brands.length} brands · {megaHero.brands.reduce((n, b) => n + b.models.length, 0)} models</span>
-                  </a>
-                  {megaTiles.map((c, i) => (
-                    <a class="b-tile" href={`/services?cat=${c.id}#catalog`} style={`--h:${c.hue}; --i:${i + 1}`}>
-                      <span class="b-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span>
-                      <span class="b-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" set:html={iconPaths[c.icon]} /></span>
-                      <strong>{c.name}</strong>
-                      <small>{c.short}</small>
-                    </a>
-                  ))}
-                  <a class="b-tile b-cta" style="--i:6" href="/services#book">
-                    <span class="b-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span>
-                    <span class="b-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span>
-                    <span class="b-live"><i></i>Technicians available now</span>
-                    <strong>Book a repair</strong>
-                    <small>Doorstep or pickup across {site.country} · <em>{price()}</em></small>
-                  </a>
-                  <div class="b-brands" style="--i:7">
-                    <span>Brands</span>
-                    <div class="b-marquee">
-                      <div class="b-track">
-                        {[...megaBrands, ...megaBrands].map((b, i) => <a href={b.href} tabindex={i >= megaBrands.length ? -1 : undefined} aria-hidden={i >= megaBrands.length ? 'true' : undefined}>{b.label}</a>)}
+                  <ul class="d-list">
+                    {categories.map((c, i) => (
+                      <li>
+                        <a href={`/services?cat=${c.id}#catalog`} class:list={['d-item', { on: i === 0 }]} data-d={c.id}>
+                          <svg class="d-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={iconPaths[c.icon]} />
+                          {c.name}
+                          <svg class="d-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                  <div class="d-panels">
+                    {categories.map((c, i) => (
+                      <div class:list={['d-panel', { on: i === 0 }]} data-dp={c.id}>
+                        <h4>{c.name}</h4>
+                        <p>{c.short}</p>
+                        <ul>
+                          {c.brands.slice(0, 10).map((b) => <li><a href={`/services?cat=${c.id}&q=${encodeURIComponent(b.name)}#catalog`}>{b.name}</a></li>)}
+                        </ul>
+                        <a class="d-all" href={`/services?cat=${c.id}#catalog`}>See all {c.brands.reduce((n, b) => n + b.models.length, 0)} models →</a>
                       </div>
-                    </div>
+                    ))}
+                  </div>
+                  <div class="d-foot">
+                    <span>Doorstep or pickup across {site.country} · estimate <b>{price()}</b></span>
+                    <a href="/services#book">Book a repair</a>
                   </div>
                 </div>
               </li>
@@ -175,24 +164,40 @@ const megaBrands = [
       onScroll();
       window.addEventListener('scroll', onScroll, { passive: true });
 
-      // Services menu: open on real pointer entry (not when a page loads under
-      // the pointer), close after a link is clicked.
+      // Services dropdown. Opens on hover — but not when a page loads with the
+      // pointer already over it: it arms only after the pointer has been
+      // outside the menu once. Clicking a link closes and disarms it.
       const megaLi = document.querySelector<HTMLElement>('.has-mega');
       if (megaLi) {
         let t = 0;
-        megaLi.addEventListener('pointerenter', () => { clearTimeout(t); t = window.setTimeout(() => megaLi.classList.add('open'), 80); });
-        megaLi.addEventListener('pointerleave', () => { clearTimeout(t); t = window.setTimeout(() => megaLi.classList.remove('open'), 120); });
-        megaLi.querySelectorAll<HTMLElement>('.b-tile').forEach((tile) => tile.addEventListener('pointermove', (e) => {
-          const r = tile.getBoundingClientRect();
-          tile.style.setProperty('--mx', `${e.clientX - r.left}px`);
-          tile.style.setProperty('--my', `${e.clientY - r.top}px`);
-        }));
+        let armed = false;
+        const close = () => { clearTimeout(t); megaLi.classList.remove('open'); };
+        document.addEventListener('pointermove', (e) => { if (!megaLi.contains(e.target as Node)) armed = true; }, { passive: true });
+        megaLi.addEventListener('pointerenter', () => { if (!armed) return; clearTimeout(t); t = window.setTimeout(() => megaLi.classList.add('open'), 60); });
+        megaLi.addEventListener('pointerleave', () => { clearTimeout(t); t = window.setTimeout(close, 140); });
+        megaLi.addEventListener('focusin', () => megaLi.classList.add('open'));
+        megaLi.addEventListener('focusout', (e) => { if (!megaLi.contains(e.relatedTarget as Node)) close(); });
+        megaLi.addEventListener('keydown', (e) => { if (e.key === 'Escape') { close(); megaLi.querySelector<HTMLElement>('a')?.focus(); } });
+        // Hovering a device shows its brands on the right
+        const items = megaLi.querySelectorAll<HTMLElement>('[data-d]');
+        const panels = megaLi.querySelectorAll<HTMLElement>('[data-dp]');
+        const show = (id: string) => {
+          items.forEach((x) => x.classList.toggle('on', x.dataset.d === id));
+          panels.forEach((x) => x.classList.toggle('on', x.dataset.dp === id));
+        };
+        // Small hover intent so a diagonal move toward the brands doesn't flip the panel.
+        let dt = 0;
+        items.forEach((x) => {
+          x.addEventListener('pointerenter', () => { clearTimeout(dt); dt = window.setTimeout(() => { if (x.matches(':hover')) show(x.dataset.d!); }, 90); });
+          x.addEventListener('pointerleave', () => clearTimeout(dt));
+          x.addEventListener('focus', () => show(x.dataset.d!));
+        });
         megaLi.querySelectorAll('.mega a').forEach((a) => a.addEventListener('click', () => {
-          megaLi.classList.remove('open');
+          close();
+          armed = false;
           (document.activeElement as HTMLElement | null)?.blur();
         }));
       }
-
       // Theme switcher
       const pick = document.querySelector<HTMLElement>('[data-theme-pick]')!;
       const menu = pick.querySelector<HTMLElement>('.theme-menu')!;
@@ -360,118 +365,54 @@ const megaBrands = [
   .theme-menu button:hover { background: var(--tint-2); color: var(--ink); }
   .theme-menu button[aria-pressed='true'] { background: var(--accent-soft); color: var(--ink); font-weight: 700; }
   .sw { width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, var(--a) 50%, var(--b) 50%); box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
-  /* Services mega menu — bento grid */
-  .nav-inner { position: relative; }
+  /* Services dropdown — compact: device list · brand preview · footer */
+  .has-mega { position: relative; }
   .has-mega > a { display: inline-flex; align-items: center; gap: 4px; }
   .caret { width: 14px; height: 14px; transition: transform .25s; }
   .mega {
     position: absolute;
-    left: 0;
-    right: 0;
-    top: calc(100% + 12px);
+    top: calc(100% + 18px);
+    left: 50%;
+    width: 680px;
+    margin-left: -340px;
     display: grid;
-    grid-template-columns: 1.35fr 1fr 1fr 1fr;
-    grid-template-rows: 168px 168px auto;
-    gap: 10px;
-    padding: 12px;
+    grid-template-columns: 270px 1fr;
     background: var(--surface);
     border: 1px solid var(--line);
-    border-radius: 28px;
-    box-shadow: 0 40px 80px -30px rgba(15, 27, 45, .4), var(--shadow);
+    border-radius: 20px;
+    box-shadow: 0 24px 60px -24px rgba(15, 27, 45, .35), var(--shadow);
     opacity: 0;
     visibility: hidden;
-    transform: translateY(10px) scale(.985);
+    transform: translateY(8px) scale(.98);
     transform-origin: top center;
-    transition: opacity .22s, transform .22s cubic-bezier(.2,.8,.2,1), visibility 0s .22s;
+    transition: opacity .18s, transform .22s cubic-bezier(.2,.8,.2,1), visibility 0s .22s;
     z-index: 70;
   }
-  /* invisible bridge so the pointer can travel from the link into the panel */
-  .mega::before { content: ''; position: absolute; left: 0; right: 0; top: -16px; height: 16px; }
-  .has-mega.open .mega,
-  .has-mega:focus-within .mega { opacity: 1; visibility: visible; transform: none; transition: opacity .22s, transform .3s cubic-bezier(.2,.8,.2,1); }
-  .has-mega.open .caret, .has-mega:focus-within .caret { transform: rotate(180deg); }
+  .mega::before { content: ''; position: absolute; left: 0; right: 0; top: -20px; height: 20px; }
+  .has-mega.open .mega { opacity: 1; visibility: visible; transform: none; transition: opacity .18s, transform .22s cubic-bezier(.2,.8,.2,1); }
+  .has-mega.open .caret { transform: rotate(180deg); }
   .mega ul { list-style: none; margin: 0; padding: 0; }
-
-  nav .b-tile {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    padding: 18px;
-    border-radius: 20px;
-    background: hsl(var(--h) 70% var(--chip-l));
-    color: var(--ink);
-    overflow: hidden;
-    transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s;
-  }
-  nav .b-tile:hover { transform: translateY(-3px); box-shadow: 0 16px 30px -18px hsl(var(--h) 60% 35% / .6); }
-  .b-ico { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--surface); color: hsl(var(--h) 65% var(--chip-ink-l)); margin-bottom: auto; }
-  .b-ico svg { width: 21px; height: 21px; }
-  .b-tile strong { font-size: 15px; font-weight: 800; letter-spacing: -.01em; margin-top: 14px; }
-  .b-tile small { font-size: 12px; line-height: 1.35; color: var(--ink-2); }
-  .b-arrow { position: absolute; right: 14px; top: 14px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); color: var(--ink); opacity: 0; transform: translate(-4px, 4px); transition: opacity .2s, transform .2s; }
-  .b-arrow svg { width: 14px; height: 14px; }
-  nav .b-tile:hover .b-arrow { opacity: 1; transform: none; }
-
-  nav .b-hero { grid-row: span 2; background: var(--grad); color: var(--on-accent); padding: 24px; }
-  .b-hero .b-ico { width: 52px; height: 52px; border-radius: 16px; background: rgba(255,255,255,.18); color: inherit; }
-  .b-hero .b-ico svg { width: 28px; height: 28px; }
-  .b-hero strong { font-size: 24px; line-height: 1.1; }
-  .b-hero small { color: inherit; opacity: .85; font-size: 13px; }
-  .b-hero .b-count { margin-top: 10px; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; opacity: .75; }
-  .b-hero::after { content: ''; position: absolute; right: -50px; top: -50px; width: 180px; height: 180px; border-radius: 50%; background: rgba(255,255,255,.12); }
-
-  nav .b-cta { background: var(--ink); color: var(--bg); }
-  .b-cta small { color: inherit; opacity: .7; }
-  .b-cta .b-ico { background: rgba(255,255,255,.12); color: inherit; }
-  .b-cta em { font-style: normal; color: var(--lime); white-space: nowrap; }
-
-  .b-brands { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 12px 14px 6px; }
-  .b-brands > span { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin-right: 6px; }
-  nav .b-brands a { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); font-size: 13px; font-weight: 600; color: var(--ink-2); transition: border-color .15s, color .15s, background .15s; }
-  nav .b-brands a:hover { border-color: var(--violet); color: var(--violet); background: var(--accent-soft); }
-  /* --- motion --- */
-  .mega > * { opacity: 0; transform: translateY(14px); }
-  .has-mega.open .mega > *, .has-mega:focus-within .mega > * {
-    animation: bIn .5s cubic-bezier(.2,.8,.2,1) forwards;
-    animation-delay: calc(var(--i, 0) * 45ms + 40ms);
-  }
-  @keyframes bIn { to { opacity: 1; transform: none; } }
-  /* cursor spotlight (--mx/--my set by script) */
-  nav .b-tile::before {
-    content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
-    background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,.55), transparent 60%);
-    opacity: 0; transition: opacity .25s;
-  }
-  nav .b-tile:hover::before { opacity: 1; }
-  nav .b-cta::before, nav .b-hero::before { background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,.18), transparent 60%); }
-  nav .b-tile:hover .b-ico svg { animation: bBounce .6s cubic-bezier(.3,1.6,.5,1); }
-  @keyframes bBounce { 0% { transform: scale(1) rotate(0); } 40% { transform: scale(1.22) rotate(-8deg); } 100% { transform: scale(1) rotate(0); } }
-  /* hero tile: drifting gradient, sweeping shine, floating icon */
-  nav .b-hero { background: linear-gradient(120deg, var(--violet), var(--blue), var(--violet)); background-size: 220% 220%; animation: bDrift 7s ease-in-out infinite; }
-  .has-mega.open .mega > .b-hero { animation: bIn .5s cubic-bezier(.2,.8,.2,1) forwards, bDrift 7s ease-in-out infinite; }
-  @keyframes bDrift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-  .b-hero .b-ico { animation: bFloat 3.2s ease-in-out infinite; }
-  @keyframes bFloat { 50% { transform: translateY(-7px); } }
-  .b-hero > strong::after {
-    content: ''; position: absolute; top: 0; left: -60%; width: 40%; height: 100%;
-    background: linear-gradient(100deg, transparent, rgba(255,255,255,.28), transparent);
-    transform: skewX(-18deg); animation: bShine 4.5s ease-in-out infinite; pointer-events: none;
-  }
-  @keyframes bShine { 0%, 55% { left: -60%; } 100% { left: 130%; } }
-  /* live dot on the CTA tile */
-  .b-live { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--lime); }
-  .b-live i { width: 8px; height: 8px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 0 0 rgba(18,161,80,.6); animation: bPulse 1.8s infinite; }
-  @keyframes bPulse { 70% { box-shadow: 0 0 0 9px rgba(18,161,80,0); } 100% { box-shadow: 0 0 0 0 rgba(18,161,80,0); } }
-  .b-cta strong { margin-top: 4px; }
-  /* scrolling brands */
-  .b-brands { flex-wrap: nowrap; }
-  .b-marquee { flex: 1; overflow: hidden; mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
-  .b-track { display: flex; gap: 8px; width: max-content; animation: bMarquee 28s linear infinite; }
-  .b-brands:hover .b-track { animation-play-state: paused; }
-  @keyframes bMarquee { to { transform: translateX(calc(-50% - 4px)); } }
-  nav .b-track a { white-space: nowrap; }
-  @media (prefers-reduced-motion: reduce) { .mega > * { opacity: 1; transform: none; } }  @media (max-width: 900px) {
+  nav .d-list { display: grid; gap: 2px; align-content: start; padding: 10px; background: var(--tint); border-right: 1px solid var(--line); border-radius: 20px 0 0 0; }
+  nav .d-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; white-space: nowrap; border-radius: 10px; font-size: 14px; font-weight: 600; color: var(--ink-2); transition: background .15s, color .15s; }
+  .d-item svg.d-ico { width: 18px; height: 18px; color: var(--ink-3); flex: none; transition: color .15s; }
+  .d-item .d-go { width: 14px; height: 14px; margin-left: auto; opacity: 0; transform: translateX(-4px); transition: opacity .15s, transform .15s; }
+  nav .d-item.on { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(15,27,45,.08); }
+  .d-item.on svg.d-ico { color: var(--violet); }
+  .d-item.on .d-go { opacity: 1; transform: none; color: var(--violet); }
+  .d-panels { position: relative; padding: 18px 20px; min-height: 100%; }
+  .d-panel { display: none; }
+  .d-panel.on { display: block; animation: dIn .25s cubic-bezier(.2,.8,.2,1); }
+  @keyframes dIn { from { opacity: 0; transform: translateX(8px); } }
+  .d-panel h4 { font-size: 16px; font-weight: 800; }
+  .d-panel > p { font-size: 13px; color: var(--ink-3); margin: 2px 0 14px; }
+  nav .d-panel ul { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 10px; }
+  nav .d-panel ul a { display: block; padding: 6px 8px; margin-left: -8px; border-radius: 8px; font-size: 14px; color: var(--ink-2); transition: background .15s, color .15s; }
+  nav .d-panel ul a:hover { background: var(--tint-2); color: var(--violet); }
+  nav .d-panel .d-all { display: inline-block; margin-top: 12px; padding: 0; font-size: 13px; font-weight: 700; color: var(--violet); }
+  .d-foot { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-2); }
+  .d-foot b { color: var(--lime); }
+  nav .d-foot a { margin-left: auto; padding: 8px 14px; border-radius: 999px; background: var(--violet); color: var(--on-accent); font-weight: 700; font-size: 13px; }
+  @media (max-width: 900px) {
     .mega { display: none; }
     .caret { display: none; }
   }
