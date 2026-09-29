@@ -131,6 +131,10 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
           <div class="mnums">{[1, 2, 3, 4, 5, 6].map((n) => <button type="button" data-menu-id={String(n)} aria-pressed="false">{n}</button>)}</div>
         </div>
         <div class="menu-group">
+          <p>Offer popup</p>
+          <div class="mnums two"><button type="button" data-offer-id="spin" aria-pressed="false">Spin</button><button type="button" data-offer-id="flash" aria-pressed="false">Flash</button></div>
+        </div>
+        <div class="menu-group">
           <p>Reviews style</p>
           <div class="mnums">{[1, 2, 3, 4].map((n) => <button type="button" data-reviews-id={String(n)} aria-pressed="false">{n}</button>)}</div>
         </div>
@@ -197,13 +201,24 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
       const markMenu = () => menu.querySelectorAll<HTMLButtonElement>('[data-menu-id]').forEach((b) =>
         b.setAttribute('aria-pressed', String(b.dataset.menuId === (document.documentElement.dataset.menu ?? '1')))) ||
         menu.querySelectorAll<HTMLButtonElement>('[data-reviews-id]').forEach((b) =>
-          b.setAttribute('aria-pressed', String(b.dataset.reviewsId === (document.documentElement.dataset.reviews ?? '1'))));
+          b.setAttribute('aria-pressed', String(b.dataset.reviewsId === (document.documentElement.dataset.reviews ?? '1')))) ||
+        menu.querySelectorAll<HTMLButtonElement>('[data-offer-id]').forEach((b) => {
+          let t = 'spin'; try { t = localStorage.getItem('offer-type') === 'flash' ? 'flash' : 'spin'; } catch {}
+          b.setAttribute('aria-pressed', String(b.dataset.offerId === t));
+        });
       markMenu();
       toggle.addEventListener('click', () => {
         menu.hidden = !menu.hidden;
         toggle.setAttribute('aria-expanded', String(!menu.hidden));
       });
       menu.addEventListener('click', (e) => {
+        const ob = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-offer-id]');
+        if (ob) {
+          try { localStorage.setItem('offer-type', ob.dataset.offerId!); } catch {}
+          markMenu();
+          (window as any).__openOffer?.();
+          return;
+        }
         const rb = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-reviews-id]');
         if (rb) {
           document.documentElement.dataset.reviews = rb.dataset.reviewsId!;
@@ -407,6 +422,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
   .menu-group { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 8px; }
   .menu-group p { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); padding: 0 10px 6px; }
   .menu-group .mnums { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; padding: 0 6px; }
+  .menu-group .mnums.two { grid-template-columns: 1fr 1fr; }
   .theme-menu .mnums button { justify-content: center; padding: 7px 0; font-weight: 700; }
   @media (max-width: 1100px) { .mega { display: none; } .caret { display: none; } }
 </style>

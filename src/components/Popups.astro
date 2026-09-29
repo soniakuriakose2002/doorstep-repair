@@ -4,6 +4,7 @@
 // Each piece remembers being dismissed (localStorage), so returning visitors
 // are not shown it again.
 import { site, price } from '../data/site';
+import SpinWheel from './SpinWheel.astro';
 
 const whatsappLink = (msg: string) => `https://wa.me/${site.phone.tel.replace('+', '')}?text=${encodeURIComponent(msg)}`;
 
@@ -74,6 +75,8 @@ const bar = `Doorstep & pickup repair across ${site.country} — free diagnosis 
   </div>
 </div>
 
+<SpinWheel />
+
 <script define:vars={{ delay: promo.showAfterMs }} is:inline>
   window.__poDelay = delay;
 </script>
@@ -102,7 +105,13 @@ const bar = `Doorstep & pickup repair across ${site.country} — free diagnosis 
   const today = new Date().toDateString();
   const open = () => { po.hidden = false; requestAnimationFrame(() => po.classList.add('in')); document.documentElement.style.overflow = 'hidden'; };
   const close = () => { po.classList.remove('in'); document.documentElement.style.overflow = ''; setTimeout(() => (po.hidden = true), 350); put('offer-seen', today); };
-  if (get('offer-seen') !== today) setTimeout(open, (window as any).__poDelay ?? 4000);
+  // Which offer popup: 'spin' (default) or 'flash' — ?offer=… or Theme › Offer popup
+  const qOffer = new URLSearchParams(location.search).get('offer');
+  if (qOffer === 'spin' || qOffer === 'flash') put('offer-type', qOffer);
+  const offerType = () => (get('offer-type') === 'flash' ? 'flash' : 'spin');
+  (window as any).__offerClosed = () => put('offer-seen', today);
+  (window as any).__openOffer = () => (offerType() === 'spin' ? (window as any).__openSpin?.() : open());
+  if (get('offer-seen') !== today || qOffer) setTimeout(() => (window as any).__openOffer(), (window as any).__poDelay ?? 4000);
   po.querySelectorAll('[data-po-x]').forEach((b) => b.addEventListener('click', close));
   po.querySelectorAll('[data-po-go]').forEach((b) => b.addEventListener('click', () => put('offer-seen', today)));
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !po.hidden) close(); });
