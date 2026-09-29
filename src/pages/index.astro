@@ -2,7 +2,9 @@
 import Base from '../layouts/Base.astro';
 import MediaFrame from '../components/MediaFrame.astro';
 import HeroSearch from '../components/HeroSearch.astro';
-import { serviceModes, price } from '../data/site';
+import { reviews, sample } from '../data/reviews';
+import Testimonials from '../components/Testimonials.astro';
+import { serviceModes, price, site } from '../data/site';
 import { categories, totals, iconPaths } from '../data/devices';
 
 const allBrands = [...new Set(categories.flatMap((c) => c.brands.map((b) => b.name)))];
@@ -127,8 +129,49 @@ const angles = [
     </div>
   </section>
 
-  <!-- ============ CTA ============ -->
-  <section class="section">
+  <!-- ============ WHAT OUR CLIENTS SAY ============ -->
+  <section class="section" id="reviews">
+    <Testimonials />
+    <div class="wrap rv4">
+      <div class="tst" data-tst>
+        <div class="tst-intro">
+          <span class="tst-eyebrow">Testimonials</span>
+          <h2>What our clients say</h2>
+          <p>Doorstep visits, pickups and installs across {site.country} — in our customers’ words.</p>
+          {sample && <span class="tst-sample">Sample reviews — real ones coming soon</span>}
+          <div class="tst-ctrl">
+            <button type="button" data-tst-prev aria-label="Previous review"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <button type="button" data-tst-next aria-label="Next review"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+            <span class="tst-count"><b data-tst-n>01</b> / {String(reviews.length).padStart(2, '0')}</span>
+          </div>
+          <div class="tst-bar"><i data-tst-bar></i></div>
+        </div>
+
+        <div class="tst-stage">
+          <div class="tst-deck" aria-live="polite">
+            {reviews.map((r, i) => (
+              <figure class="tq" data-tq={i}>
+                <svg class="tq-mark" viewBox="0 0 48 48" aria-hidden="true"><path d="M20 10C11 13 6 20 6 29v9h14V24h-8c0-6 3-9 9-11zM42 10c-9 3-14 10-14 19v9h14V24h-8c0-6 3-9 9-11z" /></svg>
+                <span class="tq-tag">{r.service}</span>
+                <blockquote>{r.text}</blockquote>
+                <figcaption>
+                  <span class="tq-av">{r.area[0]}</span>
+                  <span class="tq-who"><b>{r.name}</b><small>{r.area}</small></span>
+                  <span class="tq-stars" aria-label={`${r.rating} out of 5`}>
+                    {[1, 2, 3, 4, 5].map((n) => <svg viewBox="0 0 24 24" class:list={[{ off: n > r.rating }]}><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z" /></svg>)}
+                  </span>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+          <div class="tst-tabs" role="tablist" aria-label="Choose a review">
+            {reviews.map((r, i) => <button type="button" role="tab" data-tst-go={i}>{r.service}</button>)}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ============ CTA ============ -->  <section class="section">
     <div class="wrap">
       <div class="cta glass" data-reveal>
         <h2 class="h-lg">Something broken? <span class="grad-text">Stay home.</span></h2>
@@ -194,6 +237,37 @@ const angles = [
   document.querySelectorAll<HTMLButtonElement>('[data-set-angle]').forEach((b) =>
     b.addEventListener('click', () => apply(lab.dataset.format!, b.dataset.setAngle!)));
 
+  // Testimonials deck: auto-advance, pause on hover, arrows, tabs
+  const tst = document.querySelector<HTMLElement>('[data-tst]');
+  if (tst) {
+    const cards = [...tst.querySelectorAll<HTMLElement>('[data-tq]')];
+    const tabs = [...tst.querySelectorAll<HTMLButtonElement>('[data-tst-go]')];
+    const bar = tst.querySelector<HTMLElement>('[data-tst-bar]')!;
+    const MS = 6000;
+    let cur = 0, timer = 0, left = MS, started = 0, paused = false;
+    const n = cards.length;
+    const render = (prev?: number) => {
+      cards.forEach((c, i) => {
+        const pos = (i - cur + n) % n;
+        c.dataset.pos = i === prev ? 'out' : pos < 3 ? String(pos) : 'hidden';
+        c.setAttribute('aria-hidden', String(pos !== 0));
+      });
+      if (prev !== undefined) setTimeout(() => { const pos = (prev - cur + n) % n; cards[prev].dataset.pos = pos < 3 ? String(pos) : 'hidden'; }, 650);
+      tabs.forEach((t, i) => t.setAttribute('aria-selected', String(i === cur)));
+      tst.querySelector('[data-tst-n]')!.textContent = String(cur + 1).padStart(2, '0');
+      bar.classList.remove('run'); void bar.offsetWidth; bar.classList.add('run');
+    };
+    const go = (i: number) => { const prev = cur; cur = (i + n) % n; render(prev !== cur && i === prev + 1 ? prev : undefined); schedule(MS); };
+    const schedule = (ms: number) => { clearTimeout(timer); left = ms; started = Date.now(); if (!paused) timer = window.setTimeout(() => go(cur + 1), ms); };
+    tst.style.setProperty('--tst-ms', `${MS}ms`);
+    tst.addEventListener('pointerenter', () => { paused = true; clearTimeout(timer); left -= Date.now() - started; });
+    tst.addEventListener('pointerleave', () => { paused = false; schedule(Math.max(left, 400)); });
+    tst.querySelector('[data-tst-next]')!.addEventListener('click', () => go(cur + 1));
+    tst.querySelector('[data-tst-prev]')!.addEventListener('click', () => go(cur - 1));
+    tabs.forEach((t, i) => t.addEventListener('click', () => go(i)));
+    render();
+    schedule(MS);
+  }
   const copy = document.querySelector<HTMLButtonElement>('[data-copy]')!;
   copy.addEventListener('click', async () => {
     const u = new URL(location.href);
@@ -319,4 +393,67 @@ const angles = [
       radial-gradient(circle at 80% 100%, rgba(var(--a2), .25), transparent 50%),
       var(--glass);
   }
-</style>
+  /* reviews — style 4: stacked deck on a bold panel (styles 1–3 in Testimonials.astro) */
+  .rv4 { display: none; }
+  :global(:root[data-reviews='4']) .rv4 { display: block; }
+  .tst {
+    position: relative; overflow: hidden;
+    display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 48px; align-items: center;
+    padding: clamp(32px, 5vw, 64px);
+    border-radius: 36px; color: #fff;
+    background:
+      radial-gradient(600px circle at 0% 0%, rgba(255,255,255,.14), transparent 55%),
+      radial-gradient(500px circle at 100% 100%, rgba(255,255,255,.10), transparent 55%),
+      linear-gradient(135deg, color-mix(in srgb, var(--violet) 88%, #000), color-mix(in srgb, var(--violet) 52%, #000));
+  }
+  .tst::after { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .5;
+    background-image: radial-gradient(rgba(255,255,255,.12) 1px, transparent 1.4px); background-size: 22px 22px;
+    mask-image: linear-gradient(90deg, #000, transparent 60%); }
+  .tst-intro { position: relative; z-index: 1; display: grid; gap: 16px; justify-items: start; }
+  .tst-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; opacity: .75; }
+  .tst h2 { font-size: clamp(36px, 4.6vw, 60px); line-height: 1.02; color: #fff; }
+  .tst-intro p { font-size: 17px; opacity: .8; max-width: 34ch; }
+  .tst-sample { padding: 5px 12px; border-radius: 999px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.25); font-size: 12px; font-weight: 600; }
+  .tst-ctrl { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+  .tst-ctrl button { display: grid; place-items: center; width: 50px; height: 50px; border-radius: 50%; border: 1px solid rgba(255,255,255,.35); background: transparent; color: #fff; transition: background .2s, color .2s, transform .2s; }
+  .tst-ctrl button:hover { background: #fff; color: var(--violet); transform: scale(1.06); }
+  .tst-ctrl svg { width: 20px; height: 20px; }
+  .tst-count { margin-left: 10px; font-size: 14px; opacity: .75; font-variant-numeric: tabular-nums; }
+  .tst-count b { font-size: 22px; opacity: 1; }
+  .tst-bar { width: 160px; height: 3px; border-radius: 3px; background: rgba(255,255,255,.2); overflow: hidden; }
+  .tst-bar i { display: block; height: 100%; width: 0; background: #fff; }
+  .tst-bar i.run { animation: tstBar var(--tst-ms, 6000ms) linear forwards; }
+  .tst:hover .tst-bar i.run { animation-play-state: paused; }
+  @keyframes tstBar { to { width: 100%; } }
+
+  .tst-stage { position: relative; z-index: 1; display: grid; gap: 22px; }
+  .tst-deck { position: relative; height: 300px; margin-top: 56px; }
+  .tq {
+    position: absolute; inset: 0; margin: 0; padding: 30px 32px; display: flex; flex-direction: column; gap: 14px;
+    background: var(--surface); color: var(--ink); border-radius: 26px;
+    box-shadow: 0 30px 60px -28px rgba(0,0,0,.55);
+    transform-origin: 50% 100%;
+    transition: transform .7s cubic-bezier(.2,.8,.2,1), opacity .5s;
+    opacity: 0; transform: translateY(40px) scale(.85); pointer-events: none;
+  }
+  .tq[data-pos='0'] { opacity: 1; transform: none; pointer-events: auto; z-index: 3; }
+  .tq[data-pos='1'] { opacity: .75; transform: translateY(-38px) scale(.93); z-index: 2; }
+  .tq[data-pos='2'] { opacity: .45; transform: translateY(-72px) scale(.86); z-index: 1; }
+  .tq[data-pos='out'] { opacity: 0; transform: translateX(-60%) rotate(-8deg); z-index: 4; }
+  .tq-mark { position: absolute; right: 26px; top: 22px; width: 54px; height: 54px; fill: var(--accent-soft); }
+  .tq-tag { align-self: flex-start; padding: 5px 12px; border-radius: 999px; background: var(--accent-soft); color: var(--violet); font-size: 12.5px; font-weight: 700; }
+  .tq blockquote { margin: 0; flex: 1; font-size: clamp(18px, 1.7vw, 22px); line-height: 1.45; font-weight: 600; letter-spacing: -.01em; }
+  .tq figcaption { display: flex; align-items: center; gap: 12px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .tq-av { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: var(--grad); color: var(--on-accent); font-weight: 800; font-size: 18px; flex: none; }
+  .tq-who b { display: block; font-size: 15px; }
+  .tq-who small { font-size: 13px; color: var(--ink-3); }
+  .tq-stars { margin-left: auto; display: flex; gap: 2px; }
+  .tq-stars svg { width: 18px; height: 18px; fill: #f5b400; }
+  .tq-stars svg.off { fill: var(--line); }
+
+  .tst-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tst-tabs button { padding: 7px 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,.28); background: transparent; color: rgba(255,255,255,.8); font-size: 13px; font-weight: 600; transition: all .2s; }
+  .tst-tabs button:hover { color: #fff; border-color: #fff; }
+  .tst-tabs button[aria-selected='true'] { background: #fff; color: var(--violet); border-color: #fff; }
+  @media (max-width: 900px) { .tst { grid-template-columns: 1fr; } .tst-deck { height: 340px; } }
+  @media (prefers-reduced-motion: reduce) { .tq { transition: none; } }</style>

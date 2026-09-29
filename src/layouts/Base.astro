@@ -16,7 +16,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 ---
 
 <!doctype html>
-<html lang="en" data-theme="danat" data-menu="1">
+<html lang="en" data-theme="danat" data-menu="1" data-reviews="1">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -36,6 +36,9 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
         let m = new URLSearchParams(location.search).get('menu');
         try { if (m && /^[1-6]$/.test(m)) localStorage.setItem('menu', m); else m = localStorage.getItem('menu'); } catch {}
         if (m && /^[1-6]$/.test(m)) document.documentElement.dataset.menu = m;
+        let rv = new URLSearchParams(location.search).get('reviews');
+        try { if (rv && /^[1-4]$/.test(rv)) localStorage.setItem('reviews', rv); else rv = localStorage.getItem('reviews'); } catch {}
+        if (rv && /^[1-4]$/.test(rv)) document.documentElement.dataset.reviews = rv;
       })();
     </script>
   </head>
@@ -125,6 +128,10 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
           <p>Menu style</p>
           <div class="mnums">{[1, 2, 3, 4, 5, 6].map((n) => <button type="button" data-menu-id={String(n)} aria-pressed="false">{n}</button>)}</div>
         </div>
+        <div class="menu-group">
+          <p>Reviews style</p>
+          <div class="mnums">{[1, 2, 3, 4].map((n) => <button type="button" data-reviews-id={String(n)} aria-pressed="false">{n}</button>)}</div>
+        </div>
       </div>
     </div>
 
@@ -186,13 +193,25 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
         b.setAttribute('aria-pressed', String(b.dataset.themeId === current())));
       mark();
       const markMenu = () => menu.querySelectorAll<HTMLButtonElement>('[data-menu-id]').forEach((b) =>
-        b.setAttribute('aria-pressed', String(b.dataset.menuId === (document.documentElement.dataset.menu ?? '1'))));
+        b.setAttribute('aria-pressed', String(b.dataset.menuId === (document.documentElement.dataset.menu ?? '1')))) ||
+        menu.querySelectorAll<HTMLButtonElement>('[data-reviews-id]').forEach((b) =>
+          b.setAttribute('aria-pressed', String(b.dataset.reviewsId === (document.documentElement.dataset.reviews ?? '1'))));
       markMenu();
       toggle.addEventListener('click', () => {
         menu.hidden = !menu.hidden;
         toggle.setAttribute('aria-expanded', String(!menu.hidden));
       });
       menu.addEventListener('click', (e) => {
+        const rb = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-reviews-id]');
+        if (rb) {
+          document.documentElement.dataset.reviews = rb.dataset.reviewsId!;
+          try { localStorage.setItem('reviews', rb.dataset.reviewsId!); } catch {}
+          const u = new URL(location.href);
+          u.searchParams.set('reviews', rb.dataset.reviewsId!);
+          history.replaceState(null, '', u);
+          markMenu();
+          return;
+        }
         const mb = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-menu-id]');
         if (mb) {
           document.documentElement.dataset.menu = mb.dataset.menuId!;
