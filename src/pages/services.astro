@@ -16,7 +16,7 @@ const payload = JSON.stringify({
 });
 ---
 
-<Base title="Services" description="Doorstep repair and pickup & service for phones, laptops, desktops, printers, CCTV and networking. Coverage areas, all brands and models, ₹0 estimates.">
+<Base title="Services" description="Doorstep repair and pickup & service for phones, laptops, desktops, printers, CCTV and networking. Coverage areas across Oman, all brands and models, OMR 0 estimates.">
   <script type="application/json" id="svc-data" set:html={payload} />
 
   <section class="page-head">
@@ -79,7 +79,7 @@ const payload = JSON.stringify({
             ))}
           </div>
         ))}
-        <p class="cov-note">Area not listed? Book anyway — we confirm coverage before the visit. Coverage shown is for {site.city}.</p>
+        <p class="cov-note">Area not listed? Book anyway — we confirm coverage before the visit. Coverage shown is around our {site.branches.length} branches in {site.country}.</p>
       </div>
     </div>
   </section>
@@ -218,6 +218,8 @@ const payload = JSON.stringify({
 </Base>
 
 <script>
+  import { price } from '../data/site';
+
   type Cat = { id: string; name: string; onsiteOnly: boolean; issues: string[]; brands: { id: string; name: string; models: string[] }[] };
   type Data = {
     categories: Cat[];
@@ -387,7 +389,7 @@ const payload = JSON.stringify({
       return;
     }
     msg.className = 'form-msg ok';
-    msg.textContent = `Thanks, ${fd.get('name')}. Your ${titles[mode].toLowerCase()} request for ${fd.get('model')} is noted — estimate ₹0. (Demo: bookings are not sent anywhere yet.)`;
+    msg.textContent = `Thanks, ${fd.get('name')}. Your ${titles[mode].toLowerCase()} request for ${fd.get('model')} is noted — estimate ${price()}. (Demo: bookings are not sent anywhere yet.)`;
   });
 
   // Deep links from the home page and nav menu: ?mode=pickup, ?cat=printer, ?q=Samsung

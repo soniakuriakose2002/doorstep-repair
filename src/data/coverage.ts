@@ -1,5 +1,7 @@
-// SAMPLE coverage areas — not confirmed. Doorstep is the tighter zone
-// (a technician on a bike); pickup covers the wider ring.
+// SAMPLE coverage areas around Danat's three branches — the branch cities are
+// real (Ruwi/Muscat, Sohar, Salalah); the area lists are not confirmed by the
+// client. Doorstep is the tighter zone (a technician on the road); pickup
+// covers the wider ring.
 import type { ServiceModeId } from './site';
 
 export interface Zone {
@@ -11,20 +13,17 @@ export const coverage: Record<ServiceModeId, { eta: string; zones: Zone[] }> = {
   doorstep: {
     eta: 'Technician at your door in about 60 minutes',
     zones: [
-      { name: 'Central', areas: ['MG Road', 'Indiranagar', 'Domlur', 'Richmond Town', 'Shivajinagar', 'Frazer Town'] },
-      { name: 'South', areas: ['Koramangala', 'HSR Layout', 'BTM Layout', 'Jayanagar', 'JP Nagar', 'Banashankari'] },
-      { name: 'East', areas: ['Whitefield', 'Marathahalli', 'Bellandur', 'Brookefield', 'KR Puram', 'Mahadevapura'] },
-      { name: 'North', areas: ['Hebbal', 'RT Nagar', 'Sahakar Nagar', 'Malleshwaram', 'Yeshwanthpur'] },
+      { name: 'Muscat (Ruwi branch)', areas: ['Ruwi', 'Muttrah', 'Wadi Kabir', 'Darsait', 'Al Wattayah', 'Qurum', 'Al Khuwair', 'Madinat Sultan Qaboos', 'Al Ghubrah', 'Bausher', 'Al Azaiba'] },
+      { name: 'Sohar', areas: ['Sohar', 'Falaj Al Qabail', 'Al Hambar'] },
+      { name: 'Salalah', areas: ['Salalah', 'Al Saada', 'Al Dahariz', 'Awqad'] },
     ],
   },
   pickup: {
     eta: 'Picked up same day, back in 24–48 hours',
     zones: [
-      { name: 'Central', areas: ['MG Road', 'Indiranagar', 'Domlur', 'Richmond Town', 'Shivajinagar', 'Frazer Town', 'Ulsoor'] },
-      { name: 'South', areas: ['Koramangala', 'HSR Layout', 'BTM Layout', 'Jayanagar', 'JP Nagar', 'Banashankari', 'Electronic City', 'Bannerghatta Road', 'Kanakapura Road'] },
-      { name: 'East', areas: ['Whitefield', 'Marathahalli', 'Bellandur', 'Brookefield', 'KR Puram', 'Mahadevapura', 'Sarjapur Road', 'Varthur', 'Hoskote'] },
-      { name: 'North', areas: ['Hebbal', 'RT Nagar', 'Sahakar Nagar', 'Malleshwaram', 'Yeshwanthpur', 'Yelahanka', 'Thanisandra', 'Devanahalli'] },
-      { name: 'West', areas: ['Rajajinagar', 'Vijayanagar', 'Basaveshwaranagar', 'Kengeri', 'Nagarbhavi', 'RR Nagar'] },
+      { name: 'Muscat (Ruwi branch)', areas: ['Ruwi', 'Muttrah', 'Wadi Kabir', 'Darsait', 'Al Wattayah', 'Qurum', 'Al Khuwair', 'Madinat Sultan Qaboos', 'Al Ghubrah', 'Bausher', 'Al Azaiba', 'Al Hail', 'Al Mawaleh', 'Al Khoudh', 'Seeb', 'Mabellah', 'Al Amerat', 'Qurayyat'] },
+      { name: 'Al Batinah (Sohar branch)', areas: ['Sohar', 'Falaj Al Qabail', 'Al Hambar', 'Liwa', 'Shinas', 'Saham', 'Al Khaburah', 'Barka', 'Al Suwaiq'] },
+      { name: 'Dhofar (Salalah branch)', areas: ['Salalah', 'Al Saada', 'Al Dahariz', 'Awqad', 'Taqah', 'Mirbat', 'Raysut'] },
     ],
   },
 };

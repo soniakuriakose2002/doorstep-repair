@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import { site, nav } from '../data/site';
+import { site, nav, price } from '../data/site';
 import { categories, iconPaths } from '../data/devices';
 
 interface Props {
@@ -64,9 +64,10 @@ const mega = [
     <header class="nav">
       <div class="wrap nav-inner glass">
         <a href="/" class="logo">
-          <span class="logo-mark" aria-hidden="true">
-            <svg viewBox="0 0 32 32"><rect x="9" y="4" width="14" height="24" rx="4" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M13 16l2.4 2.4L20 13.6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </span>
+          <picture class="logo-img">
+            <source srcset="/brand/danat-logo.webp" type="image/webp" />
+            <img src="/brand/danat-logo.png" alt="" width="40" height="40" />
+          </picture>
           {site.name}
         </a>
         <nav aria-label="Main">
@@ -115,7 +116,12 @@ const mega = [
       <div class="wrap footer-inner">
         <div>
           <a href="/" class="logo">{site.name}</a>
-          <p class="muted">{site.tagline}. Doorstep repair and pickup across {site.city}.</p>
+          <p class="muted">{site.tagline}. Doorstep repair and pickup across {site.country} since {site.since} — branches in {site.branches.join(', ')}.</p>
+          <ul class="contact">
+            <li><a href={`tel:${site.phone.tel}`}>{site.phone.display}</a></li>
+            <li><a href={`mailto:${site.email}`}>{site.email}</a></li>
+            <li>{site.address}</li>
+          </ul>
         </div>
         <ul class="footer-nav">
           {nav.map((n) => <li><a href={n.href}>{n.label}</a></li>)}
@@ -123,7 +129,7 @@ const mega = [
       </div>
       <div class="wrap footer-base">
         <span>© {new Date().getFullYear()} {site.name}</span>
-        <span>All estimates shown as ₹0 — pricing to be announced.</span>
+        <span>All estimates shown as {price()} — pricing to be announced.</span>
       </div>
     </footer>
 
@@ -264,6 +270,9 @@ const mega = [
     color: var(--on-accent);
   }
   .logo-mark svg { width: 22px; height: 22px; }
+  .logo-img img { display: block; width: 40px; height: 40px; border-radius: 10px; background: #fff; object-fit: contain; }
+  .contact { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 6px; font-size: 14px; color: rgba(255,255,255,.75); }
+  .contact a:hover { color: #fff; text-decoration: underline; }
   nav { margin-left: auto; }
   nav ul { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; }
   nav a {

@@ -30,7 +30,7 @@ const show = (f: Format) => !format || format === f;
     <div class="tilt">
       {show('image') && (
         <div class="media m-image" data-kind="image">
-          <img src={IMG} alt="Electronics repaired at the doorstep, estimate ₹0" width="1280" height="720" loading="lazy" decoding="async" />
+          <img src={IMG} alt={`Electronics repaired at the doorstep, estimate ${price()}`} width="1280" height="720" loading="lazy" decoding="async" />
         </div>
       )}
       {show('post') && (

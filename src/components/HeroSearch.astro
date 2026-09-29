@@ -5,8 +5,8 @@ import { site } from '../data/site';
 import { coverage } from '../data/coverage';
 import { categories } from '../data/devices';
 
-// SAMPLE: only one country/city until real locations are confirmed.
-const countries = [{ name: 'India', cities: [site.city] }];
+// Danat's three branch cities (Al Hail was withdrawn by the client).
+const countries = [{ name: site.country, cities: ['Muscat', 'Sohar', 'Salalah'] }];
 
 const areas = [...new Set(Object.values(coverage).flatMap((m) => m.zones.flatMap((z) => z.areas)))].sort();
 const doorstep = coverage.doorstep.zones.flatMap((z) => z.areas);

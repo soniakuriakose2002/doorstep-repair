@@ -1,16 +1,23 @@
-// Site-wide settings.
-// Brand name set by the user (2026-09-28). PLACEHOLDER: city and contact details are not confirmed yet.
-// Replace them here and they update everywhere.
+// Site-wide settings. Replace values here and they update everywhere.
+// PROVENANCE: contact details are copied from the Danat Computers project's
+// src/data/site.ts, where they are marked verified against danatcomputers.com.
+// Only Ruwi's address and phone are confirmed; Sohar and Salalah are city only.
 
 export const site = {
   name: 'Danat Computers',
   handle: 'danatcomputers', // social-post preview handle
   tagline: 'Electronics repair at your doorstep',
-  city: 'Bengaluru',
-  currency: '₹',
+  city: 'Muscat',
+  country: 'Oman',
+  currency: 'OMR ',
+  since: 2003,
+  email: 'danatruwi@danatcomputers.com',
+  phone: { display: '+968 7832 3116', tel: '+96878323116' },
+  address: 'Computer Street, Ruwi, PO Box 502, PC 118, Sultanate of Oman',
+  branches: ['Ruwi, Muscat', 'Sohar', 'Salalah'],
 };
 
-// Manager instruction: no real prices for now. Every amount on the site
+// Manager instruction: no real prices for now (shown as OMR 0). Every amount on the site
 // comes from here, so switching to real pricing later is one change.
 export const PRICE = 0;
 export const price = (amount: number = PRICE) => `${site.currency}${amount}`;
