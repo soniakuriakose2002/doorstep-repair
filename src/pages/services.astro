@@ -3,6 +3,9 @@ import Base from '../layouts/Base.astro';
 import { serviceModes, price, site } from '../data/site';
 import { categories, totals, iconPaths } from '../data/devices';
 import { coverage } from '../data/coverage';
+
+// Map centre for each coverage zone, in zone order (Muscat, Sohar/Al Batinah, Salalah/Dhofar).
+const zoneGeo: [number, number][] = [[23.593, 58.556], [24.347, 56.709], [17.019, 54.089]];
 import ServiceCart from '../components/ServiceCart.astro';
 
 // Common questions, answered from how this site's service actually works.
@@ -43,57 +46,107 @@ const payload = JSON.stringify({
   <!-- ============ SERVICE MODE + COVERAGE ============ -->
   <section class="section tight" id="modes">
     <div class="wrap">
+      <div class="step-head" data-reveal>
+        <span class="step-no">1</span>
+        <div><span class="eyebrow">Choose your service</span><h2 class="h-lg">How should we reach you?</h2></div>
+      </div>
+
       <div class="mode-pick" role="radiogroup" aria-label="Service type">
         {serviceModes.map((m, i) => (
-          <button type="button" role="radio" class="mode-card glass" data-mode={m.id} aria-checked={i === 0 ? 'true' : 'false'} data-reveal style={`--d:${i * .08}s`}>
+          <button type="button" role="radio" class="mode-card" data-mode={m.id} aria-checked={i === 0 ? 'true' : 'false'} data-reveal style={`--d:${i * .08}s`}>
             <span class="mode-radio" aria-hidden="true"></span>
-            <span class="mode-icon" aria-hidden="true">
-              {m.id === 'doorstep' ? (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
-              ) : (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M6 17h5l3-7h4M14 10l-2-3H9"/></svg>
-              )}
+            <span class="mc-top">
+              <span class="mode-icon" aria-hidden="true">
+                {m.id === 'doorstep' ? (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M6 17h5l3-7h4M14 10l-2-3H9"/></svg>
+                )}
+              </span>
+              <span class="mc-titles">
+                <span class="mode-title">{m.title}</span>
+                <span class="mode-short">{m.short}</span>
+              </span>
             </span>
-            <span class="mode-title">{m.title}</span>
-            <span class="mode-short">{m.short}</span>
-            <span class="mode-body">{m.body}</span>
-            <span class="mode-devices">
-              {categories.filter((c) => m.id === 'doorstep' || !c.onsiteOnly).map((c) => <span>{c.name}</span>)}
+            <span class="mc-eta">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+              {coverage[m.id].eta}
             </span>
-            <span class="mode-fee">Visit / pickup fee <span class="price-tag">{price()}</span></span>
+            <ol class="mc-steps">
+              {m.steps.map((st, n) => <li><b>{n + 1}</b><span>{st}</span></li>)}
+            </ol>
+            <span class="mc-for">
+              <small>Works for</small>
+              <span class="mc-icons">
+                {categories.filter((c) => m.id === 'doorstep' || !c.onsiteOnly).map((c) => (
+                  <span class="mc-ic" title={c.name} aria-label={c.name}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" set:html={iconPaths[c.icon]} /></span>
+                ))}
+              </span>
+            </span>
+            <span class="mc-foot">
+              <span>Visit / pickup fee <span class="price-tag">{price()}</span></span>
+              <span class="mc-choose"><span data-choose>{i === 0 ? 'Selected' : 'Choose'}</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+            </span>
           </button>
         ))}
       </div>
 
-      <div class="coverage glass" data-reveal>
+      <div class="step-head sh2" data-reveal>
+        <span class="step-no">2</span>
+        <div><span class="eyebrow">Check your area</span><h2 class="h-lg">Where we cover · <span data-cov-title>Doorstep Service</span></h2></div>
+      </div>
+
+      <div class="coverage" data-reveal>
         <div class="cov-head">
-          <div>
-            <h2 class="h-md">Service coverage · <span data-cov-title>Doorstep Service</span></h2>
-            <p class="cov-eta" data-cov-eta>{coverage.doorstep.eta}</p>
-          </div>
+          <p class="cov-eta" data-cov-eta>{coverage.doorstep.eta}</p>
           <label class="search">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-            <input type="search" placeholder="Check your area" data-area-search autocomplete="off" aria-label="Search your area" />
+            <input type="search" placeholder="Type your area, e.g. Qurum" data-area-search autocomplete="off" aria-label="Search your area" />
           </label>
         </div>
         <p class="cov-result" data-cov-result aria-live="polite"></p>
         {serviceModes.map((m, i) => (
           <div class="zones" data-zones={m.id} hidden={i !== 0}>
-            {coverage[m.id].zones.map((z) => (
-              <div class="zone">
-                <h3>{z.name} <small>{z.areas.length} areas</small></h3>
-                <div class="areas">
-                  {z.areas.map((a) => <button type="button" class="area" data-area={a}>{a}</button>)}
+            <div class="z-tabs" role="tablist" aria-label="Branch area">
+              {coverage[m.id].zones.map((z, k) => (
+                <button type="button" role="tab" class="z-tab" data-ztab={k} aria-selected={k === 0 ? 'true' : 'false'}>
+                  <span class="z-dot" aria-hidden="true"></span>
+                  <span><b>{z.name.replace(/ \(.*\)/, '')}</b><small>{z.areas.length} areas{/\((.*)\)/.test(z.name) ? ` · ${z.name.match(/\((.*)\)/)![1]}` : ''}</small></span>
+                </button>
+              ))}
+            </div>
+            <div class="z-panels">
+              {coverage[m.id].zones.map((z, k) => (
+                <div class="zone" data-zpanel={k} hidden={k !== 0} role="tabpanel">
+                  <h3>{z.name}</h3>
+                  <div class="areas">
+                    {z.areas.map((a) => <button type="button" class="area" data-area={a}>{a}</button>)}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+            <div class="z-map">
+              {coverage[m.id].zones.map((z, k) => (
+                <iframe
+                  data-zmap={k}
+                  hidden={k !== 0}
+                  title={`Map of ${z.name}`}
+                  loading="lazy"
+                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${zoneGeo[k][1] - .09}%2C${zoneGeo[k][0] - .06}%2C${zoneGeo[k][1] + .09}%2C${zoneGeo[k][0] + .06}&layer=mapnik&marker=${zoneGeo[k][0]}%2C${zoneGeo[k][1]}`}
+                ></iframe>
+              ))}
+            </div>
           </div>
         ))}
-        <p class="cov-note">Area not listed? Book anyway — we confirm coverage before the visit. Coverage shown is around our {site.branches.length} branches in {site.country}.</p>
+        <ul class="trust">
+          <li><span>✓</span>Diagnosis before any work</li>
+          <li><span>✓</span>Visit or pickup {price()}</li>
+          <li><span>✓</span>Updates on WhatsApp</li>
+          <li><span>✓</span>Not listed? Book anyway — we confirm</li>
+        </ul>
       </div>
     </div>
   </section>
-
   <!-- ============ SERVICE CART (like urbancompany.com) ============ -->
   <section class="section tight" id="cart">
     <div class="wrap">
@@ -312,12 +365,29 @@ const payload = JSON.stringify({
     }
   };
 
+  // Branch tabs inside each mode's coverage
+  const setZone = (box: HTMLElement, k: string) => {
+    box.querySelectorAll<HTMLElement>('[data-ztab]').forEach((t) => t.setAttribute('aria-selected', String(t.dataset.ztab === k)));
+    box.querySelectorAll<HTMLElement>('[data-zpanel]').forEach((p) => (p.hidden = p.dataset.zpanel !== k));
+    box.querySelectorAll<HTMLElement>('[data-zmap]').forEach((p) => (p.hidden = p.dataset.zmap !== k));
+  };
+  $$('[data-zones]').forEach((box) => box.querySelectorAll<HTMLElement>('[data-ztab]').forEach((t) => t.addEventListener('click', () => setZone(box, t.dataset.ztab!))));
+  areaSearch.addEventListener('input', () => {
+    const box = $(`[data-zones="${mode}"]`);
+    const hit = box.querySelector<HTMLElement>('.area.hit');
+    if (hit) setZone(box, hit.closest<HTMLElement>('[data-zpanel]')!.dataset.zpanel!);
+  });
+
   const setMode = (m: string) => {
     if (!data.coverage[m]) return;
     // CCTV and networking are installed on-site: they can only be doorstep.
     if (m === 'pickup' && cat()?.onsiteOnly) m = 'doorstep';
     mode = m;
-    $$('[data-mode]').forEach((c) => c.setAttribute('aria-checked', String(c.dataset.mode === m)));
+    $$('[data-mode]').forEach((c) => {
+      c.setAttribute('aria-checked', String(c.dataset.mode === m));
+      const ch = c.querySelector('[data-choose]');
+      if (ch) ch.textContent = c.dataset.mode === m ? 'Selected' : 'Choose';
+    });
     $$('[data-zones]').forEach((z) => (z.hidden = z.dataset.zones !== m));
     $('[data-cov-title]').textContent = titles[m];
     $('[data-cov-eta]').textContent = data.coverage[m].eta;
@@ -490,74 +560,89 @@ const payload = JSON.stringify({
   .page-head h1 { margin: 18px 0 20px; max-width: 16ch; }
   .section.tight { padding: clamp(48px, 7vw, 88px) 0; }
 
+
+  /* step headings */
+  .step-head { display: flex; align-items: center; gap: 18px; margin-bottom: 26px; }
+  .step-head h2 { margin-top: 6px; font-size: clamp(28px, 3.4vw, 42px); }
+  .sh2 { margin-top: 64px; }
+  .step-no { display: grid; place-items: center; width: 54px; height: 54px; border-radius: 16px; background: var(--grad); color: var(--on-accent); font-family: var(--display); font-size: 24px; font-weight: 800; flex: none; box-shadow: 0 14px 30px -14px rgba(var(--a1), .7); }
+
   /* mode cards */
-  .mode-pick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  .mode-pick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
   .mode-card {
-    position: relative;
-    display: grid;
-    gap: 8px;
-    justify-items: start;
-    align-content: start;
-    text-align: left;
-    padding: 28px;
-    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s;
+    position: relative; display: flex; flex-direction: column; gap: 18px; text-align: left;
+    padding: 28px; background: var(--surface); border: 1.5px solid var(--line); border-radius: 26px; box-shadow: var(--shadow);
+    transition: border-color .3s, box-shadow .3s, transform .3s;
   }
   .mode-card:hover { transform: translateY(-3px); }
-  .mode-card[aria-checked='true'] {
-    background:
-      linear-gradient(var(--surface), var(--surface)) padding-box,
-      var(--grad) border-box;
-    border: 1.5px solid transparent;
-    box-shadow: 0 24px 60px -24px rgba(var(--a1), .5);
-  }
-  .mode-radio {
-    position: absolute;
-    top: 24px;
-    right: 24px;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    border: 2px solid var(--ink-3);
-    transition: border-color .2s, box-shadow .2s;
-  }
+  .mode-card[aria-checked='true'] { border-color: var(--violet); box-shadow: 0 26px 56px -28px rgba(var(--a1), .6); }
+  .mode-card[aria-checked='true']::before { content: ''; position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(420px circle at 0% 0%, var(--accent-soft), transparent 60%); pointer-events: none; }
+  .mode-card > * { position: relative; }
+  .mode-card > .mode-radio { position: absolute; top: 26px; right: 26px; width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--ink-3); transition: border-color .2s, box-shadow .2s; }
   [aria-checked='true'] > .mode-radio { border-color: var(--violet); box-shadow: inset 0 0 0 4px var(--surface), inset 0 0 0 12px var(--violet); }
-  .mode-icon { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 15px; background: var(--tint-2); margin-bottom: 8px; transition: background .3s, color .3s; }
+  .mc-top { display: flex; align-items: center; gap: 16px; padding-right: 36px; }
+  .mode-icon { display: grid; place-items: center; width: 60px; height: 60px; border-radius: 18px; background: var(--tint-2); flex: none; transition: background .3s, color .3s; }
   [aria-checked='true'] .mode-icon { background: var(--grad); color: var(--on-accent); }
-  .mode-icon svg { width: 26px; height: 26px; }
-  .mode-title { font-family: var(--display); font-size: 24px; font-weight: 600; }
-  .mode-short { color: var(--violet); font-weight: 500; font-size: 15px; }
-  .mode-body { color: var(--ink-2); font-size: 15px; }
-  .mode-devices { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-  .mode-devices span { padding: 3px 10px; border-radius: 999px; background: var(--tint); border: 1px solid var(--line); font-size: 12px; color: var(--ink-2); }
-  .mode-fee { margin-top: 6px; font-size: 14px; color: var(--ink-3); }
-  @media (max-width: 720px) { .mode-pick { grid-template-columns: 1fr; } }
+  .mode-icon svg { width: 30px; height: 30px; }
+  .mc-titles { display: grid; gap: 2px; }
+  .mode-title { font-family: var(--display); font-size: 24px; font-weight: 800; }
+  .mode-short { color: var(--ink-2); font-size: 15px; }
+  .mc-eta { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 999px; background: var(--accent-soft); color: var(--violet); font-size: 13px; font-weight: 700; }
+  .mc-eta svg { width: 16px; height: 16px; }
+  .mc-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); position: relative; }
+  .mc-steps::before { content: ''; position: absolute; left: 16%; right: 16%; top: 15px; height: 2px; background: repeating-linear-gradient(90deg, var(--line) 0 6px, transparent 6px 12px); }
+  [aria-checked='true'] .mc-steps::before { background: repeating-linear-gradient(90deg, var(--violet) 0 6px, transparent 6px 12px); }
+  .mc-steps li { position: relative; display: grid; justify-items: center; gap: 8px; text-align: center; font-size: 13px; color: var(--ink-2); line-height: 1.3; }
+  .mc-steps b { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--surface); border: 2px solid var(--line); font-size: 13px; color: var(--ink-2); }
+  [aria-checked='true'] .mc-steps b { border-color: var(--violet); color: var(--violet); }
+  .mc-for { display: flex; align-items: center; gap: 12px; padding-top: 16px; border-top: 1px dashed var(--line); }
+  .mc-for small { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); flex: none; }
+  .mc-icons { display: flex; flex-wrap: wrap; gap: 6px; }
+  .mc-ic { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; background: var(--tint); color: var(--ink-2); }
+  .mc-ic svg { width: 17px; height: 17px; }
+  .mc-foot { display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: var(--ink-3); }
+  .mc-choose { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; color: var(--violet); }
+  .mc-choose svg { width: 16px; height: 16px; transition: transform .2s; }
+  .mode-card:hover .mc-choose svg { transform: translateX(3px); }
+  @media (max-width: 820px) { .mode-pick { grid-template-columns: 1fr; } }
 
-  /* coverage */
-  .coverage { margin-top: 20px; padding: clamp(20px, 3vw, 32px); }
-  .cov-head { display: flex; justify-content: space-between; align-items: start; gap: 20px; flex-wrap: wrap; }
-  .cov-eta { color: var(--ink-2); margin-top: 6px; }
-  .cov-result { min-height: 1.6em; margin: 14px 0 4px; color: var(--ink-2); }
+  /* coverage: branch tabs · areas · map */
+  .coverage { padding: clamp(20px, 3vw, 30px); background: var(--surface); border: 1px solid var(--line); border-radius: 26px; box-shadow: var(--shadow); }
+  .cov-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .cov-eta { color: var(--ink-2); font-weight: 600; }
+  .cov-result { margin: 12px 0 0; color: var(--ink-2); font-size: 14px; }
+  .cov-result:empty { display: none; }
   .cov-result :global(b) { color: var(--lime); }
   .cov-result :global(.linkish) { border: 0; background: none; padding: 0; color: var(--violet); text-decoration: underline; }
-  .zones { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 22px; margin-top: 10px; animation: fadeUp .5s both; }
+  .zones { display: grid; grid-template-columns: 230px minmax(0, 1fr) minmax(0, 1fr); gap: 22px; margin-top: 22px; animation: fadeUp .5s both; }
+  .zones[hidden] { display: none; }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } }
-  .zone h3 { font-family: var(--body); font-size: 13px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 10px; }
-  .zone h3 small { font-weight: 500; letter-spacing: 0; text-transform: none; margin-left: 4px; }
-  .areas { display: flex; flex-wrap: wrap; gap: 8px; }
-  .area {
-    padding: 7px 13px;
-    border-radius: 999px;
-    border: 1px solid var(--line);
-    background: var(--surface);
-    font-size: 14px;
-    color: var(--ink-2);
-    transition: all .2s;
-  }
-  .area:hover { color: var(--ink); border-color: var(--violet); }
-  .area.hit { color: #fff; background: var(--lime); border-color: var(--lime); }
-  .area.picked { color: var(--on-accent); background: var(--violet); border-color: var(--violet); }
+  .z-tabs { display: grid; gap: 8px; align-content: start; }
+  .z-tab { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); text-align: left; transition: border-color .2s, background .2s; }
+  .z-tab b { display: block; font-size: 15px; }
+  .z-tab small { font-size: 12px; color: var(--ink-3); }
+  .z-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--line); flex: none; transition: background .2s, box-shadow .2s; }
+  .z-tab[aria-selected='true'] { border-color: var(--violet); background: var(--accent-soft); }
+  .z-tab[aria-selected='true'] .z-dot { background: var(--violet); box-shadow: 0 0 0 4px rgba(var(--a1), .2); }
+  .zone { animation: fadeUp .35s both; }
+  .zone[hidden] { display: none; }
+  .zone h3 { font-family: var(--body); font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 12px; }
+  .areas { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; }
+  .area { justify-self: stretch; display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 0; border-radius: 10px; background: none; font-size: 14px; color: var(--ink-2); text-align: left; transition: background .15s, color .15s; }
+  .area::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--line); flex: none; }
+  .area:hover { background: var(--tint); color: var(--ink); }
+  .area.hit { background: rgba(18, 161, 80, .1); color: var(--lime); font-weight: 700; }
+  .area.hit::before { background: var(--lime); }
+  .area.picked { background: var(--accent-soft); color: var(--violet); font-weight: 700; }
+  .area.picked::before { background: var(--violet); }
   .area.dim { opacity: .35; }
-  .cov-note { margin-top: 22px; font-size: 13px; color: var(--ink-3); }
+  .z-map iframe { display: block; width: 100%; height: 100%; min-height: 300px; border: 0; border-radius: 18px; background: var(--tint); }
+  .z-map iframe[hidden] { display: none; }
+  .trust { list-style: none; margin: 24px 0 0; padding: 18px 0 0; border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .trust li { display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: var(--ink-2); }
+  .trust span { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--accent-soft); color: var(--violet); font-size: 12px; font-weight: 800; flex: none; }
+  @media (max-width: 1000px) { .zones { grid-template-columns: 1fr; } .z-tabs { grid-template-columns: repeat(3, 1fr); } .trust { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .z-tabs { grid-template-columns: 1fr; } .trust { grid-template-columns: 1fr; } }
 
   .search {
     display: flex;
