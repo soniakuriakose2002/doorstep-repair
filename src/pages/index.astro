@@ -17,9 +17,8 @@ const photo: Record<string, string> = {
   'desktop:SSD / RAM upgrade': 'desk-ssd', 'desktop:Graphics card': 'desk-gpu', 'desktop:Custom PC build': 'desk-build',
 };
 const WA = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg>';
-// Tiles: real photos where we have them; printer and CCTV left out on request
+// Tiles: printer and CCTV left out on request
 const tiles = categories.filter((c) => c.id !== 'printer' && c.id !== 'cctv');
-const realPic: Record<string, string> = { mobile: 'screen', tablet: 'tab-screen', laptop: 'lap-screen', desktop: 'desk-board' };
 const short = (n: string) => n.replace(' & MacBooks', '').replace(' & All-in-ones', '').replace(' & iPads', '').replace(' Installation', '').replace(' & Wi-Fi', '');
 const mostBooked = Object.entries(photo).map(([k, ph]) => {
   const [cid, iss] = k.split(':');
@@ -113,16 +112,8 @@ const angles = [
         <span class="uc-badge"><i></i>{tiles.length} services · doorstep &amp; pickup</span>
         <h2>What can we fix for you?</h2>
         <div class="uc-cats">
-          {tiles.filter((c) => realPic[c.id]).map((c, i) => (
-            <a class="uc-cat uc-photo" href={`/services?cat=${c.id}#catalog`} style={`--i:${i}`}>
-              <img src={`/media/repairs/${realPic[c.id]}.jpg`} alt="" loading="lazy" width="320" height="240" />
-              <span>{short(c.name)}</span>
-            </a>
-          ))}
-        </div>
-        <div class="uc-more">
-          {tiles.filter((c) => !realPic[c.id]).map((c, i) => (
-            <a class="uc-cat" href={`/services?cat=${c.id}#catalog`} style={`--h:${c.hue}; --i:${i + 4}`}>
+          {tiles.map((c, i) => (
+            <a class="uc-cat" href={`/services?cat=${c.id}#catalog`} style={`--h:${c.hue}; --i:${i}`}>
               <span class="uc-ci"><DeviceArt kind={artFor[c.id]} /></span>
               <span>{short(c.name)}</span>
             </a>
@@ -254,38 +245,6 @@ const angles = [
         ))}
       </ol>
       <p class="rm-note">Years marked “TBC” are waiting for confirmation from Danat.</p>
-    </div>
-  </section>
-
-  <!-- ============ AWARDS + NETWORK ============ -->
-  <section class="section tight-sec">
-    <div class="wrap an">
-      <div class="aw" data-reveal>
-        <div class="an-h"><span class="eyebrow">Recognition</span><h2 class="h-md">Awards</h2></div>
-        {awardsSample && <span class="an-sample">Sample — awards to be confirmed</span>}
-        <ul>
-          {awards.map((a) => (
-            <li>
-              <span class="aw-medal" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M8.5 14L7 22l5-3 5 3-1.5-8"/></svg></span>
-              <span><b>{a.title}</b><small>{a.by} · {a.year}</small></span>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div class="nw" data-reveal style="--d:.1s">
-        <div class="an-h"><span class="eyebrow">Support network</span><h2 class="h-md">Across {site.country}, for brands worldwide</h2></div>
-        <div class="nw-map" aria-hidden="true">
-          <span class="pin" style="--x:74%;--y:30%"><i></i>Ruwi</span>
-          <span class="pin" style="--x:52%;--y:18%"><i></i>Sohar</span>
-          <span class="pin" style="--x:24%;--y:80%"><i></i>Salalah</span>
-          <svg viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M74 30 Q60 20 52 18 M74 30 Q48 58 24 80" /></svg>
-        </div>
-        <ul class="nw-stats">
-          <li><b>{site.branches.length}</b><small>branches</small></li>
-          <li><b>{coverageCount}</b><small>areas covered</small></li>
-          <li><b>{totals.brands}</b><small>global brands</small></li>
-        </ul>
-      </div>
     </div>
   </section>
 
@@ -663,14 +622,8 @@ const angles = [
   .uc-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; margin-bottom: 12px; border-radius: 999px; background: var(--accent-soft); color: var(--violet); font-size: 12.5px; font-weight: 700; }
   .uc-badge i { width: 8px; height: 8px; border-radius: 50%; background: var(--violet); animation: ucPulse 1.6s infinite; }
   @keyframes ucPulse { 50% { opacity: .3; } }
-  .uc-cats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 18px; }
-  .uc-more { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
-  .uc-cat.uc-photo { overflow: hidden; padding: 0; aspect-ratio: 4 / 3; align-content: end; justify-items: start; color: #fff; font-size: 14px; background: #111; }
-  .uc-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .5s; }
-  .uc-photo::after { z-index: 0; content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, rgba(0,0,0,.72)); }
-  .uc-photo span { font-weight: 700; text-shadow: 0 1px 6px rgba(0,0,0,.6); position: relative; z-index: 1; padding: 10px 12px; }
-  .uc-cat.uc-photo:hover { color: #fff; border-color: var(--violet); box-shadow: 0 18px 28px -18px rgba(0,0,0,.6); }
-  .uc-photo:hover img { transform: scale(1.08); }
+  .uc-cats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
+  .uc-cats > .uc-cat:last-child:nth-child(3n + 1) { grid-column: 1 / -1; grid-template-columns: auto auto; justify-content: center; align-items: center; gap: 14px; }
   .uc-cat { position: relative; display: grid; justify-items: center; gap: 6px; padding: 12px 6px 12px; border-radius: 18px; border: 1px solid transparent;
     background: linear-gradient(160deg, hsl(var(--h) 75% 97%), hsl(var(--h) 60% 91%)); text-align: center; font-size: 12.5px; font-weight: 700; line-height: 1.2; color: var(--ink-2);
     transition: transform .3s cubic-bezier(.3,1.4,.5,1), box-shadow .3s, border-color .3s, color .2s; }
@@ -711,7 +664,7 @@ const angles = [
   .uc-all svg { width: 16px; height: 16px; transition: transform .2s; }
   .uc-all:hover svg { transform: translateX(3px); }
   @media (max-width: 1000px) { .uc { grid-template-columns: 1fr; } .uc-cats { grid-template-columns: repeat(4, 1fr); } .uc-rail { grid-auto-columns: minmax(220px, 45%); } }
-  @media (max-width: 560px) { .uc-cats { grid-template-columns: repeat(2, 1fr); } .uc-rail { grid-auto-columns: 75%; } }  .tight-sec { padding-top: 30px; padding-bottom: 50px; }
+  @media (max-width: 560px) { .uc-cats { grid-template-columns: repeat(3, 1fr); } .uc-rail { grid-auto-columns: 75%; } }  .tight-sec { padding-top: 30px; padding-bottom: 50px; }
   .brands-band { padding: 10px 0 30px; }
   .center-head { text-align: center; display: grid; justify-items: center; gap: 12px; margin-bottom: 40px; }
 
