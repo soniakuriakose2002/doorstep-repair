@@ -18,7 +18,7 @@ export const homeServices = categories.flatMap((c) =>
     hue: c.hue,
     name: issue,
     from: price(basePrice[`${c.id}-${issue}`] ?? PRICE),
-    wa: wa(`Hi Danat, I want to book a ${issue} service for my ${c.name.replace(/ &.*$/, '').replace(/s$/, '').toLowerCase()}.`),
+    wa: wa(`Hi 369 ai Fix, I want to book a ${issue} service for my ${c.name.replace(/ &.*$/, '').replace(/s$/, '').toLowerCase()}.`),
   })),
 );
 
@@ -27,7 +27,7 @@ export const homeServices = categories.flatMap((c) =>
 // Branch opening years are NOT known — shown as "Year TBC" until the client
 // confirms. Do not fill them with guesses.
 export const milestones = [
-  { year: '2003', title: 'Danat opens on Computer Street, Ruwi', text: 'Computer sales and repair in Muscat.', verified: true },
+  { year: '2003', title: 'First store opens on Computer Street, Ruwi', text: 'Computer sales and repair in Muscat.', verified: true },
   { year: 'Year TBC', title: 'Sohar branch opens', text: 'Serving Al Batinah.', verified: false },
   { year: 'Year TBC', title: 'Salalah branch opens', text: 'Serving Dhofar.', verified: false },
   { year: 'Today', title: '5,430 products · 249 categories', text: 'Laptops, printers, CCTV, networking and parts in stock.', verified: true },

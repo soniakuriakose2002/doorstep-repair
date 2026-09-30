@@ -1,11 +1,13 @@
 // Site-wide settings. Replace values here and they update everywhere.
+// BRAND: renamed to 369 ai Fix on the owner's request (2026-09-30). The contact
+// details below are still Danat's — replace them with 369 ai Fix's real ones.
 // PROVENANCE: contact details are copied from the Danat Computers project's
 // src/data/site.ts, where they are marked verified against danatcomputers.com.
 // Only Ruwi's address and phone are confirmed; Sohar and Salalah are city only.
 
 export const site = {
-  name: 'Danat Computers',
-  handle: 'danatcomputers', // social-post preview handle
+  name: '369 ai Fix',
+  handle: '369aifix', // social-post preview handle
   tagline: 'Electronics repair at your doorstep',
   city: 'Muscat',
   country: 'Oman',

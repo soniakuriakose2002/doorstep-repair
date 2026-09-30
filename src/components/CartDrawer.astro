@@ -138,7 +138,7 @@ const cats = categories.map((c) => ({ id: c.id, name: c.name, brands: c.brands.m
       const tpl = root.querySelector<HTMLTemplateElement>(`template[data-cd-art="${th.dataset.art}"]`);
       if (th.dataset.art && tpl) th.append(tpl.content.cloneNode(true));
     });
-    const msg = `Hi Danat, I want to book these repairs:\n${items.map((it) => `• ${it.issues.map((s) => qtyOf(it, s) > 1 ? `${s} ×${qtyOf(it, s)}` : s).join(', ')} — ${it.model || it.device}`).join('\n')}${coupon ? `\nCoupon code: ${coupon}` : ''}`;
+    const msg = `Hi 369 ai Fix, I want to book these repairs:\n${items.map((it) => `• ${it.issues.map((s) => qtyOf(it, s) > 1 ? `${s} ×${qtyOf(it, s)}` : s).join(', ')} — ${it.model || it.device}`).join('\n')}${coupon ? `\nCoupon code: ${coupon}` : ''}`;
     root.querySelector<HTMLAnchorElement>('[data-cd-go]')!.href = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
     const cm = root.querySelector<HTMLElement>('[data-cd-cmsg]')!;
     cm.hidden = !coupon;

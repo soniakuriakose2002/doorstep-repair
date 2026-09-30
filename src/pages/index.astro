@@ -15,7 +15,7 @@ const mostBooked = Object.entries(photo).map(([k, ph]) => {
   const [cid, iss] = k.split(':');
   const cat = categories.find((x) => x.id === cid)!;
   const short = cat.name.replace(' & MacBooks', '').replace(' & All-in-ones', '').replace(' & iPads', '').replace(/s$/, '');
-  return { photo: ph, iss, dev: short, devFull: cat.name, note: note(iss), wa: wa(`Hi Danat, I want to book a ${iss} service for my ${short.toLowerCase()}.`) };
+  return { photo: ph, iss, dev: short, devFull: cat.name, note: note(iss), wa: wa(`Hi 369 ai Fix, I want to book a ${iss} service for my ${short.toLowerCase()}.`) };
 });const heroCopy: Record<string, [string, string]> = {
   mobile: ['Keep Your Phone Working Like New', 'Screen, battery, charging, camera and more – quick and reliable service.'],
   tablet: ['Your Tablet, Good as New', 'Cracked glass, batteries and charging faults fixed fast.'],
@@ -88,7 +88,7 @@ const [rowA, rowB] = rowsOf(mostBooked);
           Book Your Slot
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
         </a>
-        <a href={wa('Hi Danat, I want to book a repair.')} target="_blank" rel="noopener" class="btn btn-wa"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg> WhatsApp us</a>
+        <a href={wa('Hi 369 ai Fix, I want to book a repair.')} target="_blank" rel="noopener" class="btn btn-wa"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg> WhatsApp us</a>
       </div>
       <div class="vhero-search" data-reveal style="--d:.24s"><HeroSearch /></div>
       <ul class="hero-facts" data-reveal style="--d:.3s">
@@ -244,7 +244,7 @@ const [rowA, rowB] = rowsOf(mostBooked);
           </li>
         ))}
       </ol>
-      <p class="rm-note">Years marked “TBC” are waiting for confirmation from Danat.</p>
+      <p class="rm-note">Years marked “TBC” are waiting for confirmation from {site.name}.</p>
     </div>
   </section>
 
@@ -254,11 +254,11 @@ const [rowA, rowB] = rowsOf(mostBooked);
       <div class="pt-head" data-reveal>
         <span class="pt-eyebrow">Trusted partners</span>
         <h2 class="pt-title"><em>Leading brands,</em> in safe hands</h2>
-        <p>Companies that trust Danat Computers with their devices, networks and IT support.</p>
+        <p>Companies that trust {site.name} with their devices, networks and IT support.</p>
       </div>
       <ul class="pt-logos" data-reveal style="--d:.1s">
         <li><img class="wide" src="/brand/partners/alphalize.png" alt="Alphalize" width="432" height="120" loading="lazy" /></li>
-        <li><img src="/brand/partners/369aibiz.png" alt="369 ai.Biz" width="224" height="200" loading="lazy" /></li>
+        <li><img src="/brand/partners/369aibiz.png" alt="369 ai.Biz" width="477" height="379" loading="lazy" /></li>
         <li><img class="wide" src="/brand/partners/nexgenpos.png" alt="Nex Genn POS" width="559" height="120" loading="lazy" /></li>
       </ul>
     </div>
