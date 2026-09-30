@@ -27,8 +27,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="preload" href="/fonts/schibsted.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/jakarta.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/jost.woff2" as="font" type="font/woff2" crossorigin />
     <script is:inline>
       (() => {
         const ok = ['danat', 'green', 'blue', 'red', 'teal', 'yellow', 'orange', 'slate'];
@@ -320,9 +319,9 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     align-items: center;
     gap: 10px;
     font-family: var(--display);
-    font-weight: 800;
+    font-weight: 600;
     font-size: 21px;
-    letter-spacing: -.02em;
+    letter-spacing: 0;
   }
   .logo-mark {
     display: grid;
@@ -429,7 +428,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
   .nav-cart { position: relative; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: none; color: var(--ink-2); flex: none; transition: color .15s, border-color .15s; }
   .nav-cart:hover { color: var(--violet); border-color: var(--violet); }
   .nav-cart svg { width: 19px; height: 19px; }
-  .nav-cart b { position: absolute; right: -4px; top: -4px; display: grid; place-items: center; min-width: 19px; height: 19px; padding: 0 5px; border-radius: 999px; background: var(--violet); color: var(--on-accent); font-size: 11px; font-weight: 800; box-shadow: 0 0 0 2px var(--surface); }
+  .nav-cart b { position: absolute; right: -4px; top: -4px; display: grid; place-items: center; min-width: 19px; height: 19px; padding: 0 5px; border-radius: 999px; background: var(--violet); color: var(--on-accent); font-size: 11px; font-weight: 600; box-shadow: 0 0 0 2px var(--surface); }
   .nav-cart b[hidden] { display: none; }
   .nav-cart.bump { animation: bump .5s cubic-bezier(.3,1.6,.5,1); }
   @keyframes bump { 40% { transform: scale(1.25) rotate(-8deg); } }

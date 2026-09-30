@@ -106,7 +106,7 @@ const cols = [0, 1, 2].map((k) => reviews.map((r, i) => ({ r, i })).filter(({ i 
   :global(:root[data-reviews='3']) .rv3 { display: block; }
 
   .pill-sample { display: inline-block; padding: 5px 12px; border-radius: 999px; background: #fff4d6; color: #8a5a00; font-size: 12.5px; font-weight: 600; }
-  .av { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--grad); color: var(--on-accent); font-weight: 800; flex: none; }
+  .av { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--grad); color: var(--on-accent); font-weight: 600; flex: none; }
   .av.sm { width: 28px; height: 28px; font-size: 12px; }
   .st { display: inline-flex; gap: 2px; }
   .st :global(svg) { width: 16px; height: 16px; fill: #f5b400; }
@@ -169,7 +169,7 @@ const cols = [0, 1, 2].map((k) => reviews.map((r, i) => ({ r, i })).filter(({ i 
   .s-stage { display: grid; width: min(900px, 100%); margin: 10px 0; }
   .s-q { grid-area: 1 / 1; margin: 0; display: grid; justify-items: center; gap: 22px; opacity: 0; transform: translateY(14px); transition: opacity .5s, transform .6s cubic-bezier(.2,.8,.2,1); pointer-events: none; }
   .s-q.on { opacity: 1; transform: none; pointer-events: auto; }
-  .s-q blockquote { font-family: var(--display); font-size: clamp(28px, 3.6vw, 48px); line-height: 1.18; font-weight: 700; letter-spacing: -.025em; }
+  .s-q blockquote { font-family: var(--display); font-size: clamp(28px, 3.6vw, 48px); line-height: 1.18; font-weight: 700; letter-spacing: 0; }
   .s-q blockquote::before { content: '“'; color: var(--violet); }
   .s-q blockquote::after { content: '”'; color: var(--violet); }
   .s-q figcaption { font-size: 15px; color: var(--ink-2); }

@@ -184,7 +184,7 @@ const angles = [
   .bk-hero { position: relative; display: grid; grid-template-columns: 1.3fr 1fr; align-items: center; min-height: 290px; padding: 30px 34px; border-radius: 28px; overflow: hidden; background: linear-gradient(120deg, #f4faf5 0%, #e3f3e7 55%, #c9ead3 100%); }
   .bk-eye { display: inline-flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 700; letter-spacing: .24em; text-transform: uppercase; color: #3e4c45; }
   .bk-eye::before { content: ''; width: 26px; height: 2px; background: var(--g); }
-  .bk-hero h3 { font-family: var(--display); font-size: clamp(30px, 3.2vw, 46px); font-weight: 800; line-height: 1.02; letter-spacing: -.02em; color: #0f1f16; margin: 10px 0 12px; max-width: 14ch; }
+  .bk-hero h3 { font-family: var(--display); font-size: clamp(30px, 3.2vw, 46px); font-weight: 600; line-height: 1.02; letter-spacing: 0; color: #0f1f16; margin: 10px 0 12px; max-width: 14ch; }
   .bk-hero p { font-size: 16px; color: #45524b; max-width: 40ch; }
   .bk-feats { list-style: none; margin: 18px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 12px 18px; }
   .bk-feats li { white-space: nowrap; }
@@ -198,7 +198,7 @@ const angles = [
   @keyframes bkFloat { 50% { transform: translateY(-8px) rotate(-2deg); } }
   .bk-from { position: absolute; right: 0; bottom: 34px; display: grid; justify-items: center; padding: 12px 22px; border-radius: 18px; background: #fff; box-shadow: 0 16px 30px -14px rgba(0,0,0,.3); transform: rotate(-6deg); }
   .bk-from small { font-size: 14px; font-weight: 600; color: #16211b; }
-  .bk-from b { font-family: var(--display); font-size: 30px; font-weight: 800; color: var(--g2); line-height: 1; }
+  .bk-from b { font-family: var(--display); font-size: 30px; font-weight: 600; color: var(--g2); line-height: 1; }
   .bk-from i { position: absolute; right: -14px; top: -16px; width: 22px; height: 22px; background: radial-gradient(circle, var(--g) 30%, transparent 32%) 0 0 / 8px 8px; opacity: .6; }
 
   .bk-sel-head { display: flex; justify-content: space-between; align-items: center; padding: 0 4px; }
@@ -222,7 +222,7 @@ const angles = [
   .bk-card > b { font-size: 15.5px; color: var(--ink); padding: 0 4px; }
   .bk-card > small { font-size: 12.5px; color: var(--ink-3); padding: 0 4px; }
   .bk-foot { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding: 10px 4px 0; font-size: 13px; color: var(--ink-2); }
-  .bk-foot em { font-style: normal; font-family: var(--display); font-size: 18px; font-weight: 800; color: var(--g2); }
+  .bk-foot em { font-style: normal; font-family: var(--display); font-size: 18px; font-weight: 600; color: var(--g2); }
   .bk-go { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); color: var(--ink); transition: background .2s, color .2s; }
   .bk-go svg { width: 16px; height: 16px; }
   .bk-card:hover .bk-go, .bk-card[aria-checked='true'] .bk-go { background: var(--g); border-color: var(--g); color: #fff; }
