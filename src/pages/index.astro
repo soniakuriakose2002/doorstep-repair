@@ -92,9 +92,9 @@ const [rowA, rowB] = rowsOf(mostBooked);
       </div>
       <div class="vhero-search" data-reveal style="--d:.24s"><HeroSearch /></div>
       <ul class="hero-facts" data-reveal style="--d:.3s">
-        <li><b>{homeServices.length}+</b> services</li>
-        <li><b>{site.branches.length}</b> branches</li>
-        <li><b>{site.since}</b> since</li>
+        <li><b data-count={homeServices.length} data-suffix="+">{homeServices.length}+</b> services</li>
+        <li><b data-count={site.branches.length}>{site.branches.length}</b> branches</li>
+        <li><b data-count={site.since} data-from="1990">{site.since}</b> since</li>
       </ul>
     </div>
     <a href="#book-services" class="vhero-down" data-scroll aria-label="Scroll to services"><span></span></a>
@@ -292,6 +292,22 @@ const [rowA, rowB] = rowsOf(mostBooked);
 </Base>
 
 <script>
+  // Hero numbers count up when they come into view (final value is already in the HTML)
+  const counters = document.querySelectorAll<HTMLElement>('[data-count]');
+  if (counters.length && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const run = (el: HTMLElement) => {
+      const to = Number(el.dataset.count), from = Number(el.dataset.from ?? 0), sfx = el.dataset.suffix ?? '', t0 = performance.now(), D = 1600;
+      const step = (now: number) => {
+        const k = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - k, 3);
+        el.textContent = Math.round(from + (to - from) * e) + sfx;
+        if (k < 1) requestAnimationFrame(step);
+      };
+      el.textContent = from + sfx; requestAnimationFrame(step);
+    };
+    const cio = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { run(e.target as HTMLElement); cio.unobserve(e.target); } }), { threshold: .6 });
+    counters.forEach((el) => cio.observe(el));
+  }
+
   // Smooth scroll for Book Your Slot (offset for the sticky nav via scroll-margin)
   document.querySelectorAll<HTMLAnchorElement>('[data-scroll]').forEach((a) => a.addEventListener('click', (e) => {
     const t = document.querySelector(a.getAttribute('href')!);
@@ -468,7 +484,7 @@ const [rowA, rowB] = rowsOf(mostBooked);
     color: var(--ink-3);
     font-size: 14px;
   }
-  .hero-facts b { display: block; font-family: var(--display); font-size: 26px; color: var(--ink); }
+  .hero-facts b { display: block; font-family: var(--display); font-size: 26px; color: var(--ink); font-variant-numeric: tabular-nums; }
 
   .lab { display: flex; flex-direction: column; gap: 18px; }
   .lab-panel { padding: 16px; display: grid; gap: 12px; }
