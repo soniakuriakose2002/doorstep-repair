@@ -615,6 +615,7 @@ const [rowA, rowB] = rowsOf(mostBooked);
 
   /* ---------- services grid ---------- */
   #book-services { scroll-margin-top: 90px; padding-top: 110px; padding-bottom: 110px; }
+  .wrap.uc { width: min(1440px, 100% - 32px); }
   .uc h2 { font-size: clamp(26px, 2.8vw, 36px); letter-spacing: -.02em; }
   .uc-head { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 30px; }
   .uc-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; margin-bottom: 10px; border-radius: 999px; background: var(--accent-soft); color: var(--violet); font-size: 12.5px; font-weight: 700; }
@@ -646,7 +647,7 @@ const [rowA, rowB] = rowsOf(mostBooked);
   .uc-nav button:hover { background: var(--violet); border-color: var(--violet); color: var(--on-accent); }
   .uc-nav svg { width: 18px; height: 18px; }
   .uc-rows { display: grid; gap: 14px; mask-image: linear-gradient(90deg, transparent, #000 3%, #000 97%, transparent); }
-  .uc-rail { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(260px, calc((100% - 48px) / 3)); gap: 24px; gap: 20px; overflow-x: auto; scrollbar-width: none; padding: 2px; }
+  .uc-rail { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 60px) / 4); gap: 20px; overflow-x: auto; scrollbar-width: none; padding: 2px; }
   .uc-rail::-webkit-scrollbar { display: none; }
   .uc-card { display: flex; flex-direction: column; overflow: hidden; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); transition: box-shadow .25s, border-color .25s; }
   .uc-card:hover { border-color: var(--violet); box-shadow: 0 16px 30px -22px rgba(0,0,0,.5); }
@@ -655,7 +656,7 @@ const [rowA, rowB] = rowsOf(mostBooked);
   .uc-card:hover .uc-img img { transform: scale(1.05); }
   .uc-tag { position: absolute; left: 8px; top: 8px; padding: 3px 9px; border-radius: 999px; background: rgba(255,255,255,.92); font-size: 11px; font-weight: 700; color: var(--ink); }
   .uc-body { display: grid; gap: 3px; padding: 14px 16px 16px; }
-  .uc-body b { font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .uc-body b { font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .uc-body small { font-size: 12.5px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .uc-foot { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 12.5px; color: var(--ink-3); }
   .uc-foot > span { margin-right: auto; }
@@ -666,8 +667,8 @@ const [rowA, rowB] = rowsOf(mostBooked);
   .uc-add { display: inline-flex; align-items: center; gap: 3px; height: 30px; padding: 0 12px 0 9px; border: 1px solid var(--violet); border-radius: 999px; background: none; color: var(--violet); font-weight: 800; font-size: 12.5px; transition: all .2s; }
   .uc-add .p { font-size: 16px; line-height: 1; }
   .uc-add:hover, .uc-add.done { background: var(--violet); color: var(--on-accent); }
-  @media (max-width: 1000px) { .uc-cats { grid-template-columns: repeat(4, 1fr); } .uc-rail { grid-auto-columns: minmax(200px, 30%); } }
-  @media (max-width: 560px) { .uc-head { flex-direction: column; align-items: start; } .uc-cats { grid-template-columns: repeat(3, 1fr); } .uc-rail { grid-auto-columns: 62%; } }  .tight-sec { padding-top: 30px; padding-bottom: 50px; }
+  @media (max-width: 1000px) { .uc-cats { grid-template-columns: repeat(4, 1fr); } .uc-rail { grid-auto-columns: calc((100% - 20px) / 2); } }
+  @media (max-width: 560px) { .uc-head { flex-direction: column; align-items: start; } .uc-cats { grid-template-columns: repeat(3, 1fr); } .uc-rail { grid-auto-columns: 82%; } }  .tight-sec { padding-top: 30px; padding-bottom: 50px; }
   .brands-band { padding: 10px 0 30px; }
   .center-head { text-align: center; display: grid; justify-items: center; gap: 12px; margin-bottom: 40px; }
 
