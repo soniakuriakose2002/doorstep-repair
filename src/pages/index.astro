@@ -105,6 +105,7 @@ const [rowA, rowB] = rowsOf(mostBooked);
     <div class="wrap uc">
       <div class="uc-head" data-reveal>
         <div>
+          <span class="uc-badge"><i></i>{tiles.length} services · doorstep &amp; pickup</span>
           <h2>What can we fix for you?</h2>
         </div>
       </div>
@@ -119,7 +120,11 @@ const [rowA, rowB] = rowsOf(mostBooked);
 
       <div class="uc-most" data-reveal style="--d:.08s">
         <div class="uc-mh">
-          <h3>Most booked repairs</h3>
+          <div><h3>Most booked repairs</h3><p>Doorstep or pickup · estimate {price()}</p></div>
+          <div class="uc-nav">
+            <button type="button" data-uc-prev aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <button type="button" data-uc-next aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+          </div>
         </div>
         <div class="uc-rows">
           {[0].map((r) => (
@@ -128,13 +133,17 @@ const [rowA, rowB] = rowsOf(mostBooked);
                 <article class="uc-card" aria-hidden={copy ? 'true' : undefined}>
                   <div class="uc-img">
                     <img src={`/media/repairs/${m.photo}.jpg`} alt={m.iss} loading="lazy" width="360" height="240" />
-                    <div class="uc-acts">
-                      <a class="uc-wa" target="_blank" rel="noopener" href={m.wa} aria-label={`Book ${m.iss} on WhatsApp`} tabindex={copy ? -1 : undefined} set:html={WA} />
-                      <button type="button" class="uc-add" data-uc-add data-dev={m.devFull} data-iss={m.iss} aria-label={`Add ${m.iss} to cart`} tabindex={copy ? -1 : undefined}><span class="p">+</span><span class="t">Add</span></button>
+                    <span class="uc-tag">{m.dev}</span>
+                  </div>
+                  <div class="uc-body">
+                    <b>{m.iss}</b>
+                    <small>{m.note}</small>
+                    <div class="uc-foot">
+                      <span><em>{price()}</em></span>
+                      <a class="uc-wa" target="_blank" rel="noopener" href={m.wa} aria-label={`Book ${m.iss} on WhatsApp`} set:html={WA} />
+                      <button type="button" class="uc-add" data-uc-add data-dev={m.devFull} data-iss={m.iss}><span class="p">+</span><span class="t">Add</span></button>
                     </div>
                   </div>
-                  <b>{m.iss}</b>
-                  <small>{m.dev} · <em>{price()}</em></small>
                 </article>
               )))}
             </div>
@@ -259,28 +268,47 @@ const [rowA, rowB] = rowsOf(mostBooked);
   }));
 
 
-  // Most booked: slides one whole card at a time (never a half card), pauses on hover
+  // Most booked: two rows that glide on their own (row 2 the other way), pause on hover
   const rails = [...document.querySelectorAll<HTMLElement>('[data-uc-rail]')];
   if (rails.length) {
+    const half = (r: HTMLElement) => r.scrollWidth / 2;
+    const state = rails.map((r) => ({ r, dir: Number(r.dataset.dir), pos: r.dataset.dir === '-1' ? half(r) : 0, paused: false, until: 0 }));
+    state.forEach((s) => {
+      s.r.scrollLeft = s.pos;
+      s.r.addEventListener('pointerenter', () => (s.paused = true));
+      s.r.addEventListener('pointerleave', () => (s.paused = false));
+      s.r.addEventListener('focusin', () => (s.paused = true));
+      s.r.addEventListener('focusout', () => (s.paused = false));
+    });
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    rails.forEach((r) => {
-      let paused = false;
-      ['pointerenter', 'focusin'].forEach((ev) => r.addEventListener(ev, () => (paused = true)));
-      ['pointerleave', 'focusout'].forEach((ev) => r.addEventListener(ev, () => (paused = false)));
-      const step = () => {
-        const card = r.querySelector<HTMLElement>('.uc-card');
-        if (!card) return 0;
-        return card.offsetWidth + parseFloat(getComputedStyle(r).columnGap || '0');
-      };
-      const next = () => {
-        const w = step(), half = r.scrollWidth / 2;
-        if (!w) return;
-        // the list is rendered twice; after the first copy, jump back invisibly
-        if (r.scrollLeft + w > half + 1) r.scrollTo({ left: r.scrollLeft - half, behavior: 'instant' as ScrollBehavior });
-        r.scrollTo({ left: Math.round((r.scrollLeft + w) / w) * w, behavior: 'smooth' });
-      };
-      if (!reduce) setInterval(() => { if (!paused && !document.hidden) next(); }, 3000);
-    });    document.querySelectorAll<HTMLElement>('[data-uc-add]').forEach((b) => b.addEventListener('click', () => {
+    const SPEED = 0.45; // px per frame
+    const tick = (now: number) => {
+      state.forEach((s) => {
+        const h = half(s.r);
+        if (!h) return;
+        if (now < s.until) { s.pos = s.r.scrollLeft; return; } // arrow scroll in progress
+        const any = state.some((o) => o.paused);
+        if (!any && !reduce) s.pos += SPEED * s.dir;
+        else s.pos = s.r.scrollLeft;
+        if (s.pos >= h) s.pos -= h;
+        if (s.pos < 0) s.pos += h;
+        s.r.scrollLeft = s.pos;
+      });
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+    const step = () => (rails[0].querySelector<HTMLElement>('.uc-card')?.offsetWidth ?? 260) + 16;
+    const nudge = (d: number) => state.forEach((s) => {
+      const h = half(s.r);
+      let from = s.r.scrollLeft;
+      if (from + d * step() < 0) { from += h; s.r.scrollLeft = from; }
+      else if (from + d * step() > h) { from -= h; s.r.scrollLeft = from; }
+      s.until = performance.now() + 600;
+      s.r.scrollTo({ left: from + d * step() * s.dir, behavior: 'smooth' });
+    });
+    document.querySelector('[data-uc-prev]')!.addEventListener('click', () => nudge(-1));
+    document.querySelector('[data-uc-next]')!.addEventListener('click', () => nudge(1));
+    document.querySelectorAll<HTMLElement>('[data-uc-add]').forEach((b) => b.addEventListener('click', () => {
       (window as any).danatCart?.add({ device: b.dataset.dev!, model: '', issues: [b.dataset.iss!] });
       b.classList.add('done'); b.querySelector('.t')!.textContent = 'Added';
       setTimeout(() => { b.classList.remove('done'); b.querySelector('.t')!.textContent = 'Add'; }, 1500);
@@ -610,28 +638,36 @@ const [rowA, rowB] = rowsOf(mostBooked);
   .uc-more { display: flex; justify-content: center; margin-top: 40px; }
   .uc-more .uc-all { padding: 13px 26px; background: var(--violet); border-color: var(--violet); color: var(--on-accent); font-size: 15px; }
   .uc-more .uc-all:hover { filter: brightness(1.08); }
-  .uc-mh { margin-bottom: 20px; }
+  .uc-mh { display: flex; justify-content: space-between; align-items: end; gap: 14px; margin-bottom: 22px; }
   .uc-mh h3 { font-size: 22px; letter-spacing: -.01em; }
-  .uc-rows { display: grid; }
-  .uc-rail { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 72px) / 4); gap: 24px; overflow-x: auto; scrollbar-width: none; }
+  .uc-mh p { font-size: 14px; color: var(--ink-3); margin-top: 2px; }
+  .uc-nav { display: flex; gap: 8px; }
+  .uc-nav button { display: grid; place-items: center; width: 40px; height: 40px; border: 1px solid var(--line); border-radius: 50%; background: var(--surface); color: var(--ink); transition: all .2s; }
+  .uc-nav button:hover { background: var(--violet); border-color: var(--violet); color: var(--on-accent); }
+  .uc-nav svg { width: 18px; height: 18px; }
+  .uc-rows { display: grid; gap: 14px; mask-image: linear-gradient(90deg, transparent, #000 3%, #000 97%, transparent); }
+  .uc-rail { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(190px, calc((100% - 100px) / 6)); gap: 20px; overflow-x: auto; scrollbar-width: none; padding: 2px; }
   .uc-rail::-webkit-scrollbar { display: none; }
-  .uc-card { display: grid; gap: 3px; }
-  .uc-img { position: relative; aspect-ratio: 4 / 3; margin-bottom: 10px; border-radius: 18px; overflow: hidden; background: var(--tint); }
+  .uc-card { display: flex; flex-direction: column; overflow: hidden; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); transition: box-shadow .25s, border-color .25s; }
+  .uc-card:hover { border-color: var(--violet); box-shadow: 0 16px 30px -22px rgba(0,0,0,.5); }
+  .uc-img { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: var(--tint); }
   .uc-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s; }
   .uc-card:hover .uc-img img { transform: scale(1.05); }
-  .uc-acts { position: absolute; right: 10px; bottom: 10px; display: flex; gap: 8px; }
-  .uc-wa, .uc-add { display: grid; place-items: center; height: 38px; border: 0; border-radius: 999px; background: #fff; box-shadow: 0 6px 16px -6px rgba(0,0,0,.4); transition: all .2s; }
-  .uc-wa { width: 38px; color: #25d366; }
-  .uc-wa :global(svg) { width: 19px; height: 19px; }
+  .uc-tag { position: absolute; left: 8px; top: 8px; padding: 3px 9px; border-radius: 999px; background: rgba(255,255,255,.92); font-size: 11px; font-weight: 700; color: var(--ink); }
+  .uc-body { display: grid; gap: 2px; padding: 10px 11px 11px; }
+  .uc-body b { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .uc-body small { font-size: 12.5px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .uc-foot { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 12.5px; color: var(--ink-3); }
+  .uc-foot > span { margin-right: auto; }
+  .uc-foot em { white-space: nowrap; font-style: normal; font-weight: 800; color: var(--lime); }
+  .uc-wa { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #e8faf0; color: #25d366; transition: all .2s; }
+  .uc-wa :global(svg) { width: 16px; height: 16px; }
   .uc-wa:hover { background: #25d366; color: #fff; }
-  .uc-add { grid-auto-flow: column; gap: 4px; padding: 0 14px 0 11px; color: var(--violet); font-weight: 800; font-size: 13.5px; }
-  .uc-add .p { font-size: 17px; line-height: 1; }
+  .uc-add { display: inline-flex; align-items: center; gap: 3px; height: 30px; padding: 0 12px 0 9px; border: 1px solid var(--violet); border-radius: 999px; background: none; color: var(--violet); font-weight: 800; font-size: 12.5px; transition: all .2s; }
+  .uc-add .p { font-size: 16px; line-height: 1; }
   .uc-add:hover, .uc-add.done { background: var(--violet); color: var(--on-accent); }
-  .uc-card > b { font-size: 16px; padding: 0 2px; }
-  .uc-card > small { font-size: 13.5px; color: var(--ink-3); padding: 0 2px; }
-  .uc-card > small em { font-style: normal; font-weight: 700; color: var(--lime); }
-  @media (max-width: 1000px) { .uc-cats { grid-template-columns: repeat(4, 1fr); } .uc-rail { grid-auto-columns: calc((100% - 24px) / 2); } }
-  @media (max-width: 560px) { .uc-head { flex-direction: column; align-items: start; } .uc-cats { grid-template-columns: repeat(3, 1fr); } .uc-rail { grid-auto-columns: calc((100% - 24px) / 2); } }  .tight-sec { padding-top: 30px; padding-bottom: 50px; }
+  @media (max-width: 1000px) { .uc-cats { grid-template-columns: repeat(4, 1fr); } .uc-rail { grid-auto-columns: minmax(200px, 30%); } }
+  @media (max-width: 560px) { .uc-head { flex-direction: column; align-items: start; } .uc-cats { grid-template-columns: repeat(3, 1fr); } .uc-rail { grid-auto-columns: 62%; } }  .tight-sec { padding-top: 30px; padding-bottom: 50px; }
   .brands-band { padding: 10px 0 30px; }
   .center-head { text-align: center; display: grid; justify-items: center; gap: 12px; margin-bottom: 40px; }
 
