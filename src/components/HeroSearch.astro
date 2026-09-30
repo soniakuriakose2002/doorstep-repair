@@ -64,6 +64,9 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
       <input name="q" placeholder="What are you looking for?" autocomplete="off" aria-label="What are you looking for" aria-autocomplete="list" aria-controls="hs-sugg" data-hs-q />
     </label>
+    <button type="button" class="hs-drop" aria-label="Show all devices" aria-expanded="false" data-hs-drop>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
     <button type="submit" class="hs-btn hs-icon" aria-label="Search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
     </button>
@@ -168,15 +171,16 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     let active = -1;
     const renderSugg = () => {
       const q = norm(qIn.value);
-      if (q.length < 1) { box.hidden = true; return; }
-      const hits = sugg.filter((s) => norm(s.t).includes(q)).sort((a, b) => (norm(a.t).startsWith(q) ? 0 : 1) - (norm(b.t).startsWith(q) ? 0 : 1)).slice(0, 7);
+      const hits = (q.length < 1 ? sugg.filter((s) => s.k === 'Device') : sugg.filter((s) => norm(s.t).includes(q))).sort((a, b) => (norm(a.t).startsWith(q) ? 0 : 1) - (norm(b.t).startsWith(q) ? 0 : 1)).slice(0, q.length < 1 ? 12 : 7);
       active = -1;
       if (!hits.length) { box.innerHTML = `<p class="hs-none">No match — press Enter to search “${esc(qIn.value.trim())}”</p>`; box.hidden = false; return; }
       box.innerHTML = hits.map((h, i) => `<a role="option" href="${withArea(h.href)}" data-i="${i}"><span class="hs-st">${esc(h.t).replace(new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'i'), '<mark>$1</mark>')}</span><small>${esc(h.k)}</small></a>`).join('');
       box.hidden = false;
     };
+    const drop = root.querySelector<HTMLButtonElement>('[data-hs-drop]')!;
+    new MutationObserver(() => drop.setAttribute('aria-expanded', String(!box.hidden))).observe(box, { attributes: true, attributeFilter: ['hidden'] });
+    drop.addEventListener('click', () => { if (box.hidden) { renderSugg(); qIn.focus(); } else box.hidden = true; });
     qIn.addEventListener('input', renderSugg);
-    qIn.addEventListener('focus', renderSugg);
     qIn.addEventListener('keydown', (e) => {
       const items = [...box.querySelectorAll<HTMLAnchorElement>('a')];
       if (box.hidden || !items.length) return;
@@ -267,6 +271,11 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
   .hs-field { flex: 1; display: flex; align-items: center; gap: 12px; padding: 0 16px; min-width: 0; }
   .hs-field svg { width: 20px; height: 20px; color: var(--ink-3); flex: none; }
   .hs-field input { flex: 1; min-width: 0; height: 56px; border: 0; background: none; outline: none; font: inherit; font-size: 16px; color: var(--ink); }
+  .hs-drop { flex: none; display: grid; place-items: center; width: 44px; height: 44px; margin: auto 8px auto 0; border: 1px solid var(--line); border-radius: 12px; background: var(--accent-soft); color: var(--violet); cursor: pointer; transition: background .2s, transform .2s; }
+  .hs-drop:hover { background: var(--violet); color: var(--on-accent); }
+  .hs-drop svg { width: 20px; height: 20px; transition: transform .25s ease; }
+  .hs-drop[aria-expanded="true"] svg { transform: rotate(180deg); }
+  .hs-sugg { max-height: 340px; overflow-y: auto; }
   .hs-btn { border: 0; background: var(--violet); color: var(--on-accent); transition: filter .2s; }
   .hs-btn:hover { filter: brightness(1.08); }
   .hs-icon { width: 76px; display: grid; place-items: center; }
