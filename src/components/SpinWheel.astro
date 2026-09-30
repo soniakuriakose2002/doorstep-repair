@@ -104,6 +104,7 @@ const wa = (msg: string) => `https://wa.me/${site.phone.tel.replace('+', '')}?te
     const wheel = sw.querySelector<SVGElement>('[data-sw-wheel]')!;
     const get = (k: string) => { try { return sessionStorage.getItem(k); } catch { return null; } };
     const put = (k: string, v: string) => { try { sessionStorage.setItem(k, v); } catch {} };
+    let spinning = false;
     const seg = 360 / prizes.length;
     const angleFor = (i: number) => 360 - (i * seg + seg / 2);
     if (new URLSearchParams(location.search).get('offer') === 'spin') { try { sessionStorage.removeItem('spin-won'); } catch {} }
@@ -133,9 +134,17 @@ const wa = (msg: string) => `https://wa.me/${site.phone.tel.replace('+', '')}?te
       }
     };
 
+    const reset = () => {
+      if (spinning) return;
+      wheel.style.transition = 'none'; wheel.style.transform = 'rotate(0deg)';
+      const win = sw.querySelector<HTMLElement>('[data-sw-after]')!;
+      win.classList.remove('up'); win.setAttribute('hidden', '');
+      sw.querySelector('[data-sw-before]')!.removeAttribute('hidden');
+      sw.querySelector('[data-sw-copied]')!.textContent = 'Copy';
+      sw.classList.remove('won');
+    };
     (window as any).__openSpin = () => {
-      const won = get('spin-won');
-      if (won !== null) show(Number(won), true);
+      reset(); // always open on a fresh wheel, ready to spin
       sw.hidden = false;
       requestAnimationFrame(() => sw.classList.add('in'));
       document.documentElement.style.overflow = 'hidden';
@@ -149,7 +158,6 @@ const wa = (msg: string) => `https://wa.me/${site.phone.tel.replace('+', '')}?te
     sw.querySelectorAll('[data-sw-x]').forEach((b) => b.addEventListener('click', close));
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !sw.hidden) close(); });
 
-    let spinning = false;
     sw.querySelectorAll('[data-sw-spin]').forEach((btn) => btn.addEventListener('click', () => {
       if (spinning || sw.classList.contains('won')) return;
       spinning = true;
