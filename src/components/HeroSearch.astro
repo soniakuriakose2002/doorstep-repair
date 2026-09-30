@@ -69,6 +69,13 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     </button>
   </div>
   <div class="hs-result" data-hs-result aria-live="polite" hidden></div>
+  <label class="hs-pick" data-hs-pick hidden>
+    <span>Or choose your area:</span>
+    <select data-hs-area aria-label="Choose your area">
+      <option value="">Select your area…</option>
+      {coverage.pickup.zones.map((z) => <optgroup label={z.name}>{z.areas.map((a) => <option>{a}</option>)}</optgroup>)}
+    </select>
+  </label>
 
   <div class="hs-popular">
     <span>Popular:</span>
@@ -135,13 +142,36 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     };
     const show = (html: string, cls: string) => { result.hidden = false; result.className = `hs-result ${cls}`; result.innerHTML = html; };
     const locBtn = root.querySelector<HTMLButtonElement>('[data-hs-locate]')!;
+    const pick = root.querySelector<HTMLElement>('[data-hs-pick]')!;
+    pick.querySelector('select')!.addEventListener('change', (e) => {
+      const a = (e.target as HTMLSelectElement).value;
+      if (!a) return;
+      area = a;
+      try { localStorage.setItem('area', a); } catch {}
+      linkify();
+      const modes = [geo.doorstep.includes(a) && 'Doorstep', geo.pickup.includes(a) && 'Pickup'].filter(Boolean).join(' & ');
+      const at = geo.areaGeo[a];
+      const br = at ? geo.branchGeo.map((b) => ({ ...b, d: km(at, b.at) })).sort((x, y) => x.d - y.d)[0] : null;
+      show(`<b>📍 ${esc(a)}</b><span>✓ We cover this area — ${modes} available.${br ? ` Nearest branch: ${esc(br.name)} (${Math.round(br.d)} km).` : ''}</span><a href="${withArea('/services#catalog')}">Book a repair here →</a>`, 'ok');
+    });
     locBtn.addEventListener('click', () => {
-      if (!navigator.geolocation) { show('Your browser can\'t share location. Try the search above instead.', 'warn'); return; }
+      if (!navigator.geolocation) { show('<b>Your browser can\'t share location</b><span>Choose your area below instead.</span>', 'warn'); pick.hidden = false; return; }
       locBtn.classList.add('busy');
       show('<span class="spin"></span> Finding your location…', 'wait');
+      pick.hidden = true;
       navigator.geolocation.getCurrentPosition((pos) => {
         locBtn.classList.remove('busy');
         const me: [number, number] = [pos.coords.latitude, pos.coords.longitude];
+        showFor(me);
+      }, (err) => {
+        locBtn.classList.remove('busy');
+        const why = err.code === 1 ? 'Location is blocked for this site (click the 🔒 / location icon in the address bar to allow it).' : err.code === 3 ? 'Finding your location took too long.' : 'Your device couldn\'t find its location (on Windows, turn on Settings › Privacy › Location).';
+        show(`<b>We couldn't get your location</b><span>${why}</span>`, 'warn');
+        pick.hidden = false;
+      }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 });
+    });
+
+    const showFor = (me: [number, number]) => {
         const near = Object.entries(geo.areaGeo).map(([n, at]) => ({ n, d: km(me, at) })).sort((a, b) => a.d - b.d)[0];
         const br = geo.branchGeo.map((b) => ({ ...b, d: km(me, b.at) })).sort((a, b) => a.d - b.d)[0];
         const covered = near.d <= 12;
@@ -152,13 +182,11 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           const modes = [geo.doorstep.includes(near.n) && 'Doorstep', geo.pickup.includes(near.n) && 'Pickup'].filter(Boolean).join(' & ');
           show(`<b>📍 You're near ${esc(near.n)}</b><span>✓ We cover your area — ${modes} available. Nearest branch: ${esc(br.name)} (${Math.round(br.d)} km).</span><a href="${withArea('/services#catalog')}">Book a repair here →</a>`, 'ok');
         } else {
-          show(`<b>📍 Nearest branch: ${esc(br.name)} — ${Math.round(br.d)} km away</b><span>Your spot isn't on our coverage list yet. Message us and we'll confirm if we can reach you.</span><a href="https://wa.me/${tel}?text=${encodeURIComponent(`Hi Danat, do you cover my location? https://maps.google.com/?q=${me[0].toFixed(5)},${me[1].toFixed(5)}`)}" target="_blank" rel="noopener">Ask on WhatsApp →</a>`, 'warn');
+          const outside = br.d > 400;
+          show(`<b>📍 ${outside ? `You seem to be outside ${'Oman'}` : `Nearest branch: ${esc(br.name)}`} — ${Math.round(br.d).toLocaleString()} km from ${outside ? 'our nearest branch (' + esc(br.name) + ')' : 'you'}</b><span>${outside ? 'We repair across Oman only (Muscat, Al Batinah and Dhofar). Choose an area below to check, or message us.' : 'Your exact spot isn\'t on our coverage list yet. Message us and we\'ll confirm if we can reach you.'}</span><a href="https://wa.me/${tel}?text=${encodeURIComponent(`Hi Danat, do you cover my location? https://maps.google.com/?q=${me[0].toFixed(5)},${me[1].toFixed(5)}`)}" target="_blank" rel="noopener">Ask on WhatsApp →</a>`, 'warn');
+          pick.hidden = false;
         }
-      }, (err) => {
-        locBtn.classList.remove('busy');
-        show(err.code === 1 ? 'Location permission was blocked. Allow location for this site in your browser, or search for your service above.' : 'Couldn\'t get your location right now — please try again.', 'warn');
-      }, { enableHighAccuracy: false, timeout: 12000, maximumAge: 60000 });
-    });
+    };
 
     // ---- Track your repair ----
     const tr = document.querySelector<HTMLElement>('[data-tr]')!;
@@ -214,7 +242,10 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
   .hs-result :global(.spin) { display: inline-block; width: 14px; height: 14px; margin-right: 6px; vertical-align: -2px; border: 2px solid var(--line); border-top-color: var(--violet); border-radius: 50%; animation: spin .8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .hs-popular { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 2px; }
+  .hs-pick { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 14px; font-weight: 600; color: rgba(255,255,255,.9); }
+  .hs-pick[hidden] { display: none; }
+  .hs-pick select { flex: 1; min-width: 200px; height: 46px; padding: 0 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); font: inherit; }
+  .hs-result.warn :global(span) { color: var(--ink-2); }  .hs-popular { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 2px; }
   .hs-popular span { font-size: 14px; font-weight: 700; color: var(--violet); margin-right: 4px; }
   .hs-chip { padding: 8px 14px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); font-size: 14px; color: var(--ink-2); transition: border-color .2s, color .2s; }
   .hs-chip:hover { border-color: var(--violet); color: var(--violet); }
