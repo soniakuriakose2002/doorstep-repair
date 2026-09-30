@@ -1,5 +1,5 @@
-/* One font everywhere, like jokerandwitch.com (Jost). Weight, size, case and spacing do the work. */
-@font-face { font-family: 'Jost'; src: url('/fonts/jost.woff2') format('woff2'); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: 'Schibsted Grotesk'; src: url('/fonts/schibsted.woff2') format('woff2'); font-weight: 400 900; font-display: swap; }
+@font-face { font-family: 'Plus Jakarta Sans'; src: url('/fonts/jakarta.woff2') format('woff2'); font-weight: 200 800; font-display: swap; }
 /*
   Themes. Pick one with the palette button (bottom-right) or ?theme=<id>.
   Each theme sets the same tokens; --media-hue shifts the baked orange video
@@ -11,8 +11,8 @@
   --glass-2: #ffffff;
   --lime: #12a150;
   --radius: 20px;
-  --display: 'Jost', system-ui, sans-serif;
-  --body: 'Jost', system-ui, sans-serif;
+  --display: 'Schibsted Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --body: 'Plus Jakarta Sans', system-ui, sans-serif;
   --grad: linear-gradient(120deg, var(--violet), var(--blue));
   --grad-hot: linear-gradient(120deg, var(--violet), var(--blue));
   --pink: var(--violet);
@@ -229,9 +229,9 @@ body {
 
 h1, h2, h3, h4 {
   font-family: var(--display);
-  font-weight: 600;
+  font-weight: 800;
   line-height: 1.08;
-  letter-spacing: 0;
+  letter-spacing: -0.02em;
   margin: 0;
 }
 
@@ -265,7 +265,7 @@ img, video, svg { display: block; max-width: 100%; }
   background: var(--grad);
 }
 
-.h-xl { font-size: clamp(38px, 6vw, 80px); text-transform: var(--head-case); letter-spacing: 0; }
+.h-xl { font-size: clamp(38px, 6vw, 80px); text-transform: var(--head-case); letter-spacing: -.01em; }
 .h-lg { font-size: clamp(32px, 4.4vw, 56px); }
 .h-md { font-size: clamp(22px, 2.4vw, 30px); }
 .lead { font-size: clamp(16px, 1.4vw, 19px); color: var(--ink-2); max-width: 60ch; }
@@ -376,9 +376,9 @@ img, video, svg { display: block; max-width: 100%; }
    Stronger type, solid accents instead of gradient text, a dark hero
    stage for the media, calmer cards and more breathing room.
    ================================================================ */
-h1, h2, h3, h4 { letter-spacing: 0; font-weight: 600; }
-.h-xl { letter-spacing: 0; line-height: .98; }
-.h-lg { letter-spacing: 0; line-height: 1.02; }
+h1, h2, h3, h4 { letter-spacing: -0.035em; font-weight: 800; }
+.h-xl { letter-spacing: -0.04em; line-height: .98; }
+.h-lg { letter-spacing: -0.035em; line-height: 1.02; }
 .lead { line-height: 1.65; }
 .eyebrow { color: var(--cyan); font-weight: 700; letter-spacing: .16em; }
 .eyebrow::before { background: currentColor; width: 22px; }
@@ -391,7 +391,7 @@ h1, h2, h3, h4 { letter-spacing: 0; font-weight: 600; }
   padding: 0 .06em; border-radius: 4px;
 }
 
-.btn { padding: 15px 26px; font-weight: 700; letter-spacing: 0; }
+.btn { padding: 15px 26px; font-weight: 700; letter-spacing: -.005em; }
 .btn-primary { background: var(--violet); box-shadow: 0 14px 30px -14px rgba(var(--a1), .8); }
 .btn-primary:hover { background: var(--cyan); box-shadow: 0 18px 36px -14px rgba(var(--a1), .8); }
 .glass { border-radius: 24px; }
@@ -430,7 +430,7 @@ a.glass:hover, .issue.glass:hover { transform: translateY(-4px); border-color: r
 :root .hero .seg button[aria-pressed='true'] { background: #fff; color: var(--navy) !important; }
 
 /* brand band: quieter, bigger */
-:root .marquee-item { letter-spacing: 0; }
+:root .marquee-item { letter-spacing: -.03em; }
 
 /* page headers (Services, Our Team) share the hero's dark stage */
 :root .page-head {

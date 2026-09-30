@@ -157,7 +157,7 @@ const bar = `Doorstep & pickup repair across ${site.country} — free diagnosis 
   }
   .gift:hover { padding-left: 16px; }
   .gift-ico { font-size: 22px; animation: giftShake 2.4s ease-in-out infinite; }
-  .gift-t { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 13px; font-weight: 600; letter-spacing: .06em; }
+  .gift-t { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 13px; font-weight: 800; letter-spacing: .06em; }
   @keyframes giftShake { 0%, 70%, 100% { transform: rotate(0); } 76% { transform: rotate(-16deg) scale(1.15); } 82% { transform: rotate(14deg) scale(1.15); } 88% { transform: rotate(-8deg); } }
 
   /* 1 · announcement bar */
@@ -204,7 +204,7 @@ const bar = `Doorstep & pickup repair across ${site.country} — free diagnosis 
   .po.in .po-card { transform: none; opacity: 1; }
   .po-x { position: absolute; right: 14px; top: 14px; z-index: 2; width: 36px; height: 36px; border: 0; border-radius: 50%; background: var(--tint-2); color: var(--ink); font-size: 22px; line-height: 1; }
   .po-art { position: relative; display: grid; place-content: center; justify-items: center; min-height: 340px; overflow: hidden; color: #fff; background: linear-gradient(150deg, var(--violet), color-mix(in srgb, var(--violet) 45%, #000)); }
-  .po-big { position: relative; font-family: var(--display); font-size: 64px; font-weight: 600; letter-spacing: 0; line-height: 1; animation: poPulse 2.2s ease-in-out infinite; }
+  .po-big { position: relative; font-family: var(--display); font-size: 64px; font-weight: 800; letter-spacing: -.03em; line-height: 1; animation: poPulse 2.2s ease-in-out infinite; }
   .po-sub { position: relative; font-size: 14px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; opacity: .8; margin-top: 6px; }
   @keyframes poPulse { 50% { transform: scale(1.06); } }
   .po-ring { position: absolute; left: 50%; top: 50%; border-radius: 50%; border: 2px solid rgba(255,255,255,.18); transform: translate(-50%, -50%); animation: poRing 3s ease-out infinite; }
@@ -214,7 +214,7 @@ const bar = `Doorstep & pickup repair across ${site.country} — free diagnosis 
   .po-spark { position: absolute; left: calc(8% + var(--i) * 9%); bottom: -10px; width: 6px; height: 6px; border-radius: 2px; background: rgba(255,255,255,.7); animation: poFloat calc(3s + var(--i) * .3s) linear infinite; animation-delay: calc(var(--i) * -.45s); }
   @keyframes poFloat { to { transform: translateY(-380px) rotate(360deg); opacity: 0; } }
   .po-body { display: grid; gap: 12px; align-content: center; padding: 34px 32px 26px; }
-  .po-badge { justify-self: start; display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; border-radius: 999px; background: #ffe9e6; color: #d0342c; font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+  .po-badge { justify-self: start; display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; border-radius: 999px; background: #ffe9e6; color: #d0342c; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
   .po-badge i { width: 8px; height: 8px; border-radius: 50%; background: #e0362c; animation: annBlink 1s infinite; }
   .po-body h2 { font-size: clamp(26px, 3vw, 34px); line-height: 1.1; }
   .po-body p { color: var(--ink-2); font-size: 15px; }

@@ -202,7 +202,7 @@ const wa = (msg: string) => `https://wa.me/${site.phone.tel.replace('+', '')}?te
 
   .sw-head { display: grid; gap: 4px; }
   .sw-kicker { font-size: 11px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: #f5b400; }
-  .sw-head h2 { font-size: 40px; line-height: 1; color: #fff; letter-spacing: 0; }
+  .sw-head h2 { font-size: 40px; line-height: 1; color: #fff; letter-spacing: -.02em; }
   .sw-head h2 em { font-style: normal; background: linear-gradient(120deg, #ffd96a, #f5b400); -webkit-background-clip: text; background-clip: text; color: transparent; }
   .sw-head p { font-size: 14px; color: rgba(255,255,255,.65); }
 
@@ -229,7 +229,7 @@ const wa = (msg: string) => `https://wa.me/${site.phone.tel.replace('+', '')}?te
   .s1, .s4, .s5 { color: #10241a; }
   .ico :global(g) { transform: scale(1); }
   .t1 { font: 700 9.5px var(--body); text-anchor: middle; letter-spacing: .14em; text-transform: uppercase; fill: currentColor; opacity: .75; }
-  .t2 { font: 600 15px var(--display); text-anchor: middle; fill: currentColor; letter-spacing: 0; }
+  .t2 { font: 800 15px var(--display); text-anchor: middle; fill: currentColor; letter-spacing: -.01em; }
   .div { stroke: rgba(12,23,18,.35); stroke-width: 1.5; }
   .bulb { fill: #fff6d6; animation: bulb 1.2s infinite; animation-delay: calc(var(--i) * .07s); }
   .spinning .bulb { animation-duration: .3s; }
@@ -242,7 +242,7 @@ const wa = (msg: string) => `https://wa.me/${site.phone.tel.replace('+', '')}?te
 
   .sw-hub {
     position: absolute; left: 50%; top: 50%; z-index: 3; width: 23%; aspect-ratio: 1; transform: translate(-50%, -50%);
-    border: 0; border-radius: 50%; color: #0c1712; font: 600 15px var(--display); letter-spacing: .06em;
+    border: 0; border-radius: 50%; color: #0c1712; font: 800 15px var(--display); letter-spacing: .06em;
     background: radial-gradient(circle at 35% 30%, #fff, #ffe38a 40%, #f5b400 75%);
     box-shadow: 0 0 0 5px #0c1712, 0 0 0 8px rgba(255,255,255,.25), 0 10px 26px rgba(0,0,0,.5);
     transition: transform .2s;
@@ -270,7 +270,7 @@ const wa = (msg: string) => `https://wa.me/${site.phone.tel.replace('+', '')}?te
   .sw-win.up { transform: none; opacity: 1; }
   .win-ico { position: absolute; top: -34px; display: grid; place-items: center; width: 68px; height: 68px; border-radius: 50%; background: linear-gradient(140deg, #ffd96a, #f5b400); color: #0c1712; box-shadow: 0 0 0 6px var(--surface), 0 12px 24px rgba(0,0,0,.3); }
   .win-ico :global(svg) { width: 32px; height: 32px; }
-  .win-k { font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: #b47d00; }
+  .win-k { font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: #b47d00; }
   .sw-win h3 { font-size: 28px; line-height: 1.1; }
   .ticket {
     position: relative; display: flex; align-items: stretch; width: 100%; max-width: 330px; padding: 0; border: 0; border-radius: 14px; overflow: hidden;
@@ -281,7 +281,7 @@ const wa = (msg: string) => `https://wa.me/${site.phone.tel.replace('+', '')}?te
   .t-l { flex: 1; display: grid; padding: 10px 18px; border-right: 2px dashed color-mix(in srgb, var(--violet) 40%, transparent); }
   .t-l small { font-size: 11px; color: var(--ink-3); letter-spacing: .08em; text-transform: uppercase; }
   .t-l b { font-family: var(--display); font-size: 22px; letter-spacing: .08em; color: var(--violet); }
-  .t-r { display: grid; place-items: center; padding: 0 20px; font-size: 13px; font-weight: 600; color: var(--violet); }
+  .t-r { display: grid; place-items: center; padding: 0 20px; font-size: 13px; font-weight: 800; color: var(--violet); }
   .sw-win p { font-size: 13px; color: var(--ink-3); }
   .sw-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
   .sw-btns .btn { padding: 12px 22px; font-size: 14px; }

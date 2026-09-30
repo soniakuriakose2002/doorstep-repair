@@ -606,9 +606,9 @@ const [rowA, rowB] = rowsOf(mostBooked);
   .tq[data-pos='out'] { opacity: 0; transform: translateX(-60%) rotate(-8deg); z-index: 4; }
   .tq-mark { position: absolute; right: 26px; top: 22px; width: 54px; height: 54px; fill: var(--accent-soft); }
   .tq-tag { align-self: flex-start; padding: 5px 12px; border-radius: 999px; background: var(--accent-soft); color: var(--violet); font-size: 12.5px; font-weight: 700; }
-  .tq blockquote { margin: 0; flex: 1; font-size: clamp(18px, 1.7vw, 22px); line-height: 1.45; font-weight: 600; letter-spacing: 0; }
+  .tq blockquote { margin: 0; flex: 1; font-size: clamp(18px, 1.7vw, 22px); line-height: 1.45; font-weight: 600; letter-spacing: -.01em; }
   .tq figcaption { display: flex; align-items: center; gap: 12px; padding-top: 16px; border-top: 1px solid var(--line); }
-  .tq-av { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: var(--grad); color: var(--on-accent); font-weight: 600; font-size: 18px; flex: none; }
+  .tq-av { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: var(--grad); color: var(--on-accent); font-weight: 800; font-size: 18px; flex: none; }
   .tq-who b { display: block; font-size: 15px; }
   .tq-who small { font-size: 13px; color: var(--ink-3); }
   .tq-stars { margin-left: auto; display: flex; gap: 2px; }
@@ -649,9 +649,9 @@ const [rowA, rowB] = rowsOf(mostBooked);
   /* ---------- trusted partners + CTA ---------- */
   .pt-sec { padding-bottom: 0; }
   .pt-head { display: grid; justify-items: center; gap: 12px; text-align: center; max-width: 920px; margin: 0 auto; }
-  .pt-eyebrow { display: inline-flex; align-items: center; gap: 14px; font-size: 13px; font-weight: 600; letter-spacing: .28em; text-transform: uppercase; color: var(--violet); }
+  .pt-eyebrow { display: inline-flex; align-items: center; gap: 14px; font-size: 13px; font-weight: 800; letter-spacing: .28em; text-transform: uppercase; color: var(--violet); }
   .pt-eyebrow::before, .pt-eyebrow::after { content: ''; width: 36px; height: 2px; border-radius: 2px; background: currentColor; opacity: .8; }
-  .pt-title { font-size: clamp(30px, 4vw, 50px); line-height: 1.1; letter-spacing: 0; color: var(--ink); }
+  .pt-title { font-size: clamp(30px, 4vw, 50px); line-height: 1.1; letter-spacing: -.02em; color: var(--ink); }
   .pt-title em { font-style: normal; color: var(--violet); }
   .pt-head p { max-width: 700px; font-size: 17px; color: var(--ink-2); line-height: 1.6; }
   .pt-logos { list-style: none; margin: 46px auto 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); align-items: center; max-width: 960px; }
@@ -660,7 +660,7 @@ const [rowA, rowB] = rowsOf(mostBooked);
   .pt-logos img { max-height: 92px; width: auto; max-width: 100%; transition: transform .3s; }
   .pt-logos img.wide { max-height: 46px; }
   .pt-logos li:hover img { transform: scale(1.05); }
-  .pt-word { display: grid; justify-items: center; gap: 6px; font-size: 26px; font-weight: 600; letter-spacing: .22em; color: #5c6360; transition: color .3s, transform .3s; }
+  .pt-word { display: grid; justify-items: center; gap: 6px; font-size: 26px; font-weight: 800; letter-spacing: .22em; color: #5c6360; transition: color .3s, transform .3s; }
   .pt-word small { font-size: 10px; font-weight: 600; letter-spacing: .4em; text-transform: uppercase; color: #8a918e; }
   .pt-logos li:hover .pt-word { color: var(--violet); transform: scale(1.04); }
 
@@ -674,7 +674,7 @@ const [rowA, rowB] = rowsOf(mostBooked);
   .cta2-dots.a { left: 7%; bottom: 18%; }
   .cta2-dots.b { right: 3%; top: 14%; width: 90px; height: 130px; }
   @keyframes ctaFloat { 50% { transform: translate(-16px, 10px); } }
-  .cta2 h2 { font-size: clamp(30px, 4vw, 50px); letter-spacing: 0; line-height: 1.1; }
+  .cta2 h2 { font-size: clamp(30px, 4vw, 50px); letter-spacing: -.02em; line-height: 1.1; }
   .cta2 h2 em { font-style: normal; color: var(--violet); }
   .cta2 > p { max-width: 640px; font-size: 17px; line-height: 1.6; color: var(--ink-2); }
   .cta2-go { display: flex; align-items: center; gap: 14px; margin-top: 8px; }
@@ -699,7 +699,7 @@ const [rowA, rowB] = rowsOf(mostBooked);
   /* ---------- services grid ---------- */
   #book-services { scroll-margin-top: 90px; padding-top: 110px; padding-bottom: 110px; }
   .wrap.uc { width: min(1440px, 100% - 32px); }
-  .uc h2 { font-size: clamp(26px, 2.8vw, 36px); letter-spacing: 0; }
+  .uc h2 { font-size: clamp(26px, 2.8vw, 36px); letter-spacing: -.02em; }
   .uc-head { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 30px; }
   .uc-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; margin-bottom: 10px; border-radius: 999px; background: var(--accent-soft); color: var(--violet); font-size: 12.5px; font-weight: 700; }
   .uc-badge i { width: 8px; height: 8px; border-radius: 50%; background: var(--violet); animation: ucPulse 1.6s infinite; }
@@ -723,7 +723,7 @@ const [rowA, rowB] = rowsOf(mostBooked);
   .uc-more .uc-all { padding: 13px 26px; background: var(--violet); border-color: var(--violet); color: var(--on-accent); font-size: 15px; }
   .uc-more .uc-all:hover { filter: brightness(1.08); }
   .uc-mh { display: flex; justify-content: space-between; align-items: end; gap: 14px; margin-bottom: 22px; }
-  .uc-mh h3 { font-size: 22px; letter-spacing: 0; }
+  .uc-mh h3 { font-size: 22px; letter-spacing: -.01em; }
   .uc-mh p { font-size: 14px; color: var(--ink-3); margin-top: 2px; }
   .uc-nav { display: flex; gap: 8px; }
   .uc-nav button { display: grid; place-items: center; width: 40px; height: 40px; border: 1px solid var(--line); border-radius: 50%; background: var(--surface); color: var(--ink); transition: all .2s; }
@@ -743,11 +743,11 @@ const [rowA, rowB] = rowsOf(mostBooked);
   .uc-body small { font-size: 12.5px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .uc-foot { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 12.5px; color: var(--ink-3); }
   .uc-foot > span { margin-right: auto; }
-  .uc-foot em { white-space: nowrap; font-style: normal; font-weight: 600; color: var(--lime); }
+  .uc-foot em { white-space: nowrap; font-style: normal; font-weight: 800; color: var(--lime); }
   .uc-wa { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #e8faf0; color: #25d366; transition: all .2s; }
   .uc-wa :global(svg) { width: 16px; height: 16px; }
   .uc-wa:hover { background: #25d366; color: #fff; }
-  .uc-add { display: inline-flex; align-items: center; gap: 3px; height: 30px; padding: 0 12px 0 9px; border: 1px solid var(--violet); border-radius: 999px; background: none; color: var(--violet); font-weight: 600; font-size: 12.5px; transition: all .2s; }
+  .uc-add { display: inline-flex; align-items: center; gap: 3px; height: 30px; padding: 0 12px 0 9px; border: 1px solid var(--violet); border-radius: 999px; background: none; color: var(--violet); font-weight: 800; font-size: 12.5px; transition: all .2s; }
   .uc-add .p { font-size: 16px; line-height: 1; }
   .uc-add:hover, .uc-add.done { background: var(--violet); color: var(--on-accent); }
   @media (max-width: 1000px) { .uc-cats { grid-template-columns: repeat(4, 1fr); } .uc-rail { grid-auto-columns: calc((100% - 20px) / 2); } }
@@ -760,7 +760,7 @@ const [rowA, rowB] = rowsOf(mostBooked);
   .road::before { content: ''; position: absolute; left: 4%; right: 4%; top: 11px; height: 3px; border-radius: 3px; background: linear-gradient(90deg, var(--violet), var(--blue, var(--violet))); }
   .rm { position: relative; display: grid; justify-items: center; gap: 6px; text-align: center; padding-top: 34px; }
   .rm-dot { position: absolute; top: 0; width: 25px; height: 25px; border-radius: 50%; background: var(--surface); border: 4px solid var(--violet); box-shadow: 0 0 0 6px rgba(var(--a1), .15); }
-  .rm-year { font-family: var(--display); font-size: 28px; font-weight: 600; color: var(--violet); }
+  .rm-year { font-family: var(--display); font-size: 28px; font-weight: 800; color: var(--violet); }
   .rm b { font-size: 15px; }
   .rm small { font-size: 13px; color: var(--ink-3); max-width: 22ch; }
   .rm.tbc .rm-year { font-size: 16px; padding: 4px 10px; border-radius: 999px; background: #fff4d6; color: #8a5a00; }
