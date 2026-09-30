@@ -1,6 +1,7 @@
 ---
 // Theme button in the header (next to search/cart) to try pastel shades live. "Default" = the brand's own theme.
-// Choice is remembered (localStorage 'shade'); ?shade=1…14 or ?shade=0 also works.
+// Danat Fix shades 1–14, 369 ai Fix shades 21–28; the menu lists the current brand's set.
+// Choice is remembered (localStorage 'shade'); ?shade=N or ?shade=0 also works.
 // Colours for each shade live in global.css under :root[data-shade='N'].
 export const shades = [
   { id: '0', name: 'Default', a: '#6d28d9', b: '#c026d3' },
@@ -19,16 +20,28 @@ export const shades = [
   { id: '13', name: 'Baby Blue', a: '#3a7cc4', b: '#c3e2ff' },
   { id: '14', name: 'Lilac Grey', a: '#6f6391', b: '#dcd7e8' },
 ];
+// 369 ai Fix shades (shown in the menu when that brand is selected)
+export const shades369 = [
+  { id: '0', name: 'Default', a: '#0f6fd1', b: '#f07a1a' },
+  { id: '21', name: 'Ice Blue', a: '#1f78c8', b: '#c2e2ff' },
+  { id: '22', name: 'Sky Apricot', a: '#2a86d6', b: '#ffe6cf' },
+  { id: '23', name: 'Silver Mist', a: '#4f6a8a', b: '#dde2e9' },
+  { id: '24', name: 'Ocean Pastel', a: '#1c7fae', b: '#bfe5f3' },
+  { id: '25', name: 'Sunrise Blue', a: '#e27424', b: '#ffd6b0' },
+  { id: '26', name: 'Cloud Grey', a: '#3b6ea5', b: '#e1e6ee' },
+  { id: '27', name: 'Aqua Peach', a: '#1d8a9a', b: '#ffe5d2' },
+  { id: '28', name: 'Periwinkle Sky', a: '#3f63c9', b: '#cfd9ff' },
+];
 ---
 
 <div class="sp" data-sp data-no-brand>
   <div class="sp-menu" role="group" aria-label="Colour shade" data-sp-menu hidden>
     <p>Theme shade</p>
-    {shades.map((s) => (
-      <button type="button" data-shade-id={s.id} aria-pressed="false">
+    {[['danatfix', shades], ['369', shades369]].map(([brand, list]) => (list as typeof shades).map((s) => (
+      <button type="button" data-shade-id={s.id} data-for-brand={brand} aria-pressed="false">
         <span class="sp-sw" style={`--a:${s.a};--b:${s.b}`}></span>{s.name}
       </button>
-    ))}
+    )))}
   </div>
   <button type="button" class="sp-btn" aria-expanded="false" data-sp-btn>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1 0 1.6-.8 1.6-1.6 0-.5-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1 0-.9.7-1.6 1.6-1.6H16a5 5 0 0 0 5-5c0-4.1-4-7.6-9-7.6z"/><circle cx="7.5" cy="11" r="1.2"/><circle cx="10.5" cy="7" r="1.2"/><circle cx="15" cy="7.5" r="1.2"/></svg>
@@ -39,7 +52,7 @@ export const shades = [
 <script is:inline>
 (() => {
   const root = document.querySelector('[data-sp]'), btn = root.querySelector('[data-sp-btn]'), menu = root.querySelector('[data-sp-menu]');
-  const mark = () => { const cur = document.documentElement.dataset.shade || '0'; menu.querySelectorAll('[data-shade-id]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.shadeId === cur))); };
+  const mark = () => { const cur = document.documentElement.dataset.shade || '0'; menu.querySelectorAll('[data-shade-id]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.shadeId === cur && b.dataset.forBrand === (document.documentElement.dataset.brand || 'danatfix')))); };
   const set = (id) => {
     if (id === '0') delete document.documentElement.dataset.shade; else document.documentElement.dataset.shade = id;
     try { localStorage.setItem('shade', id); } catch {}
@@ -48,7 +61,11 @@ export const shades = [
   btn.addEventListener('click', (e) => { e.stopPropagation(); menu.hidden = !menu.hidden; btn.setAttribute('aria-expanded', String(!menu.hidden)); });
   menu.addEventListener('click', (e) => { const b = e.target.closest('[data-shade-id]'); if (b) set(b.dataset.shadeId); });
   document.addEventListener('click', (e) => { if (!root.contains(e.target)) { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); } });
-  mark();
+  // a shade belongs to one brand (1–14 Danat Fix, 21–28 369 ai Fix): drop it when the brand no longer matches
+  const fits = () => { const s = Number(document.documentElement.dataset.shade || 0), br = document.documentElement.dataset.brand || 'danatfix'; return !s || (br === '369' ? s >= 21 : s < 21); };
+  const check = () => { if (!fits()) { delete document.documentElement.dataset.shade; try { localStorage.setItem('shade', '0'); } catch {} } mark(); };
+  new MutationObserver(check).observe(document.documentElement, { attributes: true, attributeFilter: ['data-brand'] });
+  check();
 })();
 </script>
 
@@ -61,6 +78,8 @@ export const shades = [
   .sp-menu[hidden] { display: none; }
   .sp-menu p { grid-column: 1 / -1; margin: 2px 8px 6px; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: #8a86a0; }
   .sp-menu button { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border: 0; border-radius: 11px; background: none; font: inherit; font-size: 14px; color: #26252b; text-align: left; cursor: pointer; }
+  .sp-menu button[data-for-brand] { display: none; }
+  :global(:root[data-brand='danatfix']) .sp-menu [data-for-brand='danatfix'], :global(:root[data-brand='369']) .sp-menu [data-for-brand='369'] { display: flex; }
   .sp-menu button:hover { background: #f3f0fa; }
   .sp-menu button[aria-pressed='true'] { background: #efe9fd; font-weight: 700; }
   .sp-sw { width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, var(--a) 50%, var(--b) 50%); box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); }

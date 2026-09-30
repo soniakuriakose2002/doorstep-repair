@@ -637,3 +637,24 @@ a.glass:hover, .issue.glass:hover { transform: translateY(-4px); border-color: r
 :root[data-brand][data-shade='14'][data-shade] { --p-bg: #f8f7fb; --p-s1: #ebe8f2; --p-s2: #dcd7e8; --p-s3: #c8c0dc; --p-acc: #6f6391; --p-warm: #f4dcd2;
   --bg: #f8f7fb; --violet: #6f6391; --cyan: #6f6391; --accent-soft: #ebe8f2; --glow: #dcd7e8; --line: rgba(60, 40, 110, .1); }
 
+
+/* 369 ai Fix pastel shades (from its logo: 369 blue, orange arrow, silver ai) */
+:root[data-brand][data-shade='21'][data-shade] { --p-bg: #f3f9ff; --p-s1: #dcefff; --p-s2: #c2e2ff; --p-s3: #a3cff5; --p-acc: #1f78c8; --p-warm: #ffd9b3;
+  --bg: #f3f9ff; --violet: #1f78c8; --cyan: #1f78c8; --accent-soft: #dcefff; --glow: #c2e2ff; --line: rgba(20, 50, 90, .1); }
+:root[data-brand][data-shade='22'][data-shade] { --p-bg: #f5faff; --p-s1: #e0f0ff; --p-s2: #ffe6cf; --p-s3: #b5d8f7; --p-acc: #2a86d6; --p-warm: #ffc58f;
+  --bg: #f5faff; --violet: #2a86d6; --cyan: #2a86d6; --accent-soft: #e0f0ff; --glow: #ffe6cf; --line: rgba(20, 50, 90, .1); }
+:root[data-brand][data-shade='23'][data-shade] { --p-bg: #f7f8fa; --p-s1: #eceff3; --p-s2: #dde2e9; --p-s3: #c7d0dc; --p-acc: #4f6a8a; --p-warm: #ffd1a6;
+  --bg: #f7f8fa; --violet: #4f6a8a; --cyan: #4f6a8a; --accent-soft: #eceff3; --glow: #dde2e9; --line: rgba(20, 50, 90, .1); }
+:root[data-brand][data-shade='24'][data-shade] { --p-bg: #f2fafd; --p-s1: #d7f0f8; --p-s2: #bfe5f3; --p-s3: #9fd4ec; --p-acc: #1c7fae; --p-warm: #ffdcb8;
+  --bg: #f2fafd; --violet: #1c7fae; --cyan: #1c7fae; --accent-soft: #d7f0f8; --glow: #bfe5f3; --line: rgba(20, 50, 90, .1); }
+:root[data-brand][data-shade='25'][data-shade] { --p-bg: #fffaf4; --p-s1: #ffebd6; --p-s2: #ffd6b0; --p-s3: #b9dcf8; --p-acc: #e27424; --p-warm: #cfe6ff;
+  --bg: #fffaf4; --violet: #e27424; --cyan: #e27424; --accent-soft: #ffebd6; --glow: #ffd6b0; --line: rgba(20, 50, 90, .1); }
+:root[data-brand][data-shade='26'][data-shade] { --p-bg: #f8f9fb; --p-s1: #eef1f5; --p-s2: #e1e6ee; --p-s3: #cdd6e2; --p-acc: #3b6ea5; --p-warm: #ffe0c2;
+  --bg: #f8f9fb; --violet: #3b6ea5; --cyan: #3b6ea5; --accent-soft: #eef1f5; --glow: #e1e6ee; --line: rgba(20, 50, 90, .1); }
+:root[data-brand][data-shade='27'][data-shade] { --p-bg: #f3fbfb; --p-s1: #dbf3f3; --p-s2: #ffe5d2; --p-s3: #a8dde0; --p-acc: #1d8a9a; --p-warm: #ffc9a3;
+  --bg: #f3fbfb; --violet: #1d8a9a; --cyan: #1d8a9a; --accent-soft: #dbf3f3; --glow: #ffe5d2; --line: rgba(20, 50, 90, .1); }
+:root[data-brand][data-shade='28'][data-shade] { --p-bg: #f6f7ff; --p-s1: #e4e9ff; --p-s2: #cfd9ff; --p-s3: #b0c3f5; --p-acc: #3f63c9; --p-warm: #ffd7b0;
+  --bg: #f6f7ff; --violet: #3f63c9; --cyan: #3f63c9; --accent-soft: #e4e9ff; --glow: #cfd9ff; --line: rgba(20, 50, 90, .1); }
+:root[data-brand][data-shade^='2'][data-shade] .grad-text, :root[data-brand][data-shade^='2'][data-shade] .vhero .grad-text, :root[data-brand][data-shade^='2'][data-shade] .page-head .grad-text {
+  background: linear-gradient(100deg, var(--p-s3), #d7ecff 35%, var(--p-warm) 60%, var(--p-s3)) !important; background-size: 200% 100% !important; -webkit-background-clip: text !important; background-clip: text !important; -webkit-text-fill-color: transparent !important; color: transparent !important; animation: dfFlow 7s linear infinite; }
+
