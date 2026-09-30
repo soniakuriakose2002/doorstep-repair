@@ -577,7 +577,7 @@ const payload = JSON.stringify({
     $('[data-wz-sumlist]', wz).innerHTML = [...wzState.issues].map((i) => `<li><span>${esc(i)}</span><b>${price()}</b></li>`).join('');
     $('[data-wz-pickup]', wz).hidden = c.onsiteOnly;
     $('[data-wz-onsite]', wz).hidden = !c.onsiteOnly;
-    $<HTMLAnchorElement>('[data-wz-now]', wz).href = waUrl(`Hi 369 ai Fix, I want to book:\n${lineFor(currentItem())}`);
+    $<HTMLAnchorElement>('[data-wz-now]', wz).href = waUrl(`Hi Danat Fix, I want to book:\n${lineFor(currentItem())}`);
   };
   const currentItem = () => ({ cat: wzState.cat, device: wzCat()!.name, model: [brandName(), wzState.model].filter(Boolean).join(' '), issues: [...wzState.issues] });
   const lineFor = (it: { device: string; model: string; issues: string[] }) => `• ${it.issues.join(', ')} — ${it.model || it.device}`;

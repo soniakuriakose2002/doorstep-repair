@@ -4,6 +4,7 @@ import { site, nav, price } from '../data/site';
 import MegaMenu from '../components/MegaMenu.astro';
 import Popups from '../components/Popups.astro';
 import LocalCurrency from '../components/LocalCurrency.astro';
+import BrandSwitch from '../components/BrandSwitch.astro';
 import Engage from '../components/Engage.astro';
 import ChatBot from '../components/ChatBot.astro';
 import CartDrawer from '../components/CartDrawer.astro';
@@ -32,6 +33,10 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     <link rel="preload" href="/fonts/jakarta.woff2" as="font" type="font/woff2" crossorigin />
     <script is:inline>
       (() => {
+        // Brand (Danat Fix default / Danat Fix) — set before paint so colours never flash
+        let br = new URLSearchParams(location.search).get('brand');
+        try { if (br === 'danatfix' || br === '369') localStorage.setItem('brand', br); else br = localStorage.getItem('brand'); } catch {}
+        document.documentElement.dataset.brand = br === '369' ? '369' : 'danatfix';
         const ok = ['danat', 'green', 'blue', 'red', 'teal', 'yellow', 'orange', 'slate'];
         let t = new URLSearchParams(location.search).get('theme');
         try { if (t && ok.includes(t)) localStorage.setItem('theme', t); else t = localStorage.getItem('theme'); } catch {}
@@ -60,9 +65,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 
     <header class="nav">
       <div class="wrap nav-inner glass">
-        <a href="/" class="logo">
-          <img class="logo-369" src="/brand/369-ai-fix@240.png" alt={site.name} width="287" height="240" />
-        </a>
+        <BrandSwitch />
         <nav aria-label="Main">
           <ul>
             {nav.map((n) => n.href === '/services' ? (
@@ -93,7 +96,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     <footer class="footer">
       <div class="wrap footer-inner">
         <div>
-          <a href="/" class="logo" aria-label={site.name}><img class="logo-369 on-dark" src="/brand/369-ai-fix@240.png" alt={site.name} width="287" height="240" loading="lazy" /></a>
+          <a href="/" class="logo foot-logo" aria-label={site.name}><img class="logo-369 on-dark" data-for="danatfix" src="/brand/danat-fix@240.png" alt="Danat Fix" width="222" height="240" loading="lazy" /><img class="logo-369 on-dark" data-for="369" src="/brand/369-ai-fix@240.png" alt="369 ai Fix" width="287" height="240" loading="lazy" /></a>
           <p class="muted">{site.tagline}. Doorstep repair and pickup across {site.country} since {site.since} — branches in {site.branches.join(', ')}.</p>
           <ul class="contact">
             <li><a href={`tel:${site.phone.tel}`}>{site.phone.display}</a></li>
@@ -333,6 +336,8 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
   }
   .logo-mark svg { width: 22px; height: 22px; }
   .logo-369 { display: block; height: 72px; width: auto; margin-block: -8px; }
+  .foot-logo .logo-369 { display: none; }
+  :global(:root[data-brand='danatfix']) .foot-logo [data-for='danatfix'], :global(:root[data-brand='369']) .foot-logo [data-for='369'] { display: block; }
   .logo-369.on-dark { height: 96px; padding: 8px 12px; border-radius: 14px; background: #fff; }
   @media (max-width: 560px) { .logo-369 { height: 48px; } }
   .logo-img img { display: block; width: 40px; height: 40px; border-radius: 10px; background: #fff; object-fit: contain; }

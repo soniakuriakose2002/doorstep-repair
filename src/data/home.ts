@@ -18,7 +18,7 @@ export const homeServices = categories.flatMap((c) =>
     hue: c.hue,
     name: issue,
     from: price(basePrice[`${c.id}-${issue}`] ?? PRICE),
-    wa: wa(`Hi 369 ai Fix, I want to book a ${issue} service for my ${c.name.replace(/ &.*$/, '').replace(/s$/, '').toLowerCase()}.`),
+    wa: wa(`Hi Danat Fix, I want to book a ${issue} service for my ${c.name.replace(/ &.*$/, '').replace(/s$/, '').toLowerCase()}.`),
   })),
 );
 

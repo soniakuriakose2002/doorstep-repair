@@ -22,7 +22,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
 ---
 
 <div class="fab" data-fab data-kb={JSON.stringify(kb)} data-tel={tel}>
-  <a class="fab-wa" href={wa('Hello 369 ai Fix — I need help with a repair.')} target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+  <a class="fab-wa" href={wa('Hello Danat Fix — I need help with a repair.')} target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
     <Fragment set:html={waIcon} />
     <span class="fab-tip">WhatsApp us</span>
   </a>
@@ -35,10 +35,10 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     <span class="fab-badge" data-bot-badge>1</span>
   </button>
 
-  <section class="bot" data-bot hidden aria-label="369 ai Fix assistant">
+  <section class="bot" data-bot hidden aria-label="Danat Fix assistant">
     <header class="bot-head">
       <span class="bot-av"><svg viewBox="0 0 32 32"><path d="M16 5C9.4 5 4 9.6 4 15.3c0 3 1.5 5.7 3.9 7.6L7 27.5l5-2.6c1.2.3 2.6.5 4 .5 6.6 0 12-4.6 12-10.3S22.6 5 16 5z" fill="#fff"/><circle class="d d1" cx="10.8" cy="15.4" r="1.8" fill="#0f6b37"/><circle class="d d2" cx="16" cy="15.4" r="1.8" fill="#0f6b37"/><circle class="d d3" cx="21.2" cy="15.4" r="1.8" fill="#0f6b37"/><path class="spark" d="M26 2l.9 2.1L29 5l-2.1.9L26 8l-.9-2.1L23 5l2.1-.9z" fill="#ffd96a"/></svg></span>
-      <div><b>369 ai Fix Assistant</b><small>Automated help · replies instantly</small></div>
+      <div><b>Danat Fix Assistant</b><small>Automated help · replies instantly</small></div>
       <button type="button" class="bot-close" data-bot-toggle aria-label="Close">×</button>
     </header>
     <div class="bot-log" data-bot-log aria-live="polite"></div>
@@ -93,7 +93,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       } else if (act.startsWith('iss:')) {
         const [, id, iss] = act.split(':');
         const d = kb.devices.find((x: any) => x.id === id);
-        say(`Got it — <b>${esc(iss)}</b> for ${esc(d.name)}. Estimate: <b>${kb.price}</b>. Tap below and your booking message is ready to send.<br>${waBtn(`Hi 369 ai Fix, I want to book ${iss} for my ${d.name}.`, 'Book on WhatsApp')}`);
+        say(`Got it — <b>${esc(iss)}</b> for ${esc(d.name)}. Estimate: <b>${kb.price}</b>. Tap below and your booking message is ready to send.<br>${waBtn(`Hi Danat Fix, I want to book ${iss} for my ${d.name}.`, 'Book on WhatsApp')}`);
         menu();
       } else if (act === 'area') {
         say('Type your area name below (for example <i>Qurum</i> or <i>Sohar</i>) and I\'ll check.');
@@ -109,7 +109,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         say(`We have branches in <b>${kb.branches.join(', ')}</b>.<br>📞 <a href="tel:${esc(kb.phone.replace(/\s/g, ''))}">${esc(kb.phone)}</a><br>✉️ <a href="mailto:${esc(kb.email)}">${esc(kb.email)}</a>`);
         menu();
       } else if (act === 'human') {
-        say(`Sure — our team replies on WhatsApp.<br>${waBtn('Hello 369 ai Fix, I would like to talk to someone about a repair.')}`);
+        say(`Sure — our team replies on WhatsApp.<br>${waBtn('Hello Danat Fix, I would like to talk to someone about a repair.')}`);
         menu();
       } else if (act === 'menu') {
         say('How else can I help?'); menu();
@@ -123,7 +123,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         else if (/time|long|when|today|fast/.test(q)) answer('time');
         else if (/branch|address|where|phone|call|contact|email/.test(q)) answer('contact');
         else if (dev) answer(`dev:${dev.id}`);
-        else { say(`I'm not sure about that one — our team can help on WhatsApp.<br>${waBtn(`Hello 369 ai Fix, ${text}`)}`); menu(); }
+        else { say(`I'm not sure about that one — our team can help on WhatsApp.<br>${waBtn(`Hello Danat Fix, ${text}`)}`); menu(); }
       }
     };
 
@@ -150,7 +150,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       fab.querySelector<HTMLElement>('[data-bot-badge]')!.hidden = true;
       if (open && !started) {
         started = true;
-        typing(() => { say('Hi 👋 I\'m the 369 ai Fix assistant. I can help you book a repair, check your area or find a branch.'); menu(); });
+        typing(() => { say('Hi 👋 I\'m the Danat Fix assistant. I can help you book a repair, check your area or find a branch.'); menu(); });
       }
     };
     fab.querySelectorAll('[data-bot-toggle]').forEach((b) => b.addEventListener('click', toggle));
