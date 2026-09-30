@@ -2,7 +2,7 @@
 // Brand switcher next to the header logo (like alphalize.com's Alphalize / 369AI menu).
 // Same website and same green colours for both brands — only the logo and the brand
 // name (in text and WhatsApp links) change.
-// Default: Danat Fix. Remembered in localStorage; ?brand=369 or ?brand=danatfix to link one.
+// Default: Danat Fix on every visit (not remembered). ?brand=369 links straight to 369 ai Fix.
 export const brands = [
   { id: 'danatfix', name: 'Danat Fix', sub: 'A unit of Danat Group', logo: '/brand/danat-fix@240.png', icon: '/brand/danat-fix-icon.png', w: 222, h: 240 },
   { id: '369', name: '369 ai Fix', sub: 'Smart service. Better solutions.', logo: '/brand/369-ai-fix@240.png', icon: '/brand/369-ai-fix-icon.png', w: 287, h: 240 },
@@ -65,7 +65,6 @@ export const brands = [
   btn.addEventListener('click', (e) => { e.stopPropagation(); toggle(menu.hidden); });
   menu.addEventListener('click', (e) => {
     const b = e.target.closest('[data-brand-id]'); if (!b) return;
-    try { localStorage.setItem('brand', b.dataset.brandId); } catch {}
     apply(b.dataset.brandId); toggle(false);
   });
   document.addEventListener('click', (e) => { if (!root.contains(e.target)) toggle(false); });

@@ -35,7 +35,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
       (() => {
         // Brand (Danat Fix default, or 369 ai Fix) - set before paint so the right logo shows first
         let br = new URLSearchParams(location.search).get('brand');
-        try { if (br === 'danatfix' || br === '369') localStorage.setItem('brand', br); else br = localStorage.getItem('brand'); } catch {}
+        try { localStorage.removeItem('brand'); } catch {} // every visit opens as Danat Fix; only a ?brand=369 link starts on 369
         document.documentElement.dataset.brand = br === '369' ? '369' : 'danatfix';
         // Theme picker removed: always the default green, menu 1, reviews 1, slot popup.
         try { ['theme', 'menu', 'reviews', 'welcome-popup'].forEach((k) => localStorage.removeItem(k)); } catch {}
