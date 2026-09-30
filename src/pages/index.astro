@@ -614,9 +614,9 @@ const [rowA, rowB] = rowsOf(mostBooked);
   @media (max-width: 720px) { .vhero { margin: 0 8px; border-radius: 24px; } .vhero-shade { background: rgba(6,14,10,.72); } }
 
   /* ---------- services grid ---------- */
-  #book-services { scroll-margin-top: 90px; }
+  #book-services { scroll-margin-top: 90px; padding-top: 110px; padding-bottom: 110px; }
   .uc h2 { font-size: clamp(26px, 2.8vw, 36px); letter-spacing: -.02em; }
-  .uc-head { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 22px; }
+  .uc-head { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 30px; }
   .uc-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; margin-bottom: 10px; border-radius: 999px; background: var(--accent-soft); color: var(--violet); font-size: 12.5px; font-weight: 700; }
   .uc-badge i { width: 8px; height: 8px; border-radius: 50%; background: var(--violet); animation: ucPulse 1.6s infinite; }
   @keyframes ucPulse { 50% { opacity: .3; } }
@@ -625,7 +625,7 @@ const [rowA, rowB] = rowsOf(mostBooked);
   .uc-all:hover { background: var(--violet); border-color: var(--violet); color: var(--on-accent); }
   .uc-all:hover svg { transform: translateX(3px); }
 
-  .uc-cats { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; }
+  .uc-cats { display: grid; grid-template-columns: repeat(7, 1fr); gap: 16px; }
   .uc-cat { display: grid; justify-items: center; align-content: center; gap: 6px; padding: 12px 6px 11px; border-radius: 18px; border: 1px solid var(--line); background: var(--surface);
     text-align: center; font-size: 13px; font-weight: 700; line-height: 1.2; color: var(--ink-2); transition: transform .25s, box-shadow .25s, border-color .25s, color .2s; }
   .uc-cat:hover { transform: translateY(-4px); border-color: var(--violet); color: var(--violet); box-shadow: 0 16px 28px -20px rgba(0,0,0,.45); }
@@ -634,11 +634,11 @@ const [rowA, rowB] = rowsOf(mostBooked);
   .uc-cat:hover .uc-ci { transform: scale(1.08); }
   @media (prefers-reduced-motion: reduce) { .uc-badge i { animation: none; } }
 
-  .uc-most { min-width: 0; margin-top: 34px; }
-  .uc-more { display: flex; justify-content: center; margin-top: 26px; }
+  .uc-most { min-width: 0; margin-top: 64px; }
+  .uc-more { display: flex; justify-content: center; margin-top: 40px; }
   .uc-more .uc-all { padding: 13px 26px; background: var(--violet); border-color: var(--violet); color: var(--on-accent); font-size: 15px; }
   .uc-more .uc-all:hover { filter: brightness(1.08); }
-  .uc-mh { display: flex; justify-content: space-between; align-items: end; gap: 14px; margin-bottom: 16px; }
+  .uc-mh { display: flex; justify-content: space-between; align-items: end; gap: 14px; margin-bottom: 22px; }
   .uc-mh h3 { font-size: 22px; letter-spacing: -.01em; }
   .uc-mh p { font-size: 14px; color: var(--ink-3); margin-top: 2px; }
   .uc-nav { display: flex; gap: 8px; }
@@ -646,7 +646,7 @@ const [rowA, rowB] = rowsOf(mostBooked);
   .uc-nav button:hover { background: var(--violet); border-color: var(--violet); color: var(--on-accent); }
   .uc-nav svg { width: 18px; height: 18px; }
   .uc-rows { display: grid; gap: 14px; mask-image: linear-gradient(90deg, transparent, #000 3%, #000 97%, transparent); }
-  .uc-rail { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(190px, calc((100% - 80px) / 6)); gap: 16px; overflow-x: auto; scrollbar-width: none; padding: 2px; }
+  .uc-rail { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(190px, calc((100% - 100px) / 6)); gap: 20px; overflow-x: auto; scrollbar-width: none; padding: 2px; }
   .uc-rail::-webkit-scrollbar { display: none; }
   .uc-card { display: flex; flex-direction: column; overflow: hidden; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); transition: box-shadow .25s, border-color .25s; }
   .uc-card:hover { border-color: var(--violet); box-shadow: 0 16px 30px -22px rgba(0,0,0,.5); }
