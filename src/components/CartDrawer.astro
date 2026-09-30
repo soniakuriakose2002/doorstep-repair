@@ -1,0 +1,137 @@
+---
+// Site-wide cart (like e-commerce sites): header bag icon with count, slide-in
+// drawer from the right. Items persist in localStorage across pages.
+// Anything on the site can add with:  window.danatCart.add({ device, model, issues[] })
+import { site, price } from '../data/site';
+const tel = site.phone.tel.replace('+', '');
+---
+
+<div class="cd" data-cd data-tel={tel} data-price={price()} hidden>
+  <div class="cd-bg" data-cd-close></div>
+  <aside class="cd-panel" role="dialog" aria-modal="true" aria-labelledby="cd-title">
+    <header class="cd-head">
+      <h2 id="cd-title">Your cart <span data-cd-count>(0)</span></h2>
+      <button type="button" class="cd-x" data-cd-close aria-label="Close cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </header>
+    <div class="cd-body">
+      <ul class="cd-list" data-cd-list></ul>
+      <div class="cd-empty" data-cd-empty>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l-1 13H7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
+        <b>Your cart is empty</b>
+        <p>Add a repair and it will show up here.</p>
+        <a href="/services#catalog" class="cd-shop" data-cd-close>Find a repair</a>
+      </div>
+    </div>
+    <footer class="cd-foot" data-cd-foot hidden>
+      <div class="cd-row"><span>Repairs</span><b data-cd-lines>0</b></div>
+      <div class="cd-row"><span>Visit / pickup</span><b>{price()}</b></div>
+      <div class="cd-row total"><span>Estimated total</span><b>{price()}</b></div>
+      <p class="cd-note">Final price is confirmed after diagnosis, before any work.</p>
+      <a class="cd-go" data-cd-go href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg>Checkout on WhatsApp</a>
+      <button type="button" class="cd-clear" data-cd-clear>Clear cart</button>
+    </footer>
+  </aside>
+</div>
+<div class="cd-toast" data-cd-toast role="status" aria-live="polite"></div>
+
+<script>
+  type Item = { id: string; device: string; model: string; issues: string[] };
+  const root = document.querySelector<HTMLElement>('[data-cd]')!;
+  const tel = root.dataset.tel!, P = root.dataset.price!;
+  const KEY = 'danat-cart';
+  const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+  const load = (): Item[] => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } };
+  const save = (v: Item[]) => { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch {} };
+  let items = load();
+
+  const render = () => {
+    document.querySelectorAll<HTMLElement>('[data-cart-count]').forEach((b) => { b.textContent = String(items.length); b.hidden = !items.length; });
+    root.querySelector('[data-cd-count]')!.textContent = `(${items.length})`;
+    root.querySelector('[data-cd-lines]')!.textContent = String(items.reduce((n, i) => n + i.issues.length, 0));
+    root.querySelector<HTMLElement>('[data-cd-empty]')!.hidden = !!items.length;
+    root.querySelector<HTMLElement>('[data-cd-foot]')!.hidden = !items.length;
+    root.querySelector('[data-cd-list]')!.innerHTML = items.map((it, i) => `
+      <li class="cd-item">
+        <div class="cd-ih"><b>${esc(it.model || it.device)}</b><small>${esc(it.model ? it.device : 'Model not specified')}</small>
+          <button type="button" class="cd-rm" data-cd-rm="${i}" aria-label="Remove">Remove</button></div>
+        <ul>${it.issues.map((s, k) => `<li><span>${esc(s)}</span><b>${P}</b>${it.issues.length > 1 ? `<button type="button" data-cd-rmi="${i}:${k}" aria-label="Remove ${esc(s)}">×</button>` : ''}</li>`).join('')}</ul>
+      </li>`).join('');
+    const msg = `Hi Danat, I want to book these repairs:\n${items.map((it) => `• ${it.issues.join(', ')} — ${it.model || it.device}`).join('\n')}`;
+    root.querySelector<HTMLAnchorElement>('[data-cd-go]')!.href = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
+  };
+
+  const open = () => { root.hidden = false; requestAnimationFrame(() => root.classList.add('in')); document.documentElement.style.overflow = 'hidden'; };
+  const close = () => { root.classList.remove('in'); document.documentElement.style.overflow = ''; setTimeout(() => (root.hidden = true), 320); };
+  let tt = 0;
+  const toast = (t: string) => { const el = document.querySelector<HTMLElement>('[data-cd-toast]')!; el.textContent = t; el.classList.add('on'); clearTimeout(tt); tt = window.setTimeout(() => el.classList.remove('on'), 2200); };
+
+  (window as any).danatCart = {
+    add(it: Omit<Item, 'id'>, opts: { open?: boolean } = {}) {
+      const same = items.find((x) => x.device === it.device && x.model === it.model);
+      if (same) it.issues.forEach((s) => { if (!same.issues.includes(s)) same.issues.push(s); });
+      else items.push({ ...it, id: Math.random().toString(36).slice(2) });
+      save(items); render();
+      toast(`✓ Added to cart — ${it.issues.join(', ')}`);
+      document.querySelectorAll('[data-cart-open]').forEach((b) => { b.classList.remove('bump'); void (b as HTMLElement).offsetWidth; b.classList.add('bump'); });
+      if (opts.open) open();
+    },
+    open, items: () => items,
+  };
+
+  root.addEventListener('click', (e) => {
+    const t = e.target as HTMLElement;
+    if (t.closest('[data-cd-close]')) close();
+    const rm = t.closest<HTMLElement>('[data-cd-rm]');
+    if (rm) { items.splice(Number(rm.dataset.cdRm), 1); save(items); render(); }
+    const rmi = t.closest<HTMLElement>('[data-cd-rmi]');
+    if (rmi) { const [i, k] = rmi.dataset.cdRmi!.split(':').map(Number); items[i].issues.splice(k, 1); save(items); render(); }
+    if (t.closest('[data-cd-clear]')) { items = []; save(items); render(); }
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !root.hidden) close(); });
+  document.querySelectorAll('[data-cart-open]').forEach((b) => b.addEventListener('click', open));
+  addEventListener('storage', (e) => { if (e.key === KEY) { items = load(); render(); } });
+  render();
+</script>
+
+<style>
+  .cd { position: fixed; inset: 0; z-index: 95; }
+  .cd[hidden] { display: none; }
+  .cd-bg { position: absolute; inset: 0; background: rgba(10, 16, 13, .45); opacity: 0; transition: opacity .3s; }
+  .cd.in .cd-bg { opacity: 1; }
+  .cd-panel { position: absolute; right: 0; top: 0; bottom: 0; width: min(420px, 100%); display: flex; flex-direction: column; background: var(--surface); color: var(--ink); box-shadow: -30px 0 60px -20px rgba(0,0,0,.35); transform: translateX(100%); transition: transform .35s cubic-bezier(.2,.8,.2,1); }
+  .cd.in .cd-panel { transform: none; }
+  .cd-head { display: flex; align-items: center; justify-content: space-between; padding: 20px 22px; border-bottom: 1px solid var(--line); }
+  .cd-head h2 { font-size: 20px; }
+  .cd-head h2 span { color: var(--ink-3); font-weight: 600; }
+  .cd-x { display: grid; place-items: center; width: 38px; height: 38px; border: 0; border-radius: 50%; background: var(--tint-2); color: var(--ink); }
+  .cd-x svg { width: 18px; height: 18px; }
+  .cd-body { flex: 1; overflow-y: auto; padding: 16px 22px; }
+  .cd-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .cd-list :global(.cd-item) { padding: 14px; border: 1px solid var(--line); border-radius: 16px; animation: cdIn .3s ease; }
+  @keyframes cdIn { from { opacity: 0; transform: translateX(20px); } }
+  .cd-list :global(.cd-ih) { display: grid; grid-template-columns: 1fr auto; gap: 0 10px; padding-bottom: 10px; border-bottom: 1px dashed var(--line); }
+  .cd-list :global(.cd-ih b) { font-size: 15px; }
+  .cd-list :global(.cd-ih small) { grid-row: 2; font-size: 12.5px; color: var(--ink-3); }
+  .cd-list :global(.cd-rm) { grid-row: 1 / 3; grid-column: 2; align-self: center; border: 0; background: none; font-size: 12.5px; font-weight: 700; color: #be123c; text-decoration: underline; }
+  .cd-list :global(.cd-item ul) { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+  .cd-list :global(.cd-item ul li) { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+  .cd-list :global(.cd-item ul li span) { flex: 1; }
+  .cd-list :global(.cd-item ul li b) { color: var(--lime); font-size: 13px; }
+  .cd-list :global(.cd-item ul li button) { width: 20px; height: 20px; border: 0; border-radius: 50%; background: var(--tint-2); line-height: 1; color: var(--ink-2); }
+  .cd-empty { display: grid; justify-items: center; gap: 8px; padding: 60px 10px; text-align: center; color: var(--ink-3); }
+  .cd-empty[hidden] { display: none; }
+  .cd-empty svg { width: 64px; height: 64px; color: var(--line); }
+  .cd-empty b { font-size: 17px; color: var(--ink); }
+  .cd-shop { margin-top: 10px; padding: 12px 22px; border-radius: 999px; background: var(--violet); color: var(--on-accent); font-weight: 700; }
+  .cd-foot { display: grid; gap: 8px; padding: 18px 22px 22px; border-top: 1px solid var(--line); background: var(--tint); }
+  .cd-foot[hidden] { display: none; }
+  .cd-row { display: flex; justify-content: space-between; font-size: 14px; color: var(--ink-2); }
+  .cd-row.total { padding-top: 8px; border-top: 1px dashed var(--line); font-weight: 700; color: var(--ink); font-size: 16px; }
+  .cd-row.total b { color: var(--lime); font-size: 22px; font-family: var(--display); }
+  .cd-note { font-size: 12px; color: var(--ink-3); }
+  .cd-go { display: flex; align-items: center; justify-content: center; gap: 10px; height: 54px; margin-top: 6px; border-radius: 14px; background: #25d366; color: #fff; font-weight: 700; font-size: 16px; box-shadow: 0 12px 24px -12px rgba(37,211,102,.9); }
+  .cd-go svg { width: 22px; height: 22px; }
+  .cd-clear { justify-self: center; border: 0; background: none; font-size: 13px; color: var(--ink-3); text-decoration: underline; }
+  .cd-toast { position: fixed; left: 50%; bottom: 26px; z-index: 96; transform: translate(-50%, 30px); padding: 12px 20px; border-radius: 999px; background: #16211b; color: #fff; font-size: 14px; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity .3s, transform .3s; max-width: calc(100% - 32px); }
+  .cd-toast.on { opacity: 1; transform: translate(-50%, 0); }
+</style>

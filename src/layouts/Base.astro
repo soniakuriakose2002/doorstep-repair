@@ -5,6 +5,7 @@ import MegaMenu from '../components/MegaMenu.astro';
 import Popups from '../components/Popups.astro';
 import Engage from '../components/Engage.astro';
 import ChatBot from '../components/ChatBot.astro';
+import CartDrawer from '../components/CartDrawer.astro';
 
 interface Props {
   title?: string;
@@ -49,6 +50,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     <Popups />
     <Engage />
     <ChatBot />
+    <CartDrawer />
     <div class="aurora" aria-hidden="true">
       <span class="orb o1"></span>
       <span class="grid"></span>
@@ -81,7 +83,8 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
           </ul>
         </nav>
         <a href="/services#catalog" class="nav-search" aria-label="Search devices and models"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></a>
-        <a href="/services#book" class="btn btn-primary nav-cta">Book a repair</a>
+        <button type="button" class="nav-cart" data-cart-open aria-label="Open cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 3.5h2.2l2.4 11.2a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.1l1.8-7.3H6"/><circle cx="9.5" cy="19.8" r="1.4"/><circle cx="17" cy="19.8" r="1.4"/></svg><b data-cart-count hidden>0</b></button>
+        <a href="/services#catalog" class="btn btn-primary nav-cta">Book a repair</a>
       </div>
     </header>
 
@@ -423,6 +426,13 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
   .nav-search { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); color: var(--ink-2); flex: none; transition: color .15s, border-color .15s; }
   .nav-search:hover { color: var(--violet); border-color: var(--violet); }
   .nav-search svg { width: 18px; height: 18px; }
+  .nav-cart { position: relative; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: none; color: var(--ink-2); flex: none; transition: color .15s, border-color .15s; }
+  .nav-cart:hover { color: var(--violet); border-color: var(--violet); }
+  .nav-cart svg { width: 19px; height: 19px; }
+  .nav-cart b { position: absolute; right: -4px; top: -4px; display: grid; place-items: center; min-width: 19px; height: 19px; padding: 0 5px; border-radius: 999px; background: var(--violet); color: var(--on-accent); font-size: 11px; font-weight: 800; box-shadow: 0 0 0 2px var(--surface); }
+  .nav-cart b[hidden] { display: none; }
+  .nav-cart.bump { animation: bump .5s cubic-bezier(.3,1.6,.5,1); }
+  @keyframes bump { 40% { transform: scale(1.25) rotate(-8deg); } }
   .menu-group { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 8px; }
   .menu-group p { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); padding: 0 10px 6px; }
   .menu-group .mnums { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; padding: 0 6px; }

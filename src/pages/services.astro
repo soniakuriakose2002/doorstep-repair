@@ -256,7 +256,7 @@ const payload = JSON.stringify({
               <div class="wz-t" data-wz-pickup><span class="wz-ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M6 17h5l3-7h4M14 10l-2-3H9"/></svg></span><div><b>Pickup &amp; service</b><small>{coverage.pickup.eta}</small></div></div>
               <p class="wz-onsite" data-wz-onsite hidden>This service is done on-site, so it is booked as a doorstep visit.</p>
               <div class="wz-acts">
-                <button type="button" class="wz-add" data-wz-add>+ Add to cart</button>
+                <button type="button" class="wz-add" data-wz-add><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 3.5h2.2l2.4 11.2a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.1l1.8-7.3H6"/><circle cx="9.5" cy="19.8" r="1.4"/><circle cx="17" cy="19.8" r="1.4"/></svg>Add to cart</button>
                 <a class="wz-now" data-wz-now href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg> Book service now</a>
               </div>
             </div>
@@ -269,11 +269,6 @@ const payload = JSON.stringify({
           <button type="button" class="wz-next" data-wz-next disabled>Continue →</button>
         </div>
 
-        <div class="wz-cart" data-wz-cart hidden>
-          <span class="wz-cico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.4 11h10.2L20 7H6.2"/><circle cx="9" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/></svg><b data-wz-cn>0</b></span>
-          <div class="wz-citems" data-wz-citems></div>
-          <a class="wz-cgo" data-wz-cgo href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg> Book cart on WhatsApp</a>
-        </div>
       </div>
     </div>
   </section>
@@ -491,7 +486,6 @@ const payload = JSON.stringify({
   // ---------- booking wizard: 1 device → 2 brand & model → 3 issues → 4 estimate ----------
   const wz = $('[data-wz]');
   const wzState = { step: 1, cat: '', brand: '', model: '', issues: new Set<string>() };
-  const wzCart: { cat: string; device: string; model: string; issues: string[] }[] = [];
   const tel = site.phone.tel.replace('+', '');
   const waUrl = (m: string) => `https://wa.me/${tel}?text=${encodeURIComponent(m)}`;
   const wzCat = () => data.categories.find((c) => c.id === wzState.cat);
@@ -579,25 +573,14 @@ const payload = JSON.stringify({
   };
   const currentItem = () => ({ cat: wzState.cat, device: wzCat()!.name, model: [brandName(), wzState.model].filter(Boolean).join(' '), issues: [...wzState.issues] });
   const lineFor = (it: { device: string; model: string; issues: string[] }) => `• ${it.issues.join(', ')} — ${it.model || it.device}`;
-  const renderWzCart = () => {
-    const box = $('[data-wz-cart]', wz);
-    box.hidden = !wzCart.length;
-    $('[data-wz-cn]', wz).textContent = String(wzCart.length);
-    $('[data-wz-citems]', wz).innerHTML = wzCart.map((it, i) => `<span class="wz-chip"><b>${esc(it.model || it.device)}</b>${esc(it.issues.join(', '))}<button type="button" data-wz-rm="${i}" aria-label="Remove">×</button></span>`).join('');
-    $<HTMLAnchorElement>('[data-wz-cgo]', wz).href = waUrl(`Hi Danat, I want to book these repairs:\n${wzCart.map(lineFor).join('\n')}`);
-  };
   $('[data-wz-add]', wz).addEventListener('click', () => {
-    wzCart.push(currentItem());
-    renderWzCart();
+    const it = currentItem();
+    (window as any).danatCart?.add({ device: it.device, model: it.model, issues: it.issues }, { open: true });
     // start again for the next device
     wzState.cat = ''; wzState.brand = ''; wzState.model = ''; wzState.issues.clear();
     $$('[data-wz-cat]', wz).forEach((b) => b.classList.remove('on'));
     $$<HTMLButtonElement>('.wz-iss', wz).forEach((b) => b.setAttribute('aria-pressed', 'false'));
     wzGo(1);
-  });
-  $('[data-wz-citems]', wz).addEventListener('click', (e) => {
-    const r = (e.target as HTMLElement).closest<HTMLElement>('[data-wz-rm]');
-    if (r) { wzCart.splice(Number(r.dataset.wzRm), 1); renderWzCart(); }
   });
 
   // footer + progress
