@@ -465,3 +465,27 @@ a.glass:hover, .issue.glass:hover { transform: translateY(-4px); border-color: r
   --line: rgba(11, 31, 58, .1); --tint: rgba(11, 31, 58, .04); --tint-2: rgba(11, 31, 58, .07);
   --shadow: 0 1px 2px rgba(11, 31, 58, .05), 0 16px 36px -22px rgba(11, 31, 58, .28);
 }
+
+/* Danat Fix uses every colour in its logo: blue → purple → magenta brain, orange nodes + FIX,
+   charcoal DANAT letters. Headlines and main buttons carry the full gradient. */
+:root[data-brand][data-brand='danatfix'] {
+  --ink: #26252b; --navy: #1b1a21;
+  --violet: #7c3aed; --blue: #2563eb; --pink: #d946ef; --orange: #f97316; --lime: #f97316;
+  --grad: linear-gradient(115deg, #2563eb 0%, #7c3aed 50%, #d946ef 100%);
+  --grad-warm: linear-gradient(115deg, #f97316, #fb923c);
+  --accent-soft: #f1ebfe;
+}
+:root[data-brand='danatfix'] .grad-text,
+:root[data-brand='danatfix'] .vhero .grad-text,
+:root[data-brand='danatfix'] .hero .grad-text,
+:root[data-brand='danatfix'] .page-head .grad-text {
+  background: linear-gradient(100deg, #3b82f6 0%, #8b5cf6 45%, #e879f9 80%, #fb923c 100%) !important;
+  -webkit-background-clip: text !important; background-clip: text !important;
+  -webkit-text-fill-color: transparent !important; color: transparent !important; padding-bottom: .08em;
+}
+:root[data-brand='danatfix'] .btn-primary,
+:root[data-brand='danatfix'] .nav-cta { background: var(--grad) !important; border-color: transparent !important; }
+:root[data-brand='danatfix'] .eyebrow { color: var(--orange) !important; }
+:root[data-brand='danatfix'] .eyebrow::before { background: var(--orange) !important; }
+
+:root[data-brand='danatfix'] .uc-all, :root[data-brand='danatfix'] .cd-go, :root[data-brand='danatfix'] .cta2-btn { background: var(--grad) !important; }
