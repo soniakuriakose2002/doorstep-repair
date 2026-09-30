@@ -3,7 +3,11 @@ import Base from '../layouts/Base.astro';
 import { serviceModes, price, site } from '../data/site';
 import { categories, totals, iconPaths } from '../data/devices';
 import { coverage } from '../data/coverage';
-import { note as issueNote } from '../data/menu';
+import { note as issueNote, artFor } from '../data/menu';
+import { photo } from '../data/photos';
+import DeviceArt from '../components/DeviceArt.astro';
+const WA_ICON = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg>';
+const waLink = (iss: string, dev: string) => `https://wa.me/${site.phone.tel.replace('+', '')}?text=${encodeURIComponent(`Hi Danat, I want to book a ${iss} service for my ${dev.replace(/ &.*$/, '').replace(/s$/, '').toLowerCase()}.`)}`;
 const issueSvg = (s: string) => {
   const t = s.toLowerCase();
   const I: [RegExp, string][] = [
@@ -61,8 +65,46 @@ const payload = JSON.stringify({
     </div>
   </section>
 
-  <!-- ============ SERVICE MODE + COVERAGE ============ -->
-  <section class="section tight" id="modes">
+  <!-- ============ ALL SERVICES (new card style) ============ -->
+  <section class="section tight" id="all">
+    <div class="wrap as">
+      <nav class="as-side" aria-label="Devices">
+        <h3>All services</h3>
+        {categories.map((c, i) => (
+          <a href={`#as-${c.id}`} class:list={['as-link', { on: i === 0 }]} data-as-link={c.id} style={`--h:${c.hue}`}>
+            <span class="as-li"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" set:html={iconPaths[c.icon]} /></span>
+            <span>{c.name}</span><small>{c.issues.length}</small>
+          </a>
+        ))}
+      </nav>
+      <div class="as-main">
+        {categories.map((c) => (
+          <div class="as-group" id={`as-${c.id}`} data-as-group={c.id} style={`--h:${c.hue}`}>
+            <div class="as-gh">
+              <span class="as-gi"><DeviceArt kind={artFor[c.id]} /></span>
+              <div><h2>{c.name}</h2><p>{c.short}{c.onsiteOnly ? ' · on-site' : ' · doorstep or pickup'}</p></div>
+              <a class="as-gall" href={`/services?cat=${c.id}#catalog`}>Pick your model →</a>
+            </div>
+            <div class="as-grid">
+              {c.issues.map((iss) => (
+                <article class="as-card">
+                  <div class:list={['as-img', { photo: photo[`${c.id}:${iss}`] }]}>
+                    {photo[`${c.id}:${iss}`] ? <img src={`/media/repairs/${photo[`${c.id}:${iss}`]}.jpg`} alt={iss} loading="lazy" width="360" height="240" /> : <span class="as-art"><DeviceArt kind={artFor[c.id]} /></span>}
+                    <button type="button" class="as-add" data-as-add data-dev={c.name} data-iss={iss}><span>+</span><em>Add</em></button>
+                  </div>
+                  <b>{iss}</b>
+                  <small>{issueNote(iss)}</small>
+                  <div class="as-foot"><span>from <em>{price()}</em></span><a class="as-wa" target="_blank" rel="noopener" href={waLink(iss, c.name)} aria-label={`Book ${iss} on WhatsApp`} set:html={WA_ICON} /></div>
+                </article>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SERVICE MODE + COVERAGE ============ -->  <section class="section tight" id="modes">
     <div class="wrap">
       <div class="step-head" data-reveal>
         <span class="step-no">1</span>
@@ -383,6 +425,16 @@ const payload = JSON.stringify({
   let mode = 'doorstep';
   const cat = () => data.categories.find((c) => c.id === fCat.value);
 
+  // All services: add to cart + highlight the device in view
+  $$<HTMLElement>('[data-as-add]').forEach((b) => b.addEventListener('click', () => {
+    (window as any).danatCart?.add({ device: b.dataset.dev!, model: '', issues: [b.dataset.iss!] });
+    b.classList.add('done'); b.querySelector('em')!.textContent = 'Added';
+    setTimeout(() => { b.classList.remove('done'); b.querySelector('em')!.textContent = 'Add'; }, 1500);
+  }));
+  const asIO = new IntersectionObserver((es) => es.forEach((e) => {
+    if (e.isIntersecting) $$('[data-as-link]').forEach((l) => l.classList.toggle('on', l.dataset.asLink === (e.target as HTMLElement).dataset.asGroup));
+  }), { rootMargin: '-30% 0px -60% 0px' });
+  $$('[data-as-group]').forEach((g) => asIO.observe(g));
   // ---------- service mode + coverage ----------
   const fillAreas = () => {
     const keep = fArea.value;
@@ -957,3 +1009,48 @@ const payload = JSON.stringify({
     .summary { position: static; }
   }
   @media (max-width: 480px) { .two { grid-template-columns: 1fr; } }
+  /* all services */
+  #all { scroll-margin-top: 70px; }
+  .as { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 28px; align-items: start; }
+  .as-side { position: sticky; top: 100px; display: grid; gap: 4px; padding: 18px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); }
+  .as-side h3 { font-size: 18px; padding: 0 8px 8px; }
+  .as-link { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 12px; font-size: 14px; font-weight: 600; color: var(--ink-2); transition: background .2s, color .2s; }
+  .as-link small { margin-left: auto; font-size: 12px; color: var(--ink-3); }
+  .as-link:hover { background: var(--tint); color: var(--ink); }
+  .as-link.on { background: var(--accent-soft); color: var(--violet); }
+  .as-li { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; background: hsl(var(--h) 70% var(--chip-l, 94%)); color: hsl(var(--h) 60% var(--chip-ink-l, 40%)); flex: none; }
+  .as-li svg { width: 17px; height: 17px; }
+  .as-main { display: grid; gap: 44px; min-width: 0; }
+  .as-group { scroll-margin-top: 100px; }
+  .as-gh { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+  .as-gi { width: 64px; height: 64px; flex: none; }
+  .as-gh h2 { font-size: clamp(22px, 2.2vw, 28px); }
+  .as-gh p { font-size: 14px; color: var(--ink-3); }
+  .as-gall { margin-left: auto; font-size: 14px; font-weight: 700; color: var(--violet); white-space: nowrap; }
+  .as-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 18px; }
+  .as-card { display: flex; flex-direction: column; gap: 3px; }
+  .as-img { position: relative; aspect-ratio: 4 / 3; margin-bottom: 10px; border-radius: 18px; overflow: hidden; display: grid; place-items: center; background: linear-gradient(160deg, hsl(var(--h) 70% 97%), hsl(var(--h) 55% 89%)); }
+  .as-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .5s; }
+  .as-card:hover .as-img img { transform: scale(1.06); }
+  .as-art { width: 60%; height: 80%; transition: transform .4s; }
+  .as-card:hover .as-art { transform: scale(1.08) rotate(-3deg); }
+  .as-add { position: absolute; right: 10px; bottom: 10px; display: inline-flex; align-items: center; gap: 4px; height: 34px; padding: 0 14px 0 10px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--violet); font-weight: 800; font-size: 13.5px; box-shadow: 0 6px 16px -6px rgba(0,0,0,.35); transition: all .2s; }
+  .as-add span { font-size: 18px; line-height: 1; }
+  .as-add em { font-style: normal; }
+  .as-add:hover { transform: translateY(-2px); }
+  .as-add.done { background: var(--violet); border-color: var(--violet); color: var(--on-accent); }
+  .as-card > b { font-size: 15px; padding: 0 2px; }
+  .as-card > small { font-size: 12.5px; color: var(--ink-3); padding: 0 2px; }
+  .as-foot { display: flex; justify-content: space-between; align-items: center; padding: 6px 2px 0; font-size: 13px; color: var(--ink-3); }
+  .as-foot em { font-style: normal; font-weight: 800; color: var(--lime); }
+  .as-wa { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: #e8faf0; color: #25d366; transition: all .2s; }
+  .as-wa :global(svg) { width: 17px; height: 17px; }
+  .as-wa:hover { background: #25d366; color: #fff; }
+  @media (max-width: 960px) {
+    .as { grid-template-columns: 1fr; }
+    .as-side { position: sticky; top: 76px; z-index: 5; display: flex; overflow-x: auto; padding: 8px; border-radius: 16px; }
+    .as-side h3 { display: none; }
+    .as-link { flex: none; }
+    .as-gall { display: none; }
+  }
+</style>

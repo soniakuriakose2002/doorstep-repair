@@ -6,16 +6,7 @@ import DeviceArt from '../components/DeviceArt.astro';
 import { artFor, note } from '../data/menu';
 
 // Real repair photos supplied by the client (public/media/repairs). Others fall back to the illustration.
-const photo: Record<string, string> = {
-  'mobile:Screen replacement': 'screen', 'mobile:Battery replacement': 'battery', 'mobile:Charging port': 'charging',
-  'mobile:Back glass': 'backglass', 'mobile:Speaker / microphone': 'speaker', 'mobile:Water damage': 'water', 'mobile:Software & data': 'software', 'mobile:Camera': 'camera',
-  'tablet:Screen / glass': 'tab-screen', 'tablet:Display / touch not working': 'tab-display', 'tablet:Battery replacement': 'tab-battery',
-  'tablet:Charging port': 'tab-charging', 'tablet:Buttons': 'tab-buttons',
-  'laptop:Screen replacement': 'lap-screen', 'laptop:Keyboard / trackpad': 'lap-keyboard', 'laptop:Battery replacement': 'lap-battery',
-  'laptop:Hinge repair': 'lap-hinge', 'laptop:Motherboard repair': 'lap-board', 'laptop:Overheating / fan': 'lap-fan',
-  'desktop:Not powering on': 'desk-power-on', 'desktop:Power supply': 'desk-psu', 'desktop:Motherboard repair': 'desk-board',
-  'desktop:SSD / RAM upgrade': 'desk-ssd', 'desktop:Graphics card': 'desk-gpu', 'desktop:Custom PC build': 'desk-build',
-};
+import { photo } from '../data/photos';
 const WA = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg>';
 const mostBooked = Object.entries(photo).map(([k, ph]) => {
   const [cid, iss] = k.split(':');
@@ -143,7 +134,7 @@ const angles = [
             </article>
           ))}
         </div>
-        <a class="uc-all" href="/services#catalog">View all services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <a class="uc-all" href="/services#all">View all services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
       </div>
     </div>
   </section>
