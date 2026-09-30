@@ -646,16 +646,16 @@ const [rowA, rowB] = rowsOf(mostBooked);
   .uc-nav button:hover { background: var(--violet); border-color: var(--violet); color: var(--on-accent); }
   .uc-nav svg { width: 18px; height: 18px; }
   .uc-rows { display: grid; gap: 14px; mask-image: linear-gradient(90deg, transparent, #000 3%, #000 97%, transparent); }
-  .uc-rail { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(190px, calc((100% - 100px) / 6)); gap: 20px; overflow-x: auto; scrollbar-width: none; padding: 2px; }
+  .uc-rail { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(240px, calc((100% - 60px) / 4)); gap: 20px; overflow-x: auto; scrollbar-width: none; padding: 2px; }
   .uc-rail::-webkit-scrollbar { display: none; }
   .uc-card { display: flex; flex-direction: column; overflow: hidden; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); transition: box-shadow .25s, border-color .25s; }
   .uc-card:hover { border-color: var(--violet); box-shadow: 0 16px 30px -22px rgba(0,0,0,.5); }
-  .uc-img { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: var(--tint); }
+  .uc-img { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: var(--tint); }
   .uc-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s; }
   .uc-card:hover .uc-img img { transform: scale(1.05); }
   .uc-tag { position: absolute; left: 8px; top: 8px; padding: 3px 9px; border-radius: 999px; background: rgba(255,255,255,.92); font-size: 11px; font-weight: 700; color: var(--ink); }
-  .uc-body { display: grid; gap: 2px; padding: 10px 11px 11px; }
-  .uc-body b { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .uc-body { display: grid; gap: 3px; padding: 14px 16px 16px; }
+  .uc-body b { font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .uc-body small { font-size: 12.5px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .uc-foot { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 12.5px; color: var(--ink-3); }
   .uc-foot > span { margin-right: auto; }
