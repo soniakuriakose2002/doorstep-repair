@@ -9,7 +9,7 @@ export const brands = [
 ];
 ---
 
-<div class="bs" data-bs>
+<div class="bs" data-bs data-no-brand>
   <a href="/" class="logo bs-logo" aria-label="Home">
     {brands.map((b) => <img class="logo-369" data-for={b.id} src={b.logo} alt={b.name} width={b.w} height={b.h} />)}
   </a>
@@ -39,9 +39,10 @@ export const brands = [
   const ATTRS = ['href', 'alt', 'aria-label', 'title', 'data-base', 'data-wa', 'placeholder'];
   const fix = (root, from, to) => {
     if (from === to) return;
-    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const skip = (n) => n.parentElement && n.parentElement.closest('[data-no-brand]');
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: (n) => (skip(n) ? 2 : 1) });
     while (w.nextNode()) { const n = w.currentNode; if (n.nodeValue.includes(from)) n.nodeValue = swapStr(n.nodeValue, from, to); }
-    (root.querySelectorAll ? root.querySelectorAll('*') : []).forEach((el) => ATTRS.forEach((a) => {
+    (root.querySelectorAll ? root.querySelectorAll('*') : []).forEach((el) => !el.closest('[data-no-brand]') && ATTRS.forEach((a) => {
       const v = el.getAttribute(a); if (v && (v.includes(from) || v.includes(enc(from)))) el.setAttribute(a, swapStr(v, from, to));
     }));
     document.title = swapStr(document.title, from, to);
