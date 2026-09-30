@@ -489,3 +489,102 @@ a.glass:hover, .issue.glass:hover { transform: translateY(-4px); border-color: r
 :root[data-brand='danatfix'] .eyebrow::before { background: var(--orange) !important; }
 
 :root[data-brand='danatfix'] .uc-all, :root[data-brand='danatfix'] .cd-go, :root[data-brand='danatfix'] .cta2-btn { background: var(--grad) !important; }
+
+/* ---------- Danat Fix, richer shades + living colour (v2) ---------- */
+:root[data-brand][data-brand='danatfix'] {
+  --bg: #f7f4ff;                       /* soft lilac paper instead of flat grey */
+  --ink: #1f1a33; --ink-2: #4a4462; --ink-3: #857f9e;
+  --violet: #6d3ef5;                   /* electric violet */
+  --blue: #2f6bff;                     /* bright cobalt */
+  --pink: #e040fb;                     /* neon magenta */
+  --orange: #ff7a1a; --lime: #ff7a1a;
+  --deep: #3b1c9e;
+  --a1: 109, 62, 245; --a2: 47, 107, 255;
+  --accent-soft: #eee7ff; --glow: #c9b5ff;
+  --grad: linear-gradient(110deg, #2f6bff 0%, #6d3ef5 35%, #b23cf0 65%, #e040fb 85%, #2f6bff 100%);
+  --shadow: 0 1px 2px rgba(59, 28, 158, .06), 0 18px 40px -22px rgba(59, 28, 158, .35);
+}
+/* colourful page backdrop: three slow-moving blobs in the logo colours */
+:root[data-brand='danatfix'] body {
+  background:
+    radial-gradient(900px 600px at 105% -5%, rgba(224, 64, 251, .16), transparent 60%),
+    radial-gradient(800px 600px at -10% 30%, rgba(47, 107, 255, .14), transparent 60%),
+    radial-gradient(700px 500px at 50% 110%, rgba(255, 122, 26, .10), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+}
+:root[data-brand='danatfix'] .orb { opacity: .55; background: conic-gradient(from 0deg, #2f6bff, #6d3ef5, #e040fb, #ff7a1a, #2f6bff); animation: drift 18s ease-in-out infinite alternate, dfHue 14s linear infinite; }
+@keyframes dfHue { to { filter: blur(110px) hue-rotate(40deg); } }
+
+/* gradients slowly flow across buttons and the hero highlight */
+:root[data-brand='danatfix'] .btn-primary, :root[data-brand='danatfix'] .nav-cta,
+:root[data-brand='danatfix'] .uc-all, :root[data-brand='danatfix'] .cd-go, :root[data-brand='danatfix'] .cta2-btn {
+  background: var(--grad) !important; background-size: 250% 100% !important;
+  animation: dfFlow 6s ease-in-out infinite alternate;
+  box-shadow: 0 14px 30px -12px rgba(109, 62, 245, .65), 0 0 0 1px rgba(255,255,255,.12) inset !important;
+}
+:root[data-brand='danatfix'] .btn-primary:hover, :root[data-brand='danatfix'] .nav-cta:hover { box-shadow: 0 18px 40px -10px rgba(224, 64, 251, .7) !important; transform: translateY(-2px); }
+:root[data-brand='danatfix'] .grad-text,
+:root[data-brand='danatfix'] .vhero .grad-text,
+:root[data-brand='danatfix'] .page-head .grad-text {
+  background: linear-gradient(95deg, #4f8bff 0%, #8b5cf6 30%, #e879f9 55%, #ff9a3c 75%, #4f8bff 100%) !important;
+  background-size: 220% 100% !important; -webkit-background-clip: text !important; background-clip: text !important;
+  animation: dfFlow 7s linear infinite;
+}
+@keyframes dfFlow { from { background-position: 0% 50%; } to { background-position: 100% 50%; } }
+
+/* headings get a hint of the palette; cards glow violet on hover */
+:root[data-brand='danatfix'] h2 { color: #1f1a33; }
+:root[data-brand='danatfix'] .uc-badge, :root[data-brand='danatfix'] .pt-eyebrow { color: #b23cf0; }
+:root[data-brand='danatfix'] .uc-card:hover, :root[data-brand='danatfix'] .uc-cat:hover { border-color: #b23cf0 !important; box-shadow: 0 20px 40px -22px rgba(178, 60, 240, .6) !important; }
+:root[data-brand='danatfix'] .aurora .grid { opacity: .5; }
+@media (prefers-reduced-motion: reduce) {
+  :root[data-brand='danatfix'] .btn-primary, :root[data-brand='danatfix'] .nav-cta, :root[data-brand='danatfix'] .uc-all,
+  :root[data-brand='danatfix'] .cd-go, :root[data-brand='danatfix'] .cta2-btn, :root[data-brand='danatfix'] .grad-text, :root[data-brand='danatfix'] .orb { animation: none; }
+}
+
+/* ---------- Danat Fix: richer shades + living colour (the logo's blue → violet → magenta, orange) ---------- */
+:root[data-brand][data-brand='danatfix'] {
+  --bg: #f8f5ff;
+  --violet: #6d28d9; --blue: #1d4ed8; --pink: #c026d3; --orange: #f97316; --lime: #ea580c;
+  --grad: linear-gradient(110deg, #1d4ed8, #6d28d9 30%, #c026d3 60%, #6d28d9 80%, #1d4ed8);
+  --accent-soft: #efe7ff; --glow: #c4b5fd;
+  --line: rgba(76, 29, 149, .12);
+  --shadow: 0 1px 2px rgba(76, 29, 149, .06), 0 18px 40px -22px rgba(76, 29, 149, .35);
+}
+/* soft colour clouds drifting behind the page */
+:root[data-brand='danatfix'] body { background:
+  radial-gradient(900px 600px at 105% -5%, rgba(192, 38, 211, .10), transparent 60%),
+  radial-gradient(800px 600px at -10% 30%, rgba(29, 78, 216, .09), transparent 60%),
+  radial-gradient(700px 500px at 60% 110%, rgba(249, 115, 22, .07), transparent 60%),
+  var(--bg); background-attachment: fixed; }
+:root[data-brand='danatfix'] .aurora .o1 { background: conic-gradient(from 0deg, #3b82f6, #8b5cf6, #d946ef, #fb923c, #3b82f6); opacity: .28; animation: drift 18s ease-in-out infinite alternate, dfSpin 40s linear infinite; }
+@keyframes dfSpin { to { rotate: 360deg; } }
+/* gradients flow slowly */
+@keyframes dfFlow { to { background-position: 200% 50%; } }
+:root[data-brand='danatfix'] .btn-primary,
+:root[data-brand='danatfix'] .nav-cta,
+:root[data-brand='danatfix'] .uc-all,
+:root[data-brand='danatfix'] .cd-go,
+:root[data-brand='danatfix'] .cta2-btn {
+  background: var(--grad) !important; background-size: 200% 100% !important; animation: dfFlow 6s linear infinite;
+  box-shadow: 0 14px 30px -12px rgba(192, 38, 211, .55), 0 6px 14px -8px rgba(29, 78, 216, .5) !important;
+}
+:root[data-brand='danatfix'] .grad-text,
+:root[data-brand='danatfix'] .vhero .grad-text,
+:root[data-brand='danatfix'] .hero .grad-text,
+:root[data-brand='danatfix'] .page-head .grad-text {
+  background: linear-gradient(100deg, #60a5fa, #a78bfa 25%, #f0abfc 45%, #fdba74 60%, #a78bfa 80%, #60a5fa) !important;
+  background-size: 200% 100% !important; -webkit-background-clip: text !important; background-clip: text !important;
+  animation: dfFlow 7s linear infinite;
+}
+/* tiles + cards pick up the logo colours on hover */
+:root[data-brand='danatfix'] .uc-cat:hover, :root[data-brand='danatfix'] .uc-card:hover { border-color: #c026d3; box-shadow: 0 18px 34px -22px rgba(192, 38, 211, .6); }
+:root[data-brand='danatfix'] .uc-badge { background: linear-gradient(90deg, #e0e7ff, #f3e8ff, #fae8ff); }
+@media (prefers-reduced-motion: reduce) {
+  :root[data-brand='danatfix'] .btn-primary, :root[data-brand='danatfix'] .nav-cta, :root[data-brand='danatfix'] .uc-all,
+  :root[data-brand='danatfix'] .cd-go, :root[data-brand='danatfix'] .cta2-btn, :root[data-brand='danatfix'] .grad-text,
+  :root[data-brand='danatfix'] .aurora .o1 { animation: none; }
+}
+:root[data-brand='danatfix'] .bk-hero { background: linear-gradient(120deg, #f5f3ff 0%, #ede4ff 45%, #f7e3fb 75%, #ffeede 100%) !important; }
+:root[data-brand='369'] .bk-hero { background: linear-gradient(120deg, #f3f8fe 0%, #e2effc 55%, #ffeedd 100%) !important; }
