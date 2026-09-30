@@ -111,21 +111,25 @@ const [rowA, rowB] = rowsOf(mostBooked);
   <!-- ============ WHAT CAN WE FIX (Urban Company style) ============ -->
   <section class="section" id="book-services">
     <div class="wrap uc">
-      <div class="uc-pick" data-reveal>
-        <span class="uc-badge"><i></i>{tiles.length} services · doorstep &amp; pickup</span>
-        <h2>What can we fix for you?</h2>
-        <div class="uc-cats">
-          {tiles.map((c, i) => (
-            <a class="uc-cat" href={`/services?cat=${c.id}#catalog`} style={`--h:${c.hue}; --i:${i}`}>
-              <span class="uc-ci"><DeviceArt kind={artFor[c.id]} /></span>
-              <span>{short(c.name)}</span>
-            </a>
-          ))}
+      <div class="uc-head" data-reveal>
+        <div>
+          <span class="uc-badge"><i></i>{tiles.length} services · doorstep &amp; pickup</span>
+          <h2>What can we fix for you?</h2>
         </div>
+        <a class="uc-all" href="/services#all">View all services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
       </div>
+      <div class="uc-cats" data-reveal>
+        {tiles.map((c, i) => (
+          <a class="uc-cat" href={`/services?cat=${c.id}#catalog`} style={`--h:${c.hue}; --i:${i}`}>
+            <span class="uc-ci"><DeviceArt kind={artFor[c.id]} /></span>
+            <span>{short(c.name)}</span>
+          </a>
+        ))}
+      </div>
+
       <div class="uc-most" data-reveal style="--d:.08s">
         <div class="uc-mh">
-          <div><h2>Most booked repairs</h2><p>Doorstep or pickup · estimate {price()}</p></div>
+          <div><h3>Most booked repairs</h3><p>Doorstep or pickup · estimate {price()}</p></div>
           <div class="uc-nav">
             <button type="button" data-uc-prev aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
             <button type="button" data-uc-next aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
@@ -139,20 +143,21 @@ const [rowA, rowB] = rowsOf(mostBooked);
                   <div class="uc-img">
                     <img src={`/media/repairs/${m.photo}.jpg`} alt={m.iss} loading="lazy" width="360" height="240" />
                     <span class="uc-tag">{m.dev}</span>
-                    <button type="button" class="uc-add" data-uc-add data-dev={m.devFull} data-iss={m.iss}><span class="p">+</span><span class="t">Add</span></button>
                   </div>
-                  <b>{m.iss}</b>
-                  <small>{m.note}</small>
-                  <div class="uc-foot">
-                    <span>from <em>{price()}</em></span>
-                    <a class="uc-wa" target="_blank" rel="noopener" href={m.wa} aria-label={`Book ${m.iss} on WhatsApp`} set:html={WA} />
+                  <div class="uc-body">
+                    <b>{m.iss}</b>
+                    <small>{m.note}</small>
+                    <div class="uc-foot">
+                      <span>from <em>{price()}</em></span>
+                      <a class="uc-wa" target="_blank" rel="noopener" href={m.wa} aria-label={`Book ${m.iss} on WhatsApp`} set:html={WA} />
+                      <button type="button" class="uc-add" data-uc-add data-dev={m.devFull} data-iss={m.iss}><span class="p">+</span><span class="t">Add</span></button>
+                    </div>
                   </div>
                 </article>
               )))}
             </div>
           ))}
         </div>
-        <a class="uc-all" href="/services#all">View all services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
       </div>
     </div>
   </section>
@@ -618,59 +623,56 @@ const [rowA, rowB] = rowsOf(mostBooked);
 
   /* ---------- services grid ---------- */
   #book-services { scroll-margin-top: 90px; }
-  .uc { display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: 28px; align-items: stretch; }
-  .uc-pick { display: flex; flex-direction: column; }
-  .uc-pick .uc-cats { flex: 1; grid-auto-rows: 1fr; }
-  .uc h2 { font-size: clamp(24px, 2.4vw, 32px); letter-spacing: -.02em; }
-  .uc-pick { position: relative; overflow: hidden; padding: 26px; border-radius: 28px; border: 1px solid var(--line); box-shadow: var(--shadow);
-    background: radial-gradient(420px circle at 100% 0%, var(--accent-soft), transparent 60%), var(--surface); }
-  .uc-pick::after { content: ''; position: absolute; right: -60px; bottom: -60px; width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(closest-side, rgba(var(--a1), .12), transparent); pointer-events: none; }
-  .uc-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; margin-bottom: 12px; border-radius: 999px; background: var(--accent-soft); color: var(--violet); font-size: 12.5px; font-weight: 700; }
+  .uc h2 { font-size: clamp(26px, 2.8vw, 36px); letter-spacing: -.02em; }
+  .uc-head { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 22px; }
+  .uc-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; margin-bottom: 10px; border-radius: 999px; background: var(--accent-soft); color: var(--violet); font-size: 12.5px; font-weight: 700; }
   .uc-badge i { width: 8px; height: 8px; border-radius: 50%; background: var(--violet); animation: ucPulse 1.6s infinite; }
   @keyframes ucPulse { 50% { opacity: .3; } }
-  .uc-cats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
-  .uc-cats > .uc-cat:last-child:nth-child(3n + 1) { grid-column: 1 / -1; grid-template-columns: auto auto; justify-content: center; align-items: center; gap: 14px; }
-  .uc-cat { position: relative; display: grid; justify-items: center; gap: 6px; padding: 12px 6px 12px; border-radius: 18px; border: 1px solid transparent;
-    background: linear-gradient(160deg, hsl(var(--h) 75% 97%), hsl(var(--h) 60% 91%)); text-align: center; font-size: 12.5px; font-weight: 700; line-height: 1.2; color: var(--ink-2);
-    transition: transform .3s cubic-bezier(.3,1.4,.5,1), box-shadow .3s, border-color .3s, color .2s; }
-  .in .uc-cat { animation: ucPop .55s cubic-bezier(.3,1.5,.5,1) both; animation-delay: calc(.15s + var(--i) * .06s); }
-  @keyframes ucPop { from { opacity: 0; transform: scale(.7) translateY(12px); } }
-  .uc-cat:hover { transform: translateY(-6px) rotate(-1.5deg); border-color: hsl(var(--h) 60% 55% / .45); box-shadow: 0 18px 28px -18px hsl(var(--h) 60% 30% / .6); color: var(--violet); }
-  .uc-ci { display: grid; place-items: center; width: 64px; height: 56px; filter: drop-shadow(0 6px 8px rgba(0,0,0,.15)); animation: ucFloat 3.4s ease-in-out infinite; animation-delay: calc(var(--i) * -.4s); transition: transform .3s; }
-  .uc-cat:hover .uc-ci { transform: scale(1.15); }
-  @keyframes ucFloat { 50% { transform: translateY(-4px); } }
-  @media (prefers-reduced-motion: reduce) { .uc-ci, .in .uc-cat, .uc-badge i { animation: none; } }
-  .uc-most { min-width: 0; }
+  .uc-all { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-weight: 700; font-size: 14px; color: var(--violet); white-space: nowrap; transition: all .2s; }
+  .uc-all svg { width: 16px; height: 16px; transition: transform .2s; }
+  .uc-all:hover { background: var(--violet); border-color: var(--violet); color: var(--on-accent); }
+  .uc-all:hover svg { transform: translateX(3px); }
+
+  .uc-cats { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; }
+  .uc-cat { display: grid; justify-items: center; align-content: center; gap: 8px; padding: 16px 8px 14px; border-radius: 18px; border: 1px solid var(--line); background: var(--surface);
+    text-align: center; font-size: 13px; font-weight: 700; line-height: 1.2; color: var(--ink-2); transition: transform .25s, box-shadow .25s, border-color .25s, color .2s; }
+  .uc-cat:hover { transform: translateY(-4px); border-color: var(--violet); color: var(--violet); box-shadow: 0 16px 28px -20px rgba(0,0,0,.45); }
+  .uc-ci { display: grid; place-items: center; width: 64px; height: 56px; border-radius: 16px; background: hsl(var(--h) 70% 95%); transition: transform .3s; }
+  .uc-ci :global(svg) { max-width: 44px; max-height: 40px; }
+  .uc-cat:hover .uc-ci { transform: scale(1.08); }
+  @media (prefers-reduced-motion: reduce) { .uc-badge i { animation: none; } }
+
+  .uc-most { min-width: 0; margin-top: 44px; }
   .uc-mh { display: flex; justify-content: space-between; align-items: end; gap: 14px; margin-bottom: 16px; }
-  .uc-mh p { font-size: 14px; color: var(--ink-3); margin-top: 4px; }
+  .uc-mh h3 { font-size: 22px; letter-spacing: -.01em; }
+  .uc-mh p { font-size: 14px; color: var(--ink-3); margin-top: 2px; }
   .uc-nav { display: flex; gap: 8px; }
-  .uc-nav button { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 50%; background: var(--surface); color: var(--ink); transition: all .2s; }
+  .uc-nav button { display: grid; place-items: center; width: 40px; height: 40px; border: 1px solid var(--line); border-radius: 50%; background: var(--surface); color: var(--ink); transition: all .2s; }
   .uc-nav button:hover { background: var(--violet); border-color: var(--violet); color: var(--on-accent); }
   .uc-nav svg { width: 18px; height: 18px; }
-  .uc-rows { display: grid; gap: 14px; mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); }
-  .uc-rail { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(230px, calc((100% - 48px) / 4)); gap: 16px; overflow-x: auto; scrollbar-width: none; padding: 4px 2px 10px; }
+  .uc-rows { display: grid; gap: 14px; mask-image: linear-gradient(90deg, transparent, #000 3%, #000 97%, transparent); }
+  .uc-rail { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(220px, calc((100% - 64px) / 5)); gap: 16px; overflow-x: auto; scrollbar-width: none; padding: 2px; }
   .uc-rail::-webkit-scrollbar { display: none; }
-  .uc-card { display: flex; flex-direction: column; gap: 4px; }
-  .uc-img { position: relative; aspect-ratio: 4 / 3; border-radius: 18px; overflow: hidden; background: var(--tint); margin-bottom: 10px; }
+  .uc-card { display: flex; flex-direction: column; overflow: hidden; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); transition: box-shadow .25s, border-color .25s; }
+  .uc-card:hover { border-color: var(--violet); box-shadow: 0 16px 30px -22px rgba(0,0,0,.5); }
+  .uc-img { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: var(--tint); }
   .uc-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s; }
-  .uc-card:hover .uc-img img { transform: scale(1.06); }
-  .uc-tag { position: absolute; left: 10px; top: 10px; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.92); font-size: 11.5px; font-weight: 700; color: var(--ink); }
-  .uc-add { position: absolute; right: 10px; bottom: 10px; display: inline-flex; align-items: center; gap: 4px; height: 34px; padding: 0 14px 0 10px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--violet); font-weight: 800; font-size: 13.5px; box-shadow: 0 6px 16px -6px rgba(0,0,0,.35); transition: all .2s; }
-  .uc-add .p { font-size: 18px; line-height: 1; }
-  .uc-add:hover { transform: translateY(-2px); }
-  .uc-add.done { background: var(--violet); color: var(--on-accent); border-color: var(--violet); }
-  .uc-card > b { font-size: 15.5px; padding: 0 2px; }
-  .uc-card > small { font-size: 12.5px; color: var(--ink-3); padding: 0 2px; }
-  .uc-foot { display: flex; justify-content: space-between; align-items: center; padding: 6px 2px 0; font-size: 13px; color: var(--ink-3); }
+  .uc-card:hover .uc-img img { transform: scale(1.05); }
+  .uc-tag { position: absolute; left: 8px; top: 8px; padding: 3px 9px; border-radius: 999px; background: rgba(255,255,255,.92); font-size: 11px; font-weight: 700; color: var(--ink); }
+  .uc-body { display: grid; gap: 2px; padding: 12px 12px 12px; }
+  .uc-body b { font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .uc-body small { font-size: 12.5px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .uc-foot { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 12.5px; color: var(--ink-3); }
+  .uc-foot > span { margin-right: auto; }
   .uc-foot em { font-style: normal; font-weight: 800; color: var(--lime); }
-  .uc-wa { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: #e8faf0; color: #25d366; transition: all .2s; }
-  .uc-wa :global(svg) { width: 17px; height: 17px; }
+  .uc-wa { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #e8faf0; color: #25d366; transition: all .2s; }
+  .uc-wa :global(svg) { width: 16px; height: 16px; }
   .uc-wa:hover { background: #25d366; color: #fff; }
-  .uc-all { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; font-weight: 700; color: var(--violet); }
-  .uc-all svg { width: 16px; height: 16px; transition: transform .2s; }
-  .uc-all:hover svg { transform: translateX(3px); }
-  @media (max-width: 1000px) { .uc { grid-template-columns: 1fr; } .uc-cats { grid-template-columns: repeat(4, 1fr); } .uc-rail { grid-auto-columns: minmax(220px, 45%); } }
-  @media (max-width: 560px) { .uc-cats { grid-template-columns: repeat(3, 1fr); } .uc-rail { grid-auto-columns: 75%; } }  .tight-sec { padding-top: 30px; padding-bottom: 50px; }
+  .uc-add { display: inline-flex; align-items: center; gap: 3px; height: 30px; padding: 0 12px 0 9px; border: 1px solid var(--violet); border-radius: 999px; background: none; color: var(--violet); font-weight: 800; font-size: 12.5px; transition: all .2s; }
+  .uc-add .p { font-size: 16px; line-height: 1; }
+  .uc-add:hover, .uc-add.done { background: var(--violet); color: var(--on-accent); }
+  @media (max-width: 1000px) { .uc-cats { grid-template-columns: repeat(4, 1fr); } .uc-rail { grid-auto-columns: minmax(200px, 30%); } }
+  @media (max-width: 560px) { .uc-head { flex-direction: column; align-items: start; } .uc-cats { grid-template-columns: repeat(3, 1fr); } .uc-rail { grid-auto-columns: 62%; } }  .tight-sec { padding-top: 30px; padding-bottom: 50px; }
   .brands-band { padding: 10px 0 30px; }
   .center-head { text-align: center; display: grid; justify-items: center; gap: 12px; margin-bottom: 40px; }
 
