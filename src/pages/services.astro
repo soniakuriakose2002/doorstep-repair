@@ -6,7 +6,6 @@ import { coverage } from '../data/coverage';
 
 // Map centre for each coverage zone, in zone order (Muscat, Sohar/Al Batinah, Salalah/Dhofar).
 const zoneGeo: [number, number][] = [[23.593, 58.556], [24.347, 56.709], [17.019, 54.089]];
-import ServiceCart from '../components/ServiceCart.astro';
 
 // Common questions, answered from how this site's service actually works.
 const faqs = [
@@ -147,16 +146,6 @@ const payload = JSON.stringify({
       </div>
     </div>
   </section>
-  <!-- ============ SERVICE CART (like urbancompany.com) ============ -->
-  <section class="section tight" id="cart">
-    <div class="wrap">
-      <span class="eyebrow" data-reveal>Pick your services</span>
-      <h2 class="h-lg" data-reveal style="--d:.06s">Add what you need</h2>
-      <p class="lead cart-lead" data-reveal style="--d:.1s">Choose a device, add the repairs to your cart, then book them in one go.</p>
-      <ServiceCart />
-    </div>
-  </section>
-
   <!-- ============ CATALOG: device → brand → model ============ -->
   <section class="section tight" id="catalog">
     <div class="wrap">
@@ -201,7 +190,8 @@ const payload = JSON.stringify({
           <div class="f-step"><b>3</b><span data-f-title>Models</span></div>
           {categories.map((c) => (
             <div class="f-issues" data-issues-for={c.id} hidden>
-              {c.issues.map((iss) => <span>{iss} · <b class="price-tag">{price()}</b></span>)}
+              <small class="f-hint">Tap the repairs you need:</small>
+              {c.issues.map((iss) => <button type="button" class="f-add" data-add-cat={c.id} data-add-iss={iss} aria-pressed="false"><i aria-hidden="true">+</i>{iss} · <b class="price-tag">{price()}</b></button>)}
             </div>
           ))}
           <div class="f-scroll">
@@ -211,7 +201,7 @@ const payload = JSON.stringify({
                   <button type="button" class="model" data-model={m} data-model-brand={b.id} data-model-cat={c.id} data-q={`${c.name} ${b.name} ${m}`.toLowerCase()}>
                     <span class="model-name">{m}<span class="model-sub">{b.name}</span></span>
                     <span class="price-tag">{price()}</span>
-                    <span class="model-go">Book →</span>
+                    <span class="model-go">Select</span>
                   </button>
                 </li>
               ))))}
@@ -219,6 +209,18 @@ const payload = JSON.stringify({
             <p class="empty" data-empty hidden>Nothing matches that search. Try a shorter word, e.g. “15” or “Canon”.</p>
           </div>
         </div>
+      </div>
+
+      <div class="fcart" data-fcart>
+        <div class="fc-left">
+          <span class="fc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.4 11h10.2L20 7H6.2"/><circle cx="9" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/></svg><b data-fc-n>0</b></span>
+          <div>
+            <b data-fc-title>Your cart is empty</b>
+            <small data-fc-sub>Pick a device and model, then tap the repairs you need.</small>
+          </div>
+        </div>
+        <div class="fc-items" data-fc-items></div>
+        <a class="fc-go" data-fc-go href="#" target="_blank" rel="noopener" aria-disabled="true"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg> Book on WhatsApp</a>
       </div>
     </div>
   </section>
@@ -309,7 +311,7 @@ const payload = JSON.stringify({
 </Base>
 
 <script>
-  import { price } from '../data/site';
+  import { price, site } from '../data/site';
 
   type Cat = { id: string; name: string; onsiteOnly: boolean; issues: string[]; brands: { id: string; name: string; models: string[] }[] };
   type Data = {
@@ -472,13 +474,46 @@ const payload = JSON.stringify({
   fCat.addEventListener('change', () => { fillBrands(); fillModels(); summary(); });
   fBrand.addEventListener('change', () => { fillModels(); summary(); });
 
-  $$<HTMLButtonElement>('.model').forEach((m) => m.addEventListener('click', () => {
-    fCat.value = m.dataset.modelCat!;
-    fillBrands(m.dataset.modelBrand!);
-    fillModels(m.dataset.model!);
-    summary();
-    $('#book').scrollIntoView({ behavior: 'smooth' });
+  // ---------- one cart for the finder: model (optional) + repairs → WhatsApp ----------
+  const cart = new Map<string, { cat: string; catName: string; iss: string; model: string }>();
+  let pickedModel = '';
+  const catName = (id: string) => data.categories.find((c) => c.id === id)!.name;
+  const renderCart = () => {
+    const items = [...cart.values()];
+    $('[data-fc-n]').textContent = String(items.length);
+    $('[data-fc-title]').textContent = items.length ? `${items.length} repair${items.length > 1 ? 's' : ''} selected` : 'Your cart is empty';
+    $('[data-fc-sub]').textContent = items.length ? `Estimate ${price()} — confirmed before any work.` : 'Pick a device and model, then tap the repairs you need.';
+    $('[data-fc-items]').innerHTML = items.map((it, i) => `<span class="fc-chip">${esc(it.iss)}<small>${esc(it.model || it.catName)}</small><button type="button" data-fc-rm="${i}" aria-label="Remove">×</button></span>`).join('');
+    const go = $<HTMLAnchorElement>('[data-fc-go]');
+    go.setAttribute('aria-disabled', String(!items.length));
+    const list = items.map((it) => `• ${it.iss} — ${it.model || it.catName}`).join('\n');
+    go.href = `https://wa.me/${site.phone.tel.replace('+', '')}?text=${encodeURIComponent(`Hi Danat, I want to book these repairs:\n${list}`)}`;
+    $$<HTMLElement>('.f-add').forEach((b) => b.setAttribute('aria-pressed', String([...cart.keys()].some((k) => k.startsWith(`${b.dataset.addCat}|`) && k.endsWith(`|${b.dataset.addIss}`) && cart.get(k)!.model === pickedModel))));
+  };
+  $$<HTMLButtonElement>('.f-add').forEach((b) => b.addEventListener('click', () => {
+    const key = `${b.dataset.addCat}|${pickedModel}|${b.dataset.addIss}`;
+    if (cart.has(key)) cart.delete(key);
+    else cart.set(key, { cat: b.dataset.addCat!, catName: catName(b.dataset.addCat!), iss: b.dataset.addIss!, model: pickedModel });
+    renderCart();
   }));
+  $('[data-fc-items]').addEventListener('click', (e) => {
+    const r = (e.target as HTMLElement).closest<HTMLElement>('[data-fc-rm]');
+    if (!r) return;
+    cart.delete([...cart.keys()][Number(r.dataset.fcRm)]);
+    renderCart();
+  });
+  $<HTMLAnchorElement>('[data-fc-go]').addEventListener('click', (e) => { if (!cart.size) e.preventDefault(); });
+  $$<HTMLButtonElement>('.model').forEach((m) => m.addEventListener('click', () => {
+    const same = pickedModel === m.dataset.model;
+    pickedModel = same ? '' : m.dataset.model!;
+    $$('.model').forEach((x) => x.classList.toggle('picked', !same && x === m));
+    if (m.dataset.modelCat !== curCat) setCat(m.dataset.modelCat!);
+    $('[data-f-title]').textContent = pickedModel ? `Selected: ${pickedModel}` : $('[data-f-title]').textContent;
+    renderCart();
+    // also prefill the booking form below
+    fCat.value = m.dataset.modelCat!; fillBrands(m.dataset.modelBrand!); fillModels(pickedModel); summary();
+  }));
+  renderCart();
 
   function summary() {
     $('[data-s-mode]').textContent = titles[mode];
@@ -766,4 +801,27 @@ const payload = JSON.stringify({
     .summary { position: static; }
   }
   @media (max-width: 480px) { .two { grid-template-columns: 1fr; } }
-</style>
+  .f-hint { width: 100%; font-size: 12px; font-weight: 700; color: var(--ink-3); }
+  .f-add { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px 6px 6px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-size: 12.5px; color: var(--ink-2); transition: all .2s; }
+  .f-add i { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--tint-2); font-style: normal; font-weight: 800; color: var(--violet); transition: transform .2s; }
+  .f-add:hover { border-color: var(--violet); color: var(--ink); }
+  .f-add[aria-pressed='true'] { background: var(--accent-soft); border-color: var(--violet); color: var(--ink); font-weight: 600; }
+  .f-add[aria-pressed='true'] i { background: var(--violet); color: var(--on-accent); transform: rotate(45deg); }
+  .model.picked { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--violet); }
+  .model.picked .model-go { opacity: 1; }
+  .fcart { position: sticky; bottom: 14px; z-index: 6; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 18px; margin-top: 16px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; box-shadow: 0 20px 40px -24px rgba(0,0,0,.35); }
+  .fc-left { display: flex; align-items: center; gap: 12px; }
+  .fc-left b { display: block; font-size: 15px; }
+  .fc-left small { font-size: 12.5px; color: var(--ink-3); }
+  .fc-ico { position: relative; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; background: var(--accent-soft); color: var(--violet); flex: none; }
+  .fc-ico svg { width: 22px; height: 22px; }
+  .fc-ico b { position: absolute; right: -6px; top: -6px; display: grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 999px; background: var(--violet); color: var(--on-accent); font-size: 11px !important; }
+  .fc-items { display: flex; gap: 6px; overflow-x: auto; min-width: 0; }
+  .fc-items :global(.fc-chip) { display: inline-flex; align-items: center; gap: 6px; padding: 5px 6px 5px 12px; border-radius: 999px; background: var(--tint); border: 1px solid var(--line); font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+  .fc-items :global(.fc-chip small) { font-weight: 500; color: var(--ink-3); }
+  .fc-items :global(.fc-chip button) { width: 20px; height: 20px; border: 0; border-radius: 50%; background: var(--tint-2); color: var(--ink-2); line-height: 1; }
+  .fc-go { display: inline-flex; align-items: center; gap: 10px; padding: 13px 22px; border-radius: 999px; background: #25d366; color: #fff; font-weight: 700; white-space: nowrap; box-shadow: 0 12px 24px -12px rgba(37,211,102,.9); transition: opacity .2s, transform .2s; }
+  .fc-go svg { width: 20px; height: 20px; }
+  .fc-go:hover { transform: translateY(-2px); }
+  .fc-go[aria-disabled='true'] { opacity: .45; pointer-events: none; box-shadow: none; }
+  @media (max-width: 820px) { .fcart { grid-template-columns: 1fr; } .fc-go { justify-content: center; } }</style>
