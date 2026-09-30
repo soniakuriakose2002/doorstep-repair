@@ -248,11 +248,46 @@ const [rowA, rowB] = rowsOf(mostBooked);
     </div>
   </section>
 
-  <!-- ============ CTA ============ -->  <section class="section">
+  <!-- ============ TRUSTED PARTNERS ============ -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" />
+  <section class="section pt-sec" id="partners">
     <div class="wrap">
-      <div class="cta glass" data-reveal>
-        <h2 class="h-lg">Something broken? <span class="grad-text">Stay home.</span></h2>
-        <div class="vhero-cta center"><a href="#book-services" class="btn btn-primary" data-scroll>Book Your Slot</a><a href={wa('Hi Danat, I want to book a repair.')} target="_blank" rel="noopener" class="btn btn-wa"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg> WhatsApp</a></div>
+      <div class="pt-head" data-reveal>
+        <span class="pt-eyebrow">Trusted partners</span>
+        <h2 class="pt-title"><em>Leading brands,</em> in safe hands</h2>
+        <p>Companies that trust Danat Computers with their devices, networks and IT support.</p>
+      </div>
+      <ul class="pt-logos" data-reveal style="--d:.1s">
+        <li><span class="pt-word" aria-label="Alphalize">ALPHALIZE<small>Technology</small></span></li>
+        <li><img src="/brand/partners/369aibiz.png" alt="369 ai.Biz" width="224" height="200" loading="lazy" /></li>
+        <li><img class="wide" src="/brand/partners/nexgenpos.png" alt="Nex Genn POS" width="559" height="120" loading="lazy" /></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ CTA ============ -->
+  <section class="section">
+    <div class="wrap">
+      <div class="cta2" data-reveal>
+        <i class="cta2-blob a" aria-hidden="true"></i><i class="cta2-blob b" aria-hidden="true"></i>
+        <i class="cta2-dots a" aria-hidden="true"></i><i class="cta2-dots b" aria-hidden="true"></i>
+        <span class="pt-eyebrow">Let's get started</span>
+        <h2>Need a <em>repair or service?</em></h2>
+        <p>From phones to laptops, printers to networking — our team is ready to help you get back to what matters.</p>
+        <div class="cta2-go">
+          <a href="/services#catalog" class="cta2-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+            Book a repair
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <svg class="cta2-squig" viewBox="0 0 70 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 28c8 6 16 6 18-1 1-5-6-6-5 0 1 7 14 8 24-2 6-6 12-14 18-20"/><path d="M50 3l7 2-2 7"/></svg>
+        </div>
+        <ul class="cta2-trust">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>Since {site.since}</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>Doorstep &amp; pickup</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/></svg>Updates on WhatsApp</li>
+        </ul>
       </div>
     </div>
   </section>
@@ -613,6 +648,56 @@ const [rowA, rowB] = rowsOf(mostBooked);
   @keyframes wheel { 60% { transform: translateY(14px); opacity: 0; } 61% { transform: none; opacity: 0; } 100% { opacity: 1; } }
   @media (max-width: 720px) { .vhero { margin: 0 8px; border-radius: 24px; } .vhero-shade { background: rgba(6,14,10,.72); } }
 
+  /* ---------- trusted partners + CTA ---------- */
+  .pt-sec { padding-bottom: 0; }
+  .pt-head { display: grid; justify-items: center; gap: 12px; text-align: center; max-width: 920px; margin: 0 auto; }
+  .pt-eyebrow { display: inline-flex; align-items: center; gap: 14px; font-size: 13px; font-weight: 800; letter-spacing: .28em; text-transform: uppercase; color: var(--violet); }
+  .pt-eyebrow::before, .pt-eyebrow::after { content: ''; width: 36px; height: 2px; border-radius: 2px; background: currentColor; opacity: .8; }
+  .pt-title { font-family: 'Caveat', cursive; font-weight: 700; font-size: clamp(44px, 6vw, 76px); line-height: 1; letter-spacing: 0; color: var(--ink); }
+  .pt-title em { font-style: normal; color: var(--violet); }
+  .pt-head p { max-width: 700px; font-size: 17px; color: var(--ink-2); line-height: 1.6; }
+  .pt-logos { list-style: none; margin: 46px auto 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); align-items: center; max-width: 960px; }
+  .pt-logos li { display: grid; place-items: center; height: 110px; padding: 0 24px; }
+  .pt-logos li + li { border-left: 1px solid var(--line); }
+  .pt-logos img { max-height: 92px; width: auto; max-width: 100%; filter: grayscale(1) contrast(1.1); opacity: .7; transition: filter .3s, opacity .3s, transform .3s; }
+  .pt-logos img.wide { max-height: 46px; }
+  .pt-logos li:hover img { filter: none; opacity: 1; transform: scale(1.04); }
+  .pt-word { display: grid; justify-items: center; gap: 6px; font-size: 26px; font-weight: 800; letter-spacing: .22em; color: #5c6360; transition: color .3s, transform .3s; }
+  .pt-word small { font-size: 10px; font-weight: 600; letter-spacing: .4em; text-transform: uppercase; color: #8a918e; }
+  .pt-logos li:hover .pt-word { color: var(--violet); transform: scale(1.04); }
+
+  .cta2 { position: relative; overflow: hidden; display: grid; justify-items: center; gap: 14px; padding: clamp(44px, 6vw, 64px) 24px; border-radius: 28px; text-align: center;
+    background: linear-gradient(120deg, color-mix(in srgb, var(--violet) 10%, #fff), color-mix(in srgb, var(--violet) 5%, #fff) 60%, color-mix(in srgb, var(--violet) 12%, #fff)); }
+  .cta2 > * { position: relative; }
+  .cta2-blob { position: absolute !important; border-radius: 50%; background: color-mix(in srgb, var(--violet) 9%, transparent); pointer-events: none; }
+  .cta2-blob.a { width: 340px; height: 340px; left: -170px; top: -150px; }
+  .cta2-blob.b { width: 420px; height: 420px; right: -120px; top: -60px; background: color-mix(in srgb, var(--violet) 13%, transparent); animation: ctaFloat 9s ease-in-out infinite; }
+  .cta2-dots { position: absolute !important; width: 150px; height: 90px; background-image: radial-gradient(color-mix(in srgb, var(--violet) 45%, transparent) 1.6px, transparent 2px); background-size: 28px 22px; pointer-events: none; }
+  .cta2-dots.a { left: 7%; bottom: 18%; }
+  .cta2-dots.b { right: 3%; top: 14%; width: 90px; height: 130px; }
+  @keyframes ctaFloat { 50% { transform: translate(-16px, 10px); } }
+  .cta2 h2 { font-size: clamp(30px, 4vw, 50px); letter-spacing: -.02em; line-height: 1.1; }
+  .cta2 h2 em { font-style: normal; color: var(--violet); }
+  .cta2 > p { max-width: 640px; font-size: 17px; line-height: 1.6; color: var(--ink-2); }
+  .cta2-go { display: flex; align-items: center; gap: 14px; margin-top: 8px; }
+  .cta2-btn { display: inline-flex; align-items: center; gap: 12px; height: 60px; padding: 0 30px; border-radius: 999px; background: var(--violet); color: var(--on-accent); font-weight: 700; font-size: 17px;
+    box-shadow: 0 16px 30px -14px var(--violet); transition: transform .25s, filter .25s; }
+  .cta2-btn svg { width: 22px; height: 22px; }
+  .cta2-btn svg:last-child { width: 19px; height: 19px; transition: transform .25s; }
+  .cta2-btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
+  .cta2-btn:hover svg:last-child { transform: translateX(4px); }
+  .cta2-squig { width: 62px; height: 36px; color: color-mix(in srgb, var(--violet) 60%, #fff); }
+  .cta2-trust { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 0; }
+  .cta2-trust li { display: inline-flex; align-items: center; gap: 8px; padding: 0 22px; font-size: 14.5px; color: var(--ink-2); }
+  .cta2-trust li + li { border-left: 1px solid var(--line); }
+  .cta2-trust svg { width: 21px; height: 21px; color: var(--violet); }
+  @media (max-width: 700px) {
+    .pt-logos { grid-template-columns: 1fr; }
+    .pt-logos li + li { border-left: 0; border-top: 1px solid var(--line); }
+    .cta2-squig, .cta2-dots { display: none; }
+    .cta2-trust li { padding: 0 12px; } .cta2-trust li + li { border-left: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { .cta2-blob.b { animation: none; } }
   /* ---------- services grid ---------- */
   #book-services { scroll-margin-top: 90px; padding-top: 110px; padding-bottom: 110px; }
   .wrap.uc { width: min(1440px, 100% - 32px); }
