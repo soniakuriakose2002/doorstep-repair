@@ -33,22 +33,12 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     <link rel="preload" href="/fonts/jakarta.woff2" as="font" type="font/woff2" crossorigin />
     <script is:inline>
       (() => {
-        // Brand (Danat Fix default / Danat Fix) — set before paint so colours never flash
+        // Brand (Danat Fix default, or 369 ai Fix) - set before paint so the right logo shows first
         let br = new URLSearchParams(location.search).get('brand');
         try { if (br === 'danatfix' || br === '369') localStorage.setItem('brand', br); else br = localStorage.getItem('brand'); } catch {}
         document.documentElement.dataset.brand = br === '369' ? '369' : 'danatfix';
-        const ok = ['danat', 'green', 'blue', 'red', 'teal', 'yellow', 'orange', 'slate'];
-        let t = new URLSearchParams(location.search).get('theme');
-        try { if (t && ok.includes(t)) localStorage.setItem('theme', t); else t = localStorage.getItem('theme'); } catch {}
-        if (t === 'green') delete document.documentElement.dataset.theme;
-        else if (t && ok.includes(t)) document.documentElement.dataset.theme = t;
-        // Menu style 1–6 (client comparison): ?menu=N, remembered
-        let m = new URLSearchParams(location.search).get('menu');
-        try { if (m && /^[1-6]$/.test(m)) localStorage.setItem('menu', m); else m = localStorage.getItem('menu'); } catch {}
-        if (m && /^[1-6]$/.test(m)) document.documentElement.dataset.menu = m;
-        let rv = new URLSearchParams(location.search).get('reviews');
-        try { if (rv && /^[1-4]$/.test(rv)) localStorage.setItem('reviews', rv); else rv = localStorage.getItem('reviews'); } catch {}
-        if (rv && /^[1-4]$/.test(rv)) document.documentElement.dataset.reviews = rv;
+        // Theme picker removed: always the default green, menu 1, reviews 1, slot popup.
+        try { ['theme', 'menu', 'reviews', 'welcome-popup'].forEach((k) => localStorage.removeItem(k)); } catch {}
       })();
     </script>
   </head>
@@ -114,41 +104,6 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
       </div>
     </footer>
 
-    <div class="theme-pick" data-theme-pick>
-      <button type="button" class="theme-toggle" aria-expanded="false" aria-label="Change colour theme">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1 0 1.6-.8 1.6-1.6 0-.5-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1 0-.9.7-1.6 1.6-1.6H16a5 5 0 0 0 5-5c0-4.1-4-7.6-9-7.6z"/><circle cx="7.5" cy="11" r="1.2"/><circle cx="10.5" cy="7" r="1.2"/><circle cx="15" cy="7.5" r="1.2"/></svg>
-        Theme
-      </button>
-      <div class="theme-menu" role="group" aria-label="Colour theme" hidden>
-        {[
-          ['danat', 'Green', '#2e8b46', '#f4f6f2'],
-          ['green', 'Green', '#2fd07f', '#07120e'],
-          ['blue', 'Blue', '#1d4ed8', '#f4f7fc'],
-          ['red', 'Red', '#e11d2e', '#faf7f7'],
-          ['teal', 'Teal', '#0d9488', '#f2f8f7'],
-          ['yellow', 'Yellow', '#f5b400', '#17171a'],
-          ['orange', 'Orange', '#ff5a1f', '#f7f4ee'],
-          ['slate', 'Slate', '#2f6bff', '#e6eaf0'],
-        ].map(([id, label, a, b]) => (
-          <button type="button" data-theme-id={id} aria-pressed="false">
-            <span class="sw" style={`--a:${a};--b:${b}`}></span>{label}
-          </button>
-        ))}
-        <div class="menu-group">
-          <p>Menu style</p>
-          <div class="mnums">{[1, 2, 3, 4, 5, 6].map((n) => <button type="button" data-menu-id={String(n)} aria-pressed="false">{n}</button>)}</div>
-        </div>
-        <div class="menu-group">
-          <p>Offer popup</p>
-          <div class="mnums three"><button type="button" data-offer-id="slot" aria-pressed="false">Slot</button><button type="button" data-offer-id="spin" aria-pressed="false">Spin</button><button type="button" data-offer-id="flash" aria-pressed="false">Flash</button></div>
-        </div>
-        <div class="menu-group">
-          <p>Reviews style</p>
-          <div class="mnums">{[1, 2, 3, 4].map((n) => <button type="button" data-reviews-id={String(n)} aria-pressed="false">{n}</button>)}</div>
-        </div>
-      </div>
-    </div>
-
     <script>
       const io = new IntersectionObserver(
         (entries) => entries.forEach((e) => {
@@ -198,66 +153,6 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
         }));
       }
 
-      // Theme switcher
-      const pick = document.querySelector<HTMLElement>('[data-theme-pick]')!;
-      const menu = pick.querySelector<HTMLElement>('.theme-menu')!;
-      const toggle = pick.querySelector<HTMLButtonElement>('.theme-toggle')!;
-      const current = () => document.documentElement.dataset.theme ?? 'green';
-      const mark = () => menu.querySelectorAll<HTMLButtonElement>('[data-theme-id]').forEach((b) =>
-        b.setAttribute('aria-pressed', String(b.dataset.themeId === current())));
-      mark();
-      const markMenu = () => menu.querySelectorAll<HTMLButtonElement>('[data-menu-id]').forEach((b) =>
-        b.setAttribute('aria-pressed', String(b.dataset.menuId === (document.documentElement.dataset.menu ?? '1')))) ||
-        menu.querySelectorAll<HTMLButtonElement>('[data-reviews-id]').forEach((b) =>
-          b.setAttribute('aria-pressed', String(b.dataset.reviewsId === (document.documentElement.dataset.reviews ?? '1')))) ||
-        menu.querySelectorAll<HTMLButtonElement>('[data-offer-id]').forEach((b) => {
-          let t = 'slot'; try { const v = localStorage.getItem('welcome-popup'); if (v === 'spin' || v === 'flash') t = v; } catch {}
-          b.setAttribute('aria-pressed', String(b.dataset.offerId === t));
-        });
-      markMenu();
-      toggle.addEventListener('click', () => {
-        menu.hidden = !menu.hidden;
-        toggle.setAttribute('aria-expanded', String(!menu.hidden));
-      });
-      menu.addEventListener('click', (e) => {
-        const ob = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-offer-id]');
-        if (ob) {
-          try { localStorage.setItem('welcome-popup', ob.dataset.offerId!); } catch {}
-          markMenu();
-          (window as any).__openOffer?.();
-          return;
-        }
-        const rb = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-reviews-id]');
-        if (rb) {
-          document.documentElement.dataset.reviews = rb.dataset.reviewsId!;
-          try { localStorage.setItem('reviews', rb.dataset.reviewsId!); } catch {}
-          const u = new URL(location.href);
-          u.searchParams.set('reviews', rb.dataset.reviewsId!);
-          history.replaceState(null, '', u);
-          markMenu();
-          return;
-        }
-        const mb = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-menu-id]');
-        if (mb) {
-          document.documentElement.dataset.menu = mb.dataset.menuId!;
-          try { localStorage.setItem('menu', mb.dataset.menuId!); } catch {}
-          const u = new URL(location.href);
-          u.searchParams.set('menu', mb.dataset.menuId!);
-          history.replaceState(null, '', u);
-          markMenu();
-          return;
-        }
-        const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-theme-id]');
-        if (!b) return;
-        const t = b.dataset.themeId!;
-        if (t === 'green') delete document.documentElement.dataset.theme;
-        else document.documentElement.dataset.theme = t;
-        try { localStorage.setItem('theme', t); } catch {}
-        const u = new URL(location.href);
-        u.searchParams.set('theme', t);
-        history.replaceState(null, '', u);
-        mark();
-      });
     </script>
   </body>
 </html>
@@ -387,25 +282,17 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     color: rgba(255,255,255,.5);
     border-top: 1px solid rgba(255,255,255,.1);
   }
-  .theme-pick { position: fixed; right: 18px; bottom: 18px; z-index: 60; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
-  .theme-toggle {
     display: inline-flex; align-items: center; gap: 8px;
     padding: 11px 16px; border-radius: 999px; border: 0;
     background: var(--ink); color: var(--bg); font-weight: 600; font-size: 14px;
     box-shadow: 0 12px 30px -10px rgba(0, 0, 0, .45);
   }
-  .theme-toggle svg { width: 18px; height: 18px; }
-  .theme-menu {
     order: -1; display: grid; gap: 4px; padding: 8px; min-width: 170px;
     background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow);
   }
-  .theme-menu button {
     display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 0; border-radius: 10px;
     background: none; font-size: 14px; font-weight: 500; color: var(--ink-2); text-align: left;
   }
-  .theme-menu button:hover { background: var(--tint-2); color: var(--ink); }
-  .theme-menu button[aria-pressed='true'] { background: var(--accent-soft); color: var(--ink); font-weight: 700; }
-  .sw { width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, var(--a) 50%, var(--b) 50%); box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
   /* Services mega menu — six styles live in MegaMenu.astro; this is the shell */
   .nav-inner { position: relative; }
   .has-mega > a { display: inline-flex; align-items: center; gap: 4px; }
@@ -439,11 +326,5 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
   .nav-cart b[hidden] { display: none; }
   .nav-cart.bump { animation: bump .5s cubic-bezier(.3,1.6,.5,1); }
   @keyframes bump { 40% { transform: scale(1.25) rotate(-8deg); } }
-  .menu-group { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 8px; }
-  .menu-group p { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); padding: 0 10px 6px; }
-  .menu-group .mnums { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; padding: 0 6px; }
-  .menu-group .mnums.two { grid-template-columns: 1fr 1fr; }
-  .menu-group .mnums.three { grid-template-columns: repeat(3, 1fr); }
-  .theme-menu .mnums button { justify-content: center; padding: 7px 0; font-weight: 700; }
   @media (max-width: 1100px) { .mega { display: none; } .caret { display: none; } }
 </style>
