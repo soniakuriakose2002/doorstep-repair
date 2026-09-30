@@ -5,6 +5,7 @@ import MegaMenu from '../components/MegaMenu.astro';
 import Popups from '../components/Popups.astro';
 import LocalCurrency from '../components/LocalCurrency.astro';
 import BrandSwitch from '../components/BrandSwitch.astro';
+import ShadePicker from '../components/ShadePicker.astro';
 import Engage from '../components/Engage.astro';
 import ChatBot from '../components/ChatBot.astro';
 import CartDrawer from '../components/CartDrawer.astro';
@@ -37,6 +38,9 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
         let br = new URLSearchParams(location.search).get('brand');
         try { localStorage.removeItem('brand'); } catch {} // every visit opens as Danat Fix; only a ?brand=369 link starts on 369
         document.documentElement.dataset.brand = br === '369' ? '369' : 'danatfix';
+        let sh = new URLSearchParams(location.search).get('shade');
+        try { if (sh && /^[0-6]$/.test(sh)) localStorage.setItem('shade', sh); else sh = localStorage.getItem('shade'); } catch {}
+        if (sh && /^[1-6]$/.test(sh)) document.documentElement.dataset.shade = sh;
         // Theme picker removed: always the default green, menu 1, reviews 1, slot popup.
         try { ['theme', 'menu', 'reviews', 'welcome-popup'].forEach((k) => localStorage.removeItem(k)); } catch {}
       })();
@@ -48,6 +52,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     <Engage />
     <ChatBot />
     <CartDrawer />
+    <ShadePicker />
     <div class="aurora" aria-hidden="true">
       <span class="orb o1"></span>
       <span class="grid"></span>
