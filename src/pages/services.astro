@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import { serviceModes, price, site } from '../data/site';
 import { categories, totals, iconPaths } from '../data/devices';
 import { coverage } from '../data/coverage';
+import BookingPanel from '../components/BookingPanel.astro';
 import { note as issueNote } from '../data/menu';
 const issueSvg = (s: string) => {
   const t = s.toLowerCase();
@@ -58,6 +59,13 @@ const payload = JSON.stringify({
         Choose how you want the service done, check that we reach your area, then pick your device.
         {totals.categories} device types, {totals.brands} brands and {totals.models}+ models, every estimate {price()}.
       </p>
+    </div>
+  </section>
+
+  <!-- ============ OUR SERVICES (booking panel) ============ -->
+  <section class="section tight" id="all">
+    <div class="wrap">
+      <BookingPanel />
     </div>
   </section>
 
