@@ -20,6 +20,7 @@ const WA = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><pat
 // Tiles: printer and CCTV left out on request
 const tiles = categories.filter((c) => c.id !== 'printer' && c.id !== 'cctv');
 const short = (n: string) => n.replace(' & MacBooks', '').replace(' & All-in-ones', '').replace(' & iPads', '').replace(' Installation', '').replace(' & Wi-Fi', '');
+const rowsOf = <T,>(a: T[]) => { const n = Math.floor(a.length / 2); return [a.filter((_, i) => i % 2 === 0).slice(0, n), a.filter((_, i) => i % 2 === 1).slice(0, n).reverse()]; };
 const mostBooked = Object.entries(photo).map(([k, ph]) => {
   const [cid, iss] = k.split(':');
   const cat = categories.find((x) => x.id === cid)!;
@@ -77,6 +78,8 @@ const angles = [
   { id: 'tilt', label: '15° Tilt' },
   { id: 'iso', label: '3D Isometric' },
 ] as const;
+// Two equal-length lines so their cards stay in the same columns while moving
+const [rowA, rowB] = rowsOf(mostBooked);
 ---
 
 <Base>
@@ -130,8 +133,8 @@ const angles = [
         </div>
         <div class="uc-rows">
           {[0, 1].map((r) => (
-            <div class="uc-rail" data-uc-rail data-dir={r ? -1 : 1}>
-              {[false, true].flatMap((copy) => (r ? mostBooked.filter((_, i) => i % 2 === 1).reverse() : mostBooked.filter((_, i) => i % 2 === 0)).map((m) => (
+            <div class="uc-rail" data-uc-rail data-dir="1">
+              {[false, true].flatMap((copy) => (r ? rowB : rowA).map((m) => (
                 <article class="uc-card" aria-hidden={copy ? 'true' : undefined}>
                   <div class="uc-img">
                     <img src={`/media/repairs/${m.photo}.jpg`} alt={m.iss} loading="lazy" width="360" height="240" />
@@ -287,7 +290,8 @@ const angles = [
         const h = half(s.r);
         if (!h) return;
         if (now < s.until) { s.pos = s.r.scrollLeft; return; } // arrow scroll in progress
-        if (!s.paused && !reduce) s.pos += SPEED * s.dir;
+        const any = state.some((o) => o.paused);
+        if (!any && !reduce) s.pos += SPEED * s.dir;
         else s.pos = s.r.scrollLeft;
         if (s.pos >= h) s.pos -= h;
         if (s.pos < 0) s.pos += h;
@@ -614,7 +618,9 @@ const angles = [
 
   /* ---------- services grid ---------- */
   #book-services { scroll-margin-top: 90px; }
-  .uc { display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: 28px; align-items: start; }
+  .uc { display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: 28px; align-items: stretch; }
+  .uc-pick { display: flex; flex-direction: column; }
+  .uc-pick .uc-cats { flex: 1; grid-auto-rows: 1fr; }
   .uc h2 { font-size: clamp(24px, 2.4vw, 32px); letter-spacing: -.02em; }
   .uc-pick { position: relative; overflow: hidden; padding: 26px; border-radius: 28px; border: 1px solid var(--line); box-shadow: var(--shadow);
     background: radial-gradient(420px circle at 100% 0%, var(--accent-soft), transparent 60%), var(--surface); }
