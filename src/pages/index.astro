@@ -126,21 +126,25 @@ const angles = [
             <button type="button" data-uc-next aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
           </div>
         </div>
-        <div class="uc-rail" data-uc-rail>
-          {mostBooked.map((m) => (
-            <article class="uc-card">
-              <div class="uc-img">
-                <img src={`/media/repairs/${m.photo}.jpg`} alt={m.iss} loading="lazy" width="360" height="240" />
-                <span class="uc-tag">{m.dev}</span>
-                <button type="button" class="uc-add" data-uc-add data-dev={m.devFull} data-iss={m.iss}><span class="p">+</span><span class="t">Add</span></button>
-              </div>
-              <b>{m.iss}</b>
-              <small>{m.note}</small>
-              <div class="uc-foot">
-                <span>from <em>{price()}</em></span>
-                <a class="uc-wa" target="_blank" rel="noopener" href={m.wa} aria-label={`Book ${m.iss} on WhatsApp`} set:html={WA} />
-              </div>
-            </article>
+        <div class="uc-rows">
+          {[0, 1].map((r) => (
+            <div class="uc-rail" data-uc-rail data-dir={r ? -1 : 1}>
+              {[false, true].flatMap((copy) => (r ? mostBooked.filter((_, i) => i % 2 === 1).reverse() : mostBooked.filter((_, i) => i % 2 === 0)).map((m) => (
+                <article class="uc-card" aria-hidden={copy ? 'true' : undefined}>
+                  <div class="uc-img">
+                    <img src={`/media/repairs/${m.photo}.jpg`} alt={m.iss} loading="lazy" width="360" height="240" />
+                    <span class="uc-tag">{m.dev}</span>
+                    <button type="button" class="uc-add" data-uc-add data-dev={m.devFull} data-iss={m.iss}><span class="p">+</span><span class="t">Add</span></button>
+                  </div>
+                  <b>{m.iss}</b>
+                  <small>{m.note}</small>
+                  <div class="uc-foot">
+                    <span>from <em>{price()}</em></span>
+                    <a class="uc-wa" target="_blank" rel="noopener" href={m.wa} aria-label={`Book ${m.iss} on WhatsApp`} set:html={WA} />
+                  </div>
+                </article>
+              )))}
+            </div>
           ))}
         </div>
         <a class="uc-all" href="/services#all">View all services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
@@ -294,21 +298,46 @@ const angles = [
   }));
 
 
-  // Most booked rail: arrows, auto-scroll, add to cart
-  const rail = document.querySelector<HTMLElement>('[data-uc-rail]');
-  if (rail) {
-    const step = () => (rail.querySelector<HTMLElement>('.uc-card')?.offsetWidth ?? 260) + 16;
-    const move = (d: number) => {
-      const atEnd = rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 4;
-      if (d > 0 && atEnd) rail.scrollTo({ left: 0, behavior: 'smooth' });
-      else rail.scrollBy({ left: d * step(), behavior: 'smooth' });
+  // Most booked: two rows that glide on their own (row 2 the other way), pause on hover
+  const rails = [...document.querySelectorAll<HTMLElement>('[data-uc-rail]')];
+  if (rails.length) {
+    const half = (r: HTMLElement) => r.scrollWidth / 2;
+    const state = rails.map((r) => ({ r, dir: Number(r.dataset.dir), pos: r.dataset.dir === '-1' ? half(r) : 0, paused: false, until: 0 }));
+    state.forEach((s) => {
+      s.r.scrollLeft = s.pos;
+      s.r.addEventListener('pointerenter', () => (s.paused = true));
+      s.r.addEventListener('pointerleave', () => (s.paused = false));
+      s.r.addEventListener('focusin', () => (s.paused = true));
+      s.r.addEventListener('focusout', () => (s.paused = false));
+    });
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const SPEED = 0.45; // px per frame
+    const tick = (now: number) => {
+      state.forEach((s) => {
+        const h = half(s.r);
+        if (!h) return;
+        if (now < s.until) { s.pos = s.r.scrollLeft; return; } // arrow scroll in progress
+        if (!s.paused && !reduce) s.pos += SPEED * s.dir;
+        else s.pos = s.r.scrollLeft;
+        if (s.pos >= h) s.pos -= h;
+        if (s.pos < 0) s.pos += h;
+        s.r.scrollLeft = s.pos;
+      });
+      requestAnimationFrame(tick);
     };
-    document.querySelector('[data-uc-prev]')!.addEventListener('click', () => move(-1));
-    document.querySelector('[data-uc-next]')!.addEventListener('click', () => move(1));
-    let t = window.setInterval(() => move(1), 3500);
-    rail.addEventListener('pointerenter', () => clearInterval(t));
-    rail.addEventListener('pointerleave', () => { clearInterval(t); t = window.setInterval(() => move(1), 3500); });
-    rail.querySelectorAll<HTMLElement>('[data-uc-add]').forEach((b) => b.addEventListener('click', () => {
+    requestAnimationFrame(tick);
+    const step = () => (rails[0].querySelector<HTMLElement>('.uc-card')?.offsetWidth ?? 260) + 16;
+    const nudge = (d: number) => state.forEach((s) => {
+      const h = half(s.r);
+      let from = s.r.scrollLeft;
+      if (from + d * step() < 0) { from += h; s.r.scrollLeft = from; }
+      else if (from + d * step() > h) { from -= h; s.r.scrollLeft = from; }
+      s.until = performance.now() + 600;
+      s.r.scrollTo({ left: from + d * step() * s.dir, behavior: 'smooth' });
+    });
+    document.querySelector('[data-uc-prev]')!.addEventListener('click', () => nudge(-1));
+    document.querySelector('[data-uc-next]')!.addEventListener('click', () => nudge(1));
+    document.querySelectorAll<HTMLElement>('[data-uc-add]').forEach((b) => b.addEventListener('click', () => {
       (window as any).danatCart?.add({ device: b.dataset.dev!, model: '', issues: [b.dataset.iss!] });
       b.classList.add('done'); b.querySelector('.t')!.textContent = 'Added';
       setTimeout(() => { b.classList.remove('done'); b.querySelector('.t')!.textContent = 'Add'; }, 1500);
@@ -641,10 +670,11 @@ const angles = [
   .uc-nav button { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 50%; background: var(--surface); color: var(--ink); transition: all .2s; }
   .uc-nav button:hover { background: var(--violet); border-color: var(--violet); color: var(--on-accent); }
   .uc-nav svg { width: 18px; height: 18px; }
-  .uc-rail { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(230px, calc((100% - 48px) / 4)); gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding: 4px 2px 10px; }
+  .uc-rows { display: grid; gap: 14px; mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); }
+  .uc-rail { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 16px) / 2); gap: 16px; overflow-x: auto; scrollbar-width: none; padding: 4px 2px 10px; }
   .uc-rail::-webkit-scrollbar { display: none; }
-  .uc-card { scroll-snap-align: start; display: flex; flex-direction: column; gap: 4px; }
-  .uc-img { position: relative; aspect-ratio: 4 / 3; border-radius: 18px; overflow: hidden; background: var(--tint); margin-bottom: 10px; }
+  .uc-card { display: flex; flex-direction: column; gap: 4px; }
+  .uc-img { position: relative; aspect-ratio: 2 / 1; border-radius: 18px; overflow: hidden; background: var(--tint); margin-bottom: 10px; }
   .uc-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s; }
   .uc-card:hover .uc-img img { transform: scale(1.06); }
   .uc-tag { position: absolute; left: 10px; top: 10px; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.92); font-size: 11.5px; font-weight: 700; color: var(--ink); }
