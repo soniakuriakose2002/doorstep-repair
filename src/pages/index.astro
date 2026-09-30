@@ -250,7 +250,7 @@ const [rowA, rowB] = rowsOf(mostBooked);
 
   <!-- ============ TRUSTED PARTNERS ============ -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" />
   <section class="section pt-sec" id="partners">
     <div class="wrap">
       <div class="pt-head" data-reveal>
@@ -653,15 +653,15 @@ const [rowA, rowB] = rowsOf(mostBooked);
   .pt-head { display: grid; justify-items: center; gap: 12px; text-align: center; max-width: 920px; margin: 0 auto; }
   .pt-eyebrow { display: inline-flex; align-items: center; gap: 14px; font-size: 13px; font-weight: 800; letter-spacing: .28em; text-transform: uppercase; color: var(--violet); }
   .pt-eyebrow::before, .pt-eyebrow::after { content: ''; width: 36px; height: 2px; border-radius: 2px; background: currentColor; opacity: .8; }
-  .pt-title { font-family: 'Caveat', cursive; font-weight: 700; font-size: clamp(44px, 6vw, 76px); line-height: 1; letter-spacing: 0; color: var(--ink); }
+  .pt-title { font-family: 'Kaushan Script', cursive; font-weight: 400; font-size: clamp(38px, 5vw, 64px); line-height: 1.15; letter-spacing: 0; color: var(--ink); }
   .pt-title em { font-style: normal; color: var(--violet); }
   .pt-head p { max-width: 700px; font-size: 17px; color: var(--ink-2); line-height: 1.6; }
   .pt-logos { list-style: none; margin: 46px auto 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); align-items: center; max-width: 960px; }
   .pt-logos li { display: grid; place-items: center; height: 110px; padding: 0 24px; }
   .pt-logos li + li { border-left: 1px solid var(--line); }
-  .pt-logos img { max-height: 92px; width: auto; max-width: 100%; filter: grayscale(1) contrast(1.1); opacity: .7; transition: filter .3s, opacity .3s, transform .3s; }
+  .pt-logos img { max-height: 92px; width: auto; max-width: 100%; transition: transform .3s; }
   .pt-logos img.wide { max-height: 46px; }
-  .pt-logos li:hover img { filter: none; opacity: 1; transform: scale(1.04); }
+  .pt-logos li:hover img { transform: scale(1.05); }
   .pt-word { display: grid; justify-items: center; gap: 6px; font-size: 26px; font-weight: 800; letter-spacing: .22em; color: #5c6360; transition: color .3s, transform .3s; }
   .pt-word small { font-size: 10px; font-weight: 600; letter-spacing: .4em; text-transform: uppercase; color: #8a918e; }
   .pt-logos li:hover .pt-word { color: var(--violet); transform: scale(1.04); }
