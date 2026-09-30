@@ -106,11 +106,12 @@ const angles = [
   <section class="section" id="book-services">
     <div class="wrap uc">
       <div class="uc-pick" data-reveal>
+        <span class="uc-badge"><i></i>{categories.length} services · doorstep &amp; pickup</span>
         <h2>What can we fix for you?</h2>
         <div class="uc-cats">
-          {categories.map((c) => (
-            <a class="uc-cat" href={`/services?cat=${c.id}#catalog`} style={`--h:${c.hue}`}>
-              <span class="uc-ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" set:html={iconPaths[c.icon]} /></span>
+          {categories.map((c, i) => (
+            <a class="uc-cat" href={`/services?cat=${c.id}#catalog`} style={`--h:${c.hue}; --i:${i}`}>
+              <span class="uc-ci"><DeviceArt kind={artFor[c.id]} /></span>
               <span>{c.name.replace(' & MacBooks', '').replace(' & All-in-ones', '').replace(' & iPads', '').replace(' Installation', '').replace(' & Wi-Fi', '')}</span>
             </a>
           ))}
@@ -616,12 +617,23 @@ const angles = [
   #book-services { scroll-margin-top: 90px; }
   .uc { display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: 28px; align-items: start; }
   .uc h2 { font-size: clamp(24px, 2.4vw, 32px); letter-spacing: -.02em; }
-  .uc-pick { padding: 26px; background: var(--surface); border: 1px solid var(--line); border-radius: 26px; box-shadow: var(--shadow); }
+  .uc-pick { position: relative; overflow: hidden; padding: 26px; border-radius: 28px; border: 1px solid var(--line); box-shadow: var(--shadow);
+    background: radial-gradient(420px circle at 100% 0%, var(--accent-soft), transparent 60%), var(--surface); }
+  .uc-pick::after { content: ''; position: absolute; right: -60px; bottom: -60px; width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(closest-side, rgba(var(--a1), .12), transparent); pointer-events: none; }
+  .uc-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; margin-bottom: 12px; border-radius: 999px; background: var(--accent-soft); color: var(--violet); font-size: 12.5px; font-weight: 700; }
+  .uc-badge i { width: 8px; height: 8px; border-radius: 50%; background: var(--violet); animation: ucPulse 1.6s infinite; }
+  @keyframes ucPulse { 50% { opacity: .3; } }
   .uc-cats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
-  .uc-cat { display: grid; justify-items: center; gap: 8px; padding: 14px 6px 12px; border-radius: 16px; background: var(--tint); text-align: center; font-size: 12.5px; font-weight: 600; line-height: 1.2; color: var(--ink-2); transition: transform .2s, background .2s; }
-  .uc-cat:hover { transform: translateY(-3px); background: hsl(var(--h) 70% var(--chip-l, 94%)); color: var(--ink); }
-  .uc-ci { display: grid; place-items: center; width: 50px; height: 50px; border-radius: 14px; background: var(--surface); color: hsl(var(--h) 60% var(--chip-ink-l, 40%)); box-shadow: 0 4px 12px -8px rgba(0,0,0,.35); }
-  .uc-ci svg { width: 26px; height: 26px; }
+  .uc-cat { position: relative; display: grid; justify-items: center; gap: 6px; padding: 12px 6px 12px; border-radius: 18px; border: 1px solid transparent;
+    background: linear-gradient(160deg, hsl(var(--h) 75% 97%), hsl(var(--h) 60% 91%)); text-align: center; font-size: 12.5px; font-weight: 700; line-height: 1.2; color: var(--ink-2);
+    transition: transform .3s cubic-bezier(.3,1.4,.5,1), box-shadow .3s, border-color .3s, color .2s; }
+  .in .uc-cat { animation: ucPop .55s cubic-bezier(.3,1.5,.5,1) both; animation-delay: calc(.15s + var(--i) * .06s); }
+  @keyframes ucPop { from { opacity: 0; transform: scale(.7) translateY(12px); } }
+  .uc-cat:hover { transform: translateY(-6px) rotate(-1.5deg); border-color: hsl(var(--h) 60% 55% / .45); box-shadow: 0 18px 28px -18px hsl(var(--h) 60% 30% / .6); color: var(--violet); }
+  .uc-ci { display: grid; place-items: center; width: 64px; height: 56px; filter: drop-shadow(0 6px 8px rgba(0,0,0,.15)); animation: ucFloat 3.4s ease-in-out infinite; animation-delay: calc(var(--i) * -.4s); transition: transform .3s; }
+  .uc-cat:hover .uc-ci { transform: scale(1.15); }
+  @keyframes ucFloat { 50% { transform: translateY(-4px); } }
+  @media (prefers-reduced-motion: reduce) { .uc-ci, .in .uc-cat, .uc-badge i { animation: none; } }
   .uc-most { min-width: 0; }
   .uc-mh { display: flex; justify-content: space-between; align-items: end; gap: 14px; margin-bottom: 16px; }
   .uc-mh p { font-size: 14px; color: var(--ink-3); margin-top: 4px; }
