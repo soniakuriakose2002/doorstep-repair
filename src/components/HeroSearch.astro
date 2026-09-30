@@ -43,6 +43,13 @@ const popular = [
 ];
 const catIndex = categories.map((c) => ({ id: c.id, words: [c.name, c.short, ...c.name.split(/[\s&]+/)].map((w) => w.toLowerCase()) }));
 const tel = site.phone.tel.replace('+', '');
+const trackSteps = [
+  { t: 'Booked', d: 'We confirm your slot', icon: '<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/>' },
+  { t: 'Picked up / visited', d: 'Rider or technician arrives', icon: '<circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M6 17h5l3-7h4M14 10l-2-3H9"/>' },
+  { t: 'Diagnosed', d: 'Estimate shared before work', icon: '<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/>' },
+  { t: 'Repairing', d: 'Genuine parts, tested', icon: '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/>' },
+  { t: 'Ready / delivered', d: 'Back in your hands', icon: '<path d="M5 12.5l4.5 4.5L19 7.5"/>' },
+];
 const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg>';
 ---
 
@@ -69,13 +76,6 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     </button>
   </div>
   <div class="hs-result" data-hs-result aria-live="polite" hidden></div>
-  <label class="hs-pick" data-hs-pick hidden>
-    <span>Or choose your area:</span>
-    <select data-hs-area aria-label="Choose your area">
-      <option value="">Select your area…</option>
-      {coverage.pickup.zones.map((z) => <optgroup label={z.name}>{z.areas.map((a) => <option>{a}</option>)}</optgroup>)}
-    </select>
-  </label>
 
   <div class="hs-popular">
     <span>Popular:</span>
@@ -87,21 +87,44 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
 <div class="tr" data-tr hidden>
   <div class="tr-bg" data-tr-x></div>
   <div class="tr-card" role="dialog" aria-modal="true" aria-labelledby="tr-title">
-    <button type="button" class="tr-x" data-tr-x aria-label="Close">×</button>
-    <span class="tr-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="17.5" cy="18" r="2"/></svg></span>
-    <h2 id="tr-title">Track your repair</h2>
-    <p>Enter your booking reference or the phone number you booked with. Our team replies on WhatsApp with the latest status.</p>
-    <ol class="tr-steps" aria-label="Repair stages">
-      <li>Booked</li><li>Picked up / visited</li><li>Diagnosed</li><li>Repairing</li><li>Ready / delivered</li>
-    </ol>
-    <form class="tr-form" data-tr-form novalidate>
-      <input name="ref" placeholder="Booking ref or phone" autocomplete="tel" aria-label="Booking reference or phone" />
-      <button type="submit"><Fragment set:html={waIcon} />Check status</button>
-    </form>
-    <p class="tr-msg" data-tr-msg aria-live="polite"></p>
+    <button type="button" class="tr-x" data-tr-x aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="tr-side">
+      <span class="tr-kick">Repair journey</span>
+      <h3>Every step, shared with you</h3>
+      <ol class="tr-line">
+        {trackSteps.map((st, i) => (
+          <li style={`--i:${i}`}>
+            <span class="tr-dot" set:html={`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${st.icon}</svg>`} />
+            <span><b>{st.t}</b><small>{st.d}</small></span>
+          </li>
+        ))}
+        <i class="tr-runner" aria-hidden="true"></i>
+      </ol>
+    </div>
+    <div class="tr-main">
+      <span class="tr-pill"><i></i>Replies on WhatsApp</span>
+      <h2 id="tr-title">Track your repair</h2>
+      <p>Enter your booking ID or the phone number you booked with — our team replies with the latest status.</p>
+      <div class="tr-tabs" role="tablist" aria-label="Track by">
+        <button type="button" role="tab" data-tr-mode="id" aria-selected="true">Booking ID</button>
+        <button type="button" role="tab" data-tr-mode="phone" aria-selected="false">Phone number</button>
+      </div>
+      <form class="tr-form" data-tr-form novalidate>
+        <div class="tr-field" data-tr-fid>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 10h6M7 14h4"/></svg>
+          <input name="id" placeholder="e.g. DN-10234" autocomplete="off" aria-label="Booking ID" />
+        </div>
+        <div class="tr-field" data-tr-fphone hidden>
+          <span class="tr-cc">+968</span>
+          <input name="phone" inputmode="tel" placeholder="9XXX XXXX" autocomplete="tel-national" aria-label="Phone number" />
+        </div>
+        <button type="submit" class="tr-go"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg><span>Check status</span><svg class="arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        <p class="tr-msg" data-tr-msg aria-live="polite"></p>
+      </form>
+      <a class="tr-help" target="_blank" rel="noopener" href={`https://wa.me/${tel}?text=${encodeURIComponent('Hi Danat, I booked a repair but do not have my booking ID. Can you check the status?')}`}>No booking ID? Chat with us →</a>
+    </div>
   </div>
 </div>
-
 <script>
   const root = document.querySelector<HTMLElement>('[data-hs]');
   if (root) {
@@ -142,23 +165,10 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     };
     const show = (html: string, cls: string) => { result.hidden = false; result.className = `hs-result ${cls}`; result.innerHTML = html; };
     const locBtn = root.querySelector<HTMLButtonElement>('[data-hs-locate]')!;
-    const pick = root.querySelector<HTMLElement>('[data-hs-pick]')!;
-    pick.querySelector('select')!.addEventListener('change', (e) => {
-      const a = (e.target as HTMLSelectElement).value;
-      if (!a) return;
-      area = a;
-      try { localStorage.setItem('area', a); } catch {}
-      linkify();
-      const modes = [geo.doorstep.includes(a) && 'Doorstep', geo.pickup.includes(a) && 'Pickup'].filter(Boolean).join(' & ');
-      const at = geo.areaGeo[a];
-      const br = at ? geo.branchGeo.map((b) => ({ ...b, d: km(at, b.at) })).sort((x, y) => x.d - y.d)[0] : null;
-      show(`<b>📍 ${esc(a)}</b><span>✓ We cover this area — ${modes} available.${br ? ` Nearest branch: ${esc(br.name)} (${Math.round(br.d)} km).` : ''}</span><a href="${withArea('/services#catalog')}">Book a repair here →</a>`, 'ok');
-    });
     locBtn.addEventListener('click', () => {
-      if (!navigator.geolocation) { show('<b>Your browser can\'t share location</b><span>Choose your area below instead.</span>', 'warn'); pick.hidden = false; return; }
+      if (!navigator.geolocation) { show('<b>Your browser can\'t share location</b><span>Search for your service above, or message us on WhatsApp.</span>', 'warn'); return; }
       locBtn.classList.add('busy');
       show('<span class="spin"></span> Finding your location…', 'wait');
-      pick.hidden = true;
       navigator.geolocation.getCurrentPosition((pos) => {
         locBtn.classList.remove('busy');
         const me: [number, number] = [pos.coords.latitude, pos.coords.longitude];
@@ -167,7 +177,6 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         locBtn.classList.remove('busy');
         const why = err.code === 1 ? 'Location is blocked for this site (click the 🔒 / location icon in the address bar to allow it).' : err.code === 3 ? 'Finding your location took too long.' : 'Your device couldn\'t find its location (on Windows, turn on Settings › Privacy › Location).';
         show(`<b>We couldn't get your location</b><span>${why}</span>`, 'warn');
-        pick.hidden = false;
       }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 });
     });
 
@@ -183,29 +192,38 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           show(`<b>📍 You're near ${esc(near.n)}</b><span>✓ We cover your area — ${modes} available. Nearest branch: ${esc(br.name)} (${Math.round(br.d)} km).</span><a href="${withArea('/services#catalog')}">Book a repair here →</a>`, 'ok');
         } else {
           const outside = br.d > 400;
-          show(`<b>📍 ${outside ? `You seem to be outside ${'Oman'}` : `Nearest branch: ${esc(br.name)}`} — ${Math.round(br.d).toLocaleString()} km from ${outside ? 'our nearest branch (' + esc(br.name) + ')' : 'you'}</b><span>${outside ? 'We repair across Oman only (Muscat, Al Batinah and Dhofar). Choose an area below to check, or message us.' : 'Your exact spot isn\'t on our coverage list yet. Message us and we\'ll confirm if we can reach you.'}</span><a href="https://wa.me/${tel}?text=${encodeURIComponent(`Hi Danat, do you cover my location? https://maps.google.com/?q=${me[0].toFixed(5)},${me[1].toFixed(5)}`)}" target="_blank" rel="noopener">Ask on WhatsApp →</a>`, 'warn');
-          pick.hidden = false;
-        }
+          show(`<b>📍 ${outside ? `You seem to be outside ${'Oman'}` : `Nearest branch: ${esc(br.name)}`} — ${Math.round(br.d).toLocaleString()} km from ${outside ? 'our nearest branch (' + esc(br.name) + ')' : 'you'}</b><span>${outside ? 'We repair across Oman only (Muscat, Al Batinah and Dhofar). Message us and we\'ll help.' : 'Your exact spot isn\'t on our coverage list yet. Message us and we\'ll confirm if we can reach you.'}</span><a href="https://wa.me/${tel}?text=${encodeURIComponent(`Hi Danat, do you cover my location? https://maps.google.com/?q=${me[0].toFixed(5)},${me[1].toFixed(5)}`)}" target="_blank" rel="noopener">Ask on WhatsApp →</a>`, 'warn');
+          }
     };
 
     // ---- Track your repair ----
     const tr = document.querySelector<HTMLElement>('[data-tr]')!;
-    const openTr = () => { tr.hidden = false; requestAnimationFrame(() => tr.classList.add('in')); tr.querySelector<HTMLInputElement>('input')!.focus(); };
+    const openTr = () => { tr.hidden = false; requestAnimationFrame(() => tr.classList.add('in')); tr.querySelector<HTMLInputElement>('input:not([hidden] input)')?.focus(); };
     const closeTr = () => { tr.classList.remove('in'); setTimeout(() => (tr.hidden = true), 300); };
     root.querySelector('[data-hs-track]')!.addEventListener('click', openTr);
     document.querySelectorAll('[data-track-open]').forEach((b) => b.addEventListener('click', (e) => { e.preventDefault(); openTr(); }));
     tr.querySelectorAll('[data-tr-x]').forEach((b) => b.addEventListener('click', closeTr));
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !tr.hidden) closeTr(); });
+    let trMode = 'id';
+    tr.querySelectorAll<HTMLElement>('[data-tr-mode]').forEach((b) => b.addEventListener('click', () => {
+      trMode = b.dataset.trMode!;
+      tr.querySelectorAll('[data-tr-mode]').forEach((x) => x.setAttribute('aria-selected', String(x === b)));
+      tr.querySelector<HTMLElement>('[data-tr-fid]')!.hidden = trMode !== 'id';
+      tr.querySelector<HTMLElement>('[data-tr-fphone]')!.hidden = trMode !== 'phone';
+      tr.querySelector<HTMLInputElement>(trMode === 'id' ? '[name=id]' : '[name=phone]')!.focus();
+    }));
     tr.querySelector<HTMLFormElement>('[data-tr-form]')!.addEventListener('submit', (e) => {
       e.preventDefault();
-      const v = String(new FormData(e.target as HTMLFormElement).get('ref') ?? '').trim();
+      const fd = new FormData(e.target as HTMLFormElement);
+      const raw = String(fd.get(trMode) ?? '').trim();
       const msg = tr.querySelector<HTMLElement>('[data-tr-msg]')!;
-      if (v.length < 4) { msg.className = 'tr-msg err'; msg.textContent = 'Please enter your booking reference or phone number.'; return; }
-      window.open(`https://wa.me/${tel}?text=${encodeURIComponent(`Hi Danat, please share the status of my repair. Reference / phone: ${v}`)}`, '_blank', 'noopener');
+      const ok = trMode === 'id' ? raw.length >= 3 : /^[\d\s-]{7,}$/.test(raw);
+      if (!ok) { msg.className = 'tr-msg err'; msg.textContent = trMode === 'id' ? 'Please enter your booking ID.' : 'Please enter your mobile number.'; return; }
+      const ref = trMode === 'id' ? `Booking ID: ${raw}` : `Phone: +968 ${raw}`;
+      window.open(`https://wa.me/${tel}?text=${encodeURIComponent(`Hi Danat, please share the status of my repair. ${ref}`)}`, '_blank', 'noopener');
       msg.className = 'tr-msg ok';
-      msg.textContent = 'Opening WhatsApp — send the message and our team will reply with your status.';
+      msg.textContent = '✓ Opening WhatsApp — send the message and we\'ll reply with your status.';
     });
-
     linkify();
   }
 </script>
@@ -242,35 +260,64 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
   .hs-result :global(.spin) { display: inline-block; width: 14px; height: 14px; margin-right: 6px; vertical-align: -2px; border: 2px solid var(--line); border-top-color: var(--violet); border-radius: 50%; animation: spin .8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .hs-pick { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 14px; font-weight: 600; color: rgba(255,255,255,.9); }
-  .hs-pick[hidden] { display: none; }
-  .hs-pick select { flex: 1; min-width: 200px; height: 46px; padding: 0 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); font: inherit; }
   .hs-result.warn :global(span) { color: var(--ink-2); }  .hs-popular { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 2px; }
   .hs-popular span { font-size: 14px; font-weight: 700; color: var(--violet); margin-right: 4px; }
   .hs-chip { padding: 8px 14px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); font-size: 14px; color: var(--ink-2); transition: border-color .2s, color .2s; }
   .hs-chip:hover { border-color: var(--violet); color: var(--violet); }
   @media (max-width: 480px) { .hs-actions { grid-template-columns: 1fr; } .hs-icon { width: 56px; } }
 
-  .tr { position: fixed; inset: 0; z-index: 92; display: grid; place-items: center; padding: 16px; color: var(--ink); }
+  .tr { position: fixed; inset: 0; z-index: 92; display: grid; place-items: center; padding: 16px; color: var(--ink); --g: #1f8a4c; --g2: #0f6b37; }
   .tr[hidden] { display: none; }
-  .tr-bg { position: absolute; inset: 0; background: rgba(8, 14, 12, .55); backdrop-filter: blur(5px); opacity: 0; transition: opacity .3s; }
+  .tr-bg { position: absolute; inset: 0; background: rgba(8, 14, 12, .55); backdrop-filter: blur(6px); opacity: 0; transition: opacity .3s; }
   .tr.in .tr-bg { opacity: 1; }
-  .tr-card { position: relative; width: min(480px, 100%); display: grid; gap: 14px; padding: 30px 28px 26px; background: var(--surface); border-radius: 26px; box-shadow: 0 40px 100px -30px rgba(0,0,0,.6); transform: translateY(24px) scale(.96); opacity: 0; transition: transform .45s cubic-bezier(.2,1.2,.3,1), opacity .3s; }
+  .tr-card { position: relative; width: min(860px, 100%); max-height: calc(100vh - 32px); overflow: auto; display: grid; grid-template-columns: .9fr 1.1fr; background: var(--surface); border-radius: 28px; box-shadow: 0 50px 110px -30px rgba(0,0,0,.6); transform: translateY(26px) scale(.96); opacity: 0; transition: transform .5s cubic-bezier(.2,1.2,.3,1), opacity .3s; }
   .tr.in .tr-card { transform: none; opacity: 1; }
-  .tr-x { position: absolute; right: 14px; top: 14px; width: 34px; height: 34px; border: 0; border-radius: 50%; background: var(--tint-2); font-size: 20px; line-height: 1; color: var(--ink); }
-  .tr-ico { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 16px; background: var(--accent-soft); color: var(--violet); }
-  .tr-ico svg { width: 28px; height: 28px; }
-  .tr-card h2 { font-size: 26px; }
-  .tr-card > p { font-size: 14.5px; color: var(--ink-2); }
-  .tr-steps { list-style: none; margin: 4px 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; counter-reset: s; }
-  .tr-steps li { position: relative; display: grid; justify-items: center; gap: 6px; font-size: 11px; color: var(--ink-3); text-align: center; line-height: 1.25; counter-increment: s; }
-  .tr-steps li::before { content: counter(s); display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--line); font-size: 12px; font-weight: 700; color: var(--ink-3); background: var(--surface); }
-  .tr-form { display: flex; gap: 8px; }
-  .tr-form input { flex: 1; min-width: 0; height: 52px; padding: 0 14px; border: 1px solid var(--line); border-radius: 12px; outline: none; font: inherit; background: var(--surface); color: var(--ink); }
-  .tr-form input:focus { border-color: var(--violet); }
-  .tr-form button { display: inline-flex; align-items: center; gap: 8px; padding: 0 18px; border: 0; border-radius: 12px; background: #25d366; color: #fff; font-weight: 700; white-space: nowrap; }
-  .tr-form button :global(svg) { width: 18px; height: 18px; }
+  .tr-x { position: absolute; right: 16px; top: 16px; z-index: 3; display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid var(--line); border-radius: 50%; background: var(--surface); color: var(--ink); }
+  .tr-x svg { width: 17px; height: 17px; }
+
+  .tr-side { position: relative; overflow: hidden; padding: 32px 28px; color: #fff; background: radial-gradient(360px circle at 0% 0%, rgba(255,255,255,.16), transparent 60%), linear-gradient(160deg, #1f9a52, #0f5c33); }
+  .tr-side::after { content: ''; position: absolute; right: -70px; bottom: -70px; width: 220px; height: 220px; border-radius: 50%; border: 36px solid rgba(255,255,255,.06); }
+  .tr-kick { font-size: 11.5px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; opacity: .8; }
+  .tr-side h3 { font-size: 24px; line-height: 1.15; margin: 8px 0 22px; color: #fff; }
+  .tr-line { position: relative; list-style: none; margin: 0; padding: 0; display: grid; gap: 18px; }
+  .tr-line::before { content: ''; position: absolute; left: 19px; top: 20px; bottom: 20px; width: 2px; background: repeating-linear-gradient(rgba(255,255,255,.45) 0 5px, transparent 5px 10px); }
+  .tr-line li { position: relative; display: flex; align-items: center; gap: 14px; }
+  .tr.in .tr-line li { animation: trIn .5s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(.2s + var(--i) * .08s); }
+  @keyframes trIn { from { opacity: 0; transform: translateX(-14px); } }
+  .tr-dot { position: relative; z-index: 1; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: #fff; color: var(--g2); flex: none; box-shadow: 0 6px 16px -6px rgba(0,0,0,.4); animation: trGlow 5s infinite; animation-delay: calc(var(--i) * 1s); }
+  .tr-dot :global(svg) { width: 19px; height: 19px; }
+  @keyframes trGlow { 0%, 12% { box-shadow: 0 0 0 0 rgba(255,255,255,.7), 0 6px 16px -6px rgba(0,0,0,.4); transform: scale(1.08); } 20%, 100% { box-shadow: 0 0 0 12px rgba(255,255,255,0), 0 6px 16px -6px rgba(0,0,0,.4); transform: none; } }
+  .tr-line b { display: block; font-size: 14.5px; }
+  .tr-line small { font-size: 12.5px; opacity: .78; }
+  .tr-runner { position: absolute; left: 15px; top: 16px; width: 10px; height: 10px; border-radius: 50%; background: #ffd96a; box-shadow: 0 0 12px #ffd96a; animation: trRun 5s ease-in-out infinite; z-index: 0; }
+  @keyframes trRun { 0% { top: 16px; } 100% { top: calc(100% - 26px); } }
+
+  .tr-main { display: flex; flex-direction: column; gap: 14px; padding: 36px 32px 30px; }
+  .tr-pill { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: #e7f5ea; color: var(--g2); font-size: 12.5px; font-weight: 700; }
+  .tr-pill i { width: 8px; height: 8px; border-radius: 50%; background: #25d366; animation: trBlink 1.4s infinite; }
+  @keyframes trBlink { 50% { opacity: .3; } }
+  .tr-main h2 { font-size: 30px; letter-spacing: -.02em; }
+  .tr-main > p { font-size: 14.5px; color: var(--ink-2); }
+  .tr-tabs { display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 14px; background: var(--tint-2); }
+  .tr-tabs button { height: 42px; border: 0; border-radius: 10px; background: none; font-weight: 700; font-size: 14px; color: var(--ink-2); transition: all .2s; }
+  .tr-tabs button[aria-selected='true'] { background: var(--surface); color: var(--g2); box-shadow: 0 4px 12px -6px rgba(0,0,0,.25); }
+  .tr-form { display: grid; gap: 12px; }
+  .tr-field { display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 14px; border: 1.5px solid var(--line); border-radius: 14px; background: var(--surface); transition: border-color .2s, box-shadow .2s; }
+  .tr-field[hidden] { display: none; }
+  .tr-field:focus-within { border-color: var(--g); box-shadow: 0 0 0 4px rgba(31,138,76,.12); }
+  .tr-field svg { width: 20px; height: 20px; color: var(--ink-3); flex: none; }
+  .tr-cc { padding-right: 10px; border-right: 1px solid var(--line); font-weight: 700; color: var(--ink-2); }
+  .tr-field input { flex: 1; min-width: 0; border: 0; outline: none; background: none; font: inherit; font-size: 16px; color: var(--ink); }
+  .tr-go { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 12px; height: 58px; border: 0; border-radius: 14px; background: linear-gradient(180deg, #1f9a52, #0f7a3c); color: #fff; font-size: 17px; font-weight: 700; box-shadow: 0 14px 28px -14px rgba(15,122,60,.9); transition: transform .2s; }
+  .tr-go:hover { transform: translateY(-2px); }
+  .tr-go > svg:first-child { width: 22px; height: 22px; }
+  .tr-go .arr { width: 18px; height: 18px; transition: transform .2s; }
+  .tr-go:hover .arr { transform: translateX(4px); }
+  .tr-go::after { content: ''; position: absolute; top: 0; left: -60%; width: 40%; height: 100%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.3), transparent); transform: skewX(-20deg); animation: trShine 3s ease-in-out infinite; }
+  @keyframes trShine { 0%, 55% { left: -60%; } 100% { left: 140%; } }
   .tr-msg { font-size: 13px; min-height: 1em; }
   .tr-msg.err { color: #be123c; }
-  .tr-msg.ok { color: var(--lime); }
-</style>
+  .tr-msg.ok { color: var(--g); }
+  .tr-help { align-self: flex-start; font-size: 14px; font-weight: 700; color: var(--g2); }
+  @media (max-width: 720px) { .tr-card { grid-template-columns: 1fr; } .tr-side { padding: 24px; } .tr-line { gap: 10px; } .tr-main { padding: 24px; } }
+  @media (prefers-reduced-motion: reduce) { .tr-dot, .tr-runner, .tr-go::after, .tr-pill i { animation: none; } }</style>
