@@ -29,7 +29,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
 
   <button type="button" class="fab-bot" data-bot-toggle aria-expanded="false" aria-label="Open help assistant"><span class="fab-tip">Ask us anything</span>
     <span class="bot-face" aria-hidden="true">
-      <svg viewBox="0 0 32 32"><path d="M16 5C9.4 5 4 9.6 4 15.3c0 3 1.5 5.7 3.9 7.6L7 27.5l5-2.6c1.2.3 2.6.5 4 .5 6.6 0 12-4.6 12-10.3S22.6 5 16 5z" fill="#fff"/><circle class="d d1" cx="10.8" cy="15.4" r="1.8" fill="#0f6b37"/><circle class="d d2" cx="16" cy="15.4" r="1.8" fill="#0f6b37"/><circle class="d d3" cx="21.2" cy="15.4" r="1.8" fill="#0f6b37"/><path class="spark" d="M26 2l.9 2.1L29 5l-2.1.9L26 8l-.9-2.1L23 5l2.1-.9z" fill="#ffd96a"/></svg>
+      <svg viewBox="0 0 32 32"><path d="M16 5C9.4 5 4 9.6 4 15.3c0 3 1.5 5.7 3.9 7.6L7 27.5l5-2.6c1.2.3 2.6.5 4 .5 6.6 0 12-4.6 12-10.3S22.6 5 16 5z" fill="#fff"/><circle class="d d1" cx="10.8" cy="15.4" r="1.8" style="fill:var(--deep,#0f6b37)"/><circle class="d d2" cx="16" cy="15.4" r="1.8" style="fill:var(--deep,#0f6b37)"/><circle class="d d3" cx="21.2" cy="15.4" r="1.8" style="fill:var(--deep,#0f6b37)"/><path class="spark" d="M26 2l.9 2.1L29 5l-2.1.9L26 8l-.9-2.1L23 5l2.1-.9z" fill="#ffd96a"/></svg>
     </span>
     <span class="fab-x" aria-hidden="true">×</span>
     <span class="fab-badge" data-bot-badge>1</span>
@@ -37,7 +37,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
 
   <section class="bot" data-bot hidden aria-label="Danat Fix assistant">
     <header class="bot-head">
-      <span class="bot-av"><svg viewBox="0 0 32 32"><path d="M16 5C9.4 5 4 9.6 4 15.3c0 3 1.5 5.7 3.9 7.6L7 27.5l5-2.6c1.2.3 2.6.5 4 .5 6.6 0 12-4.6 12-10.3S22.6 5 16 5z" fill="#fff"/><circle class="d d1" cx="10.8" cy="15.4" r="1.8" fill="#0f6b37"/><circle class="d d2" cx="16" cy="15.4" r="1.8" fill="#0f6b37"/><circle class="d d3" cx="21.2" cy="15.4" r="1.8" fill="#0f6b37"/><path class="spark" d="M26 2l.9 2.1L29 5l-2.1.9L26 8l-.9-2.1L23 5l2.1-.9z" fill="#ffd96a"/></svg></span>
+      <span class="bot-av"><svg viewBox="0 0 32 32"><path d="M16 5C9.4 5 4 9.6 4 15.3c0 3 1.5 5.7 3.9 7.6L7 27.5l5-2.6c1.2.3 2.6.5 4 .5 6.6 0 12-4.6 12-10.3S22.6 5 16 5z" fill="#fff"/><circle class="d d1" cx="10.8" cy="15.4" r="1.8" style="fill:var(--deep,#0f6b37)"/><circle class="d d2" cx="16" cy="15.4" r="1.8" style="fill:var(--deep,#0f6b37)"/><circle class="d d3" cx="21.2" cy="15.4" r="1.8" style="fill:var(--deep,#0f6b37)"/><path class="spark" d="M26 2l.9 2.1L29 5l-2.1.9L26 8l-.9-2.1L23 5l2.1-.9z" fill="#ffd96a"/></svg></span>
       <div><b>Danat Fix Assistant</b><small>Automated help · replies instantly</small></div>
       <button type="button" class="bot-close" data-bot-toggle aria-label="Close">×</button>
     </header>
@@ -158,7 +158,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
 </script>
 
 <style>
-  .fab { position: fixed; right: 18px; bottom: 22px; z-index: 64; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; --g: #1f9a52; --g2: #0f6b37; }
+  .fab { position: fixed; right: 18px; bottom: 22px; z-index: 64; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; --g: var(--violet); --g2: var(--deep, #0f6b37); }
   .fab-wa, .fab-bot { position: relative; display: grid; place-items: center; width: 58px; height: 58px; border: 0; border-radius: 50%; color: #fff; box-shadow: 0 12px 28px -8px rgba(0,0,0,.4); transition: transform .2s; }
   .fab-wa:hover, .fab-bot:hover { transform: scale(1.07); }
   .fab-wa { background: #25d366; }

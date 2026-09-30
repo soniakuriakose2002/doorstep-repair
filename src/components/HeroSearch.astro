@@ -315,7 +315,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
   .hs-chip:hover { border-color: var(--violet); color: var(--violet); }
   @media (max-width: 480px) { .hs-actions { grid-template-columns: 1fr; } .hs-icon { width: 56px; } }
 
-  .tr { position: fixed; inset: 0; z-index: 92; display: grid; place-items: center; padding: 16px; color: var(--ink); --g: #1f8a4c; --g2: #0f6b37; }
+  .tr { position: fixed; inset: 0; z-index: 92; display: grid; place-items: center; padding: 16px; color: var(--ink); --g: var(--violet); --g2: var(--deep, #0f6b37); }
   .tr[hidden] { display: none; }
   .tr-bg { position: absolute; inset: 0; background: rgba(8, 14, 12, .55); backdrop-filter: blur(6px); opacity: 0; transition: opacity .3s; }
   .tr.in .tr-bg { opacity: 1; }
@@ -324,7 +324,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
   .tr-x { position: absolute; right: 16px; top: 16px; z-index: 3; display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid var(--line); border-radius: 50%; background: var(--surface); color: var(--ink); }
   .tr-x svg { width: 17px; height: 17px; }
 
-  .tr-side { position: relative; overflow: hidden; padding: 32px 28px; color: #fff; background: radial-gradient(360px circle at 0% 0%, rgba(255,255,255,.16), transparent 60%), linear-gradient(160deg, #1f9a52, #0f5c33); }
+  .tr-side { position: relative; overflow: hidden; padding: 32px 28px; color: #fff; background: radial-gradient(360px circle at 0% 0%, rgba(255,255,255,.16), transparent 60%), linear-gradient(160deg, var(--violet), var(--deep, #0f6b37)); }
   .tr-side::after { content: ''; position: absolute; right: -70px; bottom: -70px; width: 220px; height: 220px; border-radius: 50%; border: 36px solid rgba(255,255,255,.06); }
   .tr-kick { font-size: 11.5px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; opacity: .8; }
   .tr-side h3 { font-size: 24px; line-height: 1.15; margin: 8px 0 22px; color: #fff; }
@@ -357,7 +357,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
   .tr-field svg { width: 20px; height: 20px; color: var(--ink-3); flex: none; }
   .tr-cc { padding-right: 10px; border-right: 1px solid var(--line); font-weight: 700; color: var(--ink-2); }
   .tr-field input { flex: 1; min-width: 0; border: 0; outline: none; background: none; font: inherit; font-size: 16px; color: var(--ink); }
-  .tr-go { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 12px; height: 58px; border: 0; border-radius: 14px; background: linear-gradient(180deg, #1f9a52, #0f7a3c); color: #fff; font-size: 17px; font-weight: 700; box-shadow: 0 14px 28px -14px rgba(15,122,60,.9); transition: transform .2s; }
+  .tr-go { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 12px; height: 58px; border: 0; border-radius: 14px; background: linear-gradient(180deg, var(--violet), var(--deep, #0f6b37)); color: #fff; font-size: 17px; font-weight: 700; box-shadow: 0 14px 28px -14px rgba(15,122,60,.9); transition: transform .2s; }
   .tr-go:hover { transform: translateY(-2px); }
   .tr-go > svg:first-child { width: 22px; height: 22px; }
   .tr-go .arr { width: 18px; height: 18px; transition: transform .2s; }

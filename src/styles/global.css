@@ -445,3 +445,23 @@ a.glass:hover, .issue.glass:hover { transform: translateY(-4px); border-color: r
 :root .page-head .lead, :root .page-head p { color: rgba(255,255,255,.72) !important; }
 :root .page-head .eyebrow { color: var(--blue) !important; }
 :root .page-head .chip { background: rgba(255,255,255,.08) !important; border-color: rgba(255,255,255,.16) !important; color: rgba(255,255,255,.85) !important; }
+
+/* ---------- Brand themes (header switcher): colours follow the chosen logo ---------- */
+:root[data-brand][data-brand='danatfix'] {
+  /* Danat Fix — from the Danat Group brain: purple + blue, orange accent */
+  --bg: #f6f5fb; --ink: #16122a; --ink-2: #4d4863; --ink-3: #8a86a0; --navy: #140f24;
+  --violet: #6d28d9; --blue: #2563eb; --cyan: #6d28d9; --lime: #ea580c; --deep: #4c1d95;
+  --a1: 109, 40, 217; --a2: 37, 99, 235;
+  --accent-soft: #efe9fd; --glow: #d9ccfb; --on-accent: #ffffff; --media-hue: 190deg;
+  --line: rgba(22, 18, 42, .1); --tint: rgba(22, 18, 42, .04); --tint-2: rgba(22, 18, 42, .07);
+  --shadow: 0 1px 2px rgba(22, 18, 42, .05), 0 16px 36px -22px rgba(22, 18, 42, .28);
+}
+:root[data-brand][data-brand='369'] {
+  /* 369 ai Fix — from the 369 logo: blue, orange accent */
+  --bg: #f4f7fb; --ink: #0b1f3a; --ink-2: #44546c; --ink-3: #8593a8; --navy: #0a1a2e;
+  --violet: #0f6fd1; --blue: #29a3ec; --cyan: #0f6fd1; --lime: #f07a1a; --deep: #0a4f9a;
+  --a1: 15, 111, 209; --a2: 41, 163, 236;
+  --accent-soft: #e6f1fc; --glow: #bcdcf7; --on-accent: #ffffff; --media-hue: 150deg;
+  --line: rgba(11, 31, 58, .1); --tint: rgba(11, 31, 58, .04); --tint-2: rgba(11, 31, 58, .07);
+  --shadow: 0 1px 2px rgba(11, 31, 58, .05), 0 16px 36px -22px rgba(11, 31, 58, .28);
+}
