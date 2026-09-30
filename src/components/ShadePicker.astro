@@ -1,6 +1,6 @@
 ---
 // Theme button in the header (next to search/cart) to try pastel shades live. "Default" = the brand's own theme.
-// Choice is remembered (localStorage 'shade'); ?shade=1…6 or ?shade=0 also works.
+// Choice is remembered (localStorage 'shade'); ?shade=1…14 or ?shade=0 also works.
 // Colours for each shade live in global.css under :root[data-shade='N'].
 export const shades = [
   { id: '0', name: 'Default', a: '#6d28d9', b: '#c026d3' },
@@ -10,6 +10,14 @@ export const shades = [
   { id: '4', name: 'Peach Violet', a: '#8a5ad1', b: '#ffd0b5' },
   { id: '5', name: 'Mint Orchid', a: '#7a5fcf', b: '#c6ebe0' },
   { id: '6', name: 'Aurora Pastel', a: '#8b5cf6', b: '#ffdcea' },
+  { id: '7', name: 'Butter Lemon', a: '#c08a1e', b: '#ffec9e' },
+  { id: '8', name: 'Sea Foam', a: '#2f8f9d', b: '#b8e9e4' },
+  { id: '9', name: 'Rose Quartz', a: '#c04d74', b: '#f9c9d2' },
+  { id: '10', name: 'Periwinkle', a: '#5a5fc8', b: '#cdd2ff' },
+  { id: '11', name: 'Apricot Blush', a: '#d0634a', b: '#ffcdb2' },
+  { id: '12', name: 'Sage Mist', a: '#5f8a63', b: '#cfe3c6' },
+  { id: '13', name: 'Baby Blue', a: '#3a7cc4', b: '#c3e2ff' },
+  { id: '14', name: 'Lilac Grey', a: '#6f6391', b: '#dcd7e8' },
 ];
 ---
 
@@ -49,9 +57,9 @@ export const shades = [
   .sp-btn { display: inline-flex; align-items: center; gap: 7px; height: 40px; padding: 0 14px 0 11px; border: 1px solid var(--line); border-radius: 999px; background: linear-gradient(135deg, #fff, var(--accent-soft)); color: var(--ink); font: inherit; font-weight: 700; font-size: 14px; cursor: pointer; transition: border-color .2s, box-shadow .2s; }
   .sp-btn:hover, .sp-btn[aria-expanded='true'] { border-color: var(--violet); box-shadow: 0 8px 18px -10px var(--violet); }
   .sp-btn svg { width: 18px; height: 18px; color: var(--violet); }
-  .sp-menu { position: absolute; right: 0; top: calc(100% + 12px); z-index: 80; display: grid; gap: 2px; width: 220px; padding: 10px; border: 1px solid var(--line); border-radius: 18px; background: #fff; box-shadow: 0 24px 50px -20px rgba(0,0,0,.35); }
+  .sp-menu { position: absolute; right: 0; top: calc(100% + 12px); z-index: 80; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; width: 400px; max-width: calc(100vw - 32px); padding: 10px; border: 1px solid var(--line); border-radius: 18px; background: #fff; box-shadow: 0 24px 50px -20px rgba(0,0,0,.35); }
   .sp-menu[hidden] { display: none; }
-  .sp-menu p { margin: 2px 8px 6px; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: #8a86a0; }
+  .sp-menu p { grid-column: 1 / -1; margin: 2px 8px 6px; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: #8a86a0; }
   .sp-menu button { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border: 0; border-radius: 11px; background: none; font: inherit; font-size: 14px; color: #26252b; text-align: left; cursor: pointer; }
   .sp-menu button:hover { background: #f3f0fa; }
   .sp-menu button[aria-pressed='true'] { background: #efe9fd; font-weight: 700; }
