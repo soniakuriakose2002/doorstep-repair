@@ -1,0 +1,73 @@
+---
+// Shows every price in the visitor's own currency (manager brief, 2026-09-30).
+// Prices are authored in the base currency (site.currency, OMR). On load we find the
+// visitor's country from their IP address, fetch today's rate, and rewrite every
+// "OMR 12" on the page (and anything added later, e.g. the cart) as e.g. "₹2,748".
+// Only one currency is ever shown. Test with ?country=IN / AE / OM / US.
+import { site } from '../data/site';
+const base = site.currency.trim();
+---
+
+<script is:inline define:vars={{ base }}>
+(() => {
+  const KEY = 'fx-v1', DAY = 12 * 3600e3;
+  // Fallback rates per 1 OMR, used only if the live rate service is unreachable.
+  const FALLBACK = { OMR: 1, USD: 2.6, INR: 229, AED: 9.55, SAR: 9.75, QAR: 9.47, KWD: 0.8, BHD: 0.98, GBP: 1.95, EUR: 2.23 };
+  // Timezone → country, used if the IP lookup fails
+  const TZ = { 'Asia/Kolkata': 'IN', 'Asia/Calcutta': 'IN', 'Asia/Dubai': 'AE', 'Asia/Muscat': 'OM', 'Asia/Riyadh': 'SA', 'Asia/Qatar': 'QA', 'Asia/Kuwait': 'KW', 'Asia/Bahrain': 'BH', 'Europe/London': 'GB' };
+  const CUR = { IN: 'INR', AE: 'AED', OM: 'OMR', SA: 'SAR', QA: 'QAR', KW: 'KWD', BH: 'BHD', US: 'USD', GB: 'GBP' };
+  const LOCALE = { INR: 'en-IN', AED: 'en-AE', OMR: 'en-OM', SAR: 'en-SA', USD: 'en-US', GBP: 'en-GB' };
+  const get = () => { try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch { return null; } };
+  const put = (v) => { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch {} };
+  const withTimeout = (p, ms) => Promise.race([p, new Promise((_, r) => setTimeout(() => r(new Error('timeout')), ms))]);
+
+  async function country() {
+    const q = new URLSearchParams(location.search).get('country');
+    if (q) return q.toUpperCase();
+    for (const [url, pick] of [['https://ipapi.co/json/', (j) => j.country_code], ['https://ipwho.is/', (j) => j.country_code]]) {
+      try { const j = await withTimeout(fetch(url).then((r) => r.json()), 3500); if (pick(j)) return pick(j).toUpperCase(); } catch {}
+    }
+    return TZ[Intl.DateTimeFormat().resolvedOptions().timeZone] || null;
+  }
+  async function currencyFor(cc) {
+    if (CUR[cc]) return CUR[cc];
+    try { const j = await withTimeout(fetch(`https://restcountries.com/v3.1/alpha/${cc}?fields=currencies`).then((r) => r.json()), 3500); return Object.keys(j.currencies || {})[0] || base; } catch { return base; }
+  }
+  async function rate(to) {
+    if (to === base) return 1;
+    try { const j = await withTimeout(fetch(`https://open.er-api.com/v6/latest/${base}`).then((r) => r.json()), 3500); if (j.rates && j.rates[to]) return j.rates[to]; } catch {}
+    return FALLBACK[to] || null;
+  }
+
+  const RE = new RegExp(`${base}\\s?(\\d[\\d,]*(?:\\.\\d+)?)`, 'g');
+  function apply(fx) {
+    if (!fx || fx.cur === base || !fx.rate) return;
+    const fmt = new Intl.NumberFormat(LOCALE[fx.cur] || undefined, { style: 'currency', currency: fx.cur, maximumFractionDigits: fx.rate > 50 ? 0 : 2, minimumFractionDigits: 0 });
+    const swap = (s) => s.replace(RE, (_, n) => fmt.format(parseFloat(n.replace(/,/g, '')) * fx.rate));
+    const walk = (root) => {
+      const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: (n) => (n.parentElement && !n.parentElement.closest('script,style,textarea,[data-no-fx]') && n.nodeValue.includes(base) ? 1 : 3) });
+      const hits = []; while (w.nextNode()) hits.push(w.currentNode);
+      hits.forEach((n) => { const v = swap(n.nodeValue); if (v !== n.nodeValue) n.nodeValue = v; });
+    };
+    walk(document.body);
+    new MutationObserver((ms) => ms.forEach((m) => {
+      if (m.type === 'characterData') { const n = m.target; if (n.nodeValue.includes(base)) { const v = swap(n.nodeValue); if (v !== n.nodeValue) n.nodeValue = v; } }
+      m.addedNodes.forEach((n) => (n.nodeType === 3 ? n.nodeValue.includes(base) && (n.nodeValue = swap(n.nodeValue)) : n.nodeType === 1 && walk(n)));
+    })).observe(document.body, { childList: true, subtree: true, characterData: true });
+    document.documentElement.dataset.currency = fx.cur;
+  }
+
+  async function init() {
+    const forced = new URLSearchParams(location.search).get('country');
+    let fx = get();
+    if (!fx || forced || Date.now() - fx.t > DAY) {
+      const cc = await country();
+      const cur = cc ? await currencyFor(cc) : base;
+      fx = { cc, cur, rate: await rate(cur), t: Date.now() };
+      if (!forced) put(fx);
+    }
+    apply(fx);
+  }
+  document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();
+})();
+</script>
