@@ -129,9 +129,9 @@ const angles = [
           </div>
         </div>
         <div class="uc-rows">
-          {[0].map((r) => (
-            <div class="uc-rail" data-uc-rail data-dir="1">
-              {[false, true].flatMap((copy) => mostBooked.map((m) => (
+          {[0, 1].map((r) => (
+            <div class="uc-rail" data-uc-rail data-dir={r ? -1 : 1}>
+              {[false, true].flatMap((copy) => (r ? mostBooked.filter((_, i) => i % 2 === 1).reverse() : mostBooked.filter((_, i) => i % 2 === 0)).map((m) => (
                 <article class="uc-card" aria-hidden={copy ? 'true' : undefined}>
                   <div class="uc-img">
                     <img src={`/media/repairs/${m.photo}.jpg`} alt={m.iss} loading="lazy" width="360" height="240" />
