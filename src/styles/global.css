@@ -558,44 +558,65 @@ a.glass:hover, .issue.glass:hover { transform: translateY(-4px); border-color: r
   --grad: linear-gradient(120deg, #0A8FC2, #22D3EE); --d-word: linear-gradient(100deg, #22D3EE, #67E8F9 50%, #FF9A3D); }
 
 /* page: clean soft-white, no colour clouds (beats the generic pastel-shade rules) */
-:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] body { background: var(--d-bg) !important; }
-:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .aurora .orb,
-:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .aurora .o1 { background: var(--glow) !important; opacity: .25 !important; animation: drift 22s ease-in-out infinite alternate !important; }
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'])[data-brand][data-brand] body { background: var(--d-bg) !important; }
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'])[data-brand][data-brand] .aurora .orb,
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'])[data-brand][data-brand] .aurora .o1 { background: var(--glow) !important; opacity: .25 !important; animation: drift 22s ease-in-out infinite alternate !important; }
 /* navbar */
-:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .nav-inner { background: var(--d-navbg) !important; }
-:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] nav a:not([aria-current]) { color: var(--d-navink); }
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'])[data-brand][data-brand] .nav-inner { background: var(--d-navbg) !important; }
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'])[data-brand][data-brand] nav a:not([aria-current]) { color: var(--d-navink); }
 :root[data-brand='danatfix'][data-shade='32'] nav a:not([aria-current]):hover,
 :root[data-brand='danatfix'][data-shade='35'] nav a:not([aria-current]):hover { color: var(--d-cyan); }
 /* orange = Fix / booking actions only */
-:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .btn-primary,
-:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .nav-cta,
-:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .cta2-btn,
-:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .cd-go,
-:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .uc-all {
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'])[data-brand][data-brand] .btn-primary,
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'])[data-brand][data-brand] .nav-cta,
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'])[data-brand][data-brand] .cta2-btn,
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'])[data-brand][data-brand] .cd-go,
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'])[data-brand][data-brand] .uc-all {
   background: linear-gradient(180deg, var(--d-orange2), var(--d-orange)) !important; background-size: auto !important; animation: none !important;
   color: #fff !important; border-color: transparent !important; box-shadow: 0 14px 28px -14px rgba(255, 122, 0, .75) !important; }
-:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .btn-primary:hover,
-:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .nav-cta:hover { filter: brightness(1.05); box-shadow: 0 18px 34px -14px rgba(255, 122, 0, .85) !important; }
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'])[data-brand][data-brand] .btn-primary:hover,
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'])[data-brand][data-brand] .nav-cta:hover { filter: brightness(1.05); box-shadow: 0 18px 34px -14px rgba(255, 122, 0, .85) !important; }
 /* WhatsApp Us = white button */
-:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .vhero .btn-wa { background: #fff !important; color: #101828 !important; box-shadow: 0 12px 26px -16px rgba(0,0,0,.6) !important; }
-:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .vhero .btn-wa svg { color: #25D366; }
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'])[data-brand][data-brand] .vhero .btn-wa { background: #fff !important; color: #101828 !important; box-shadow: 0 12px 26px -16px rgba(0,0,0,.6) !important; }
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'])[data-brand][data-brand] .vhero .btn-wa svg { color: #25D366; }
 /* one highlighted phrase carries the Danat gradient */
-:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .grad-text,
-:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .vhero .grad-text,
-:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .hero .grad-text,
-:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .page-head .grad-text {
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'])[data-brand][data-brand] .grad-text,
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'])[data-brand][data-brand] .vhero .grad-text,
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'])[data-brand][data-brand] .hero .grad-text,
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'])[data-brand][data-brand] .page-head .grad-text {
   background: var(--d-word) !important; background-size: 100% 100% !important; animation: none !important;
   -webkit-background-clip: text !important; background-clip: text !important; -webkit-text-fill-color: transparent !important; color: transparent !important; padding-bottom: .08em; }
 /* small labels, badges and cards: blue / cyan, purple only as a hint */
-:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .eyebrow { color: var(--d-cyan) !important; }
-:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .eyebrow::before { background: var(--d-cyan) !important; }
-:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .uc-badge { background: var(--accent-soft) !important; color: var(--d-main) !important; }
-:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .uc-cat { background: #fff !important; }
-:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .uc-cat:hover,
-:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .uc-card:hover { border-color: var(--d-main) !important; box-shadow: 0 18px 34px -22px rgba(var(--a1), .6) !important; }
-:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .bk-hero { background: linear-gradient(120deg, #F5F9FE 0%, var(--accent-soft) 60%, #FFF1E3 100%) !important; }
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'])[data-brand][data-brand] .eyebrow { color: var(--d-cyan) !important; }
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'])[data-brand][data-brand] .eyebrow::before { background: var(--d-cyan) !important; }
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'])[data-brand][data-brand] .uc-badge { background: var(--accent-soft) !important; color: var(--d-main) !important; }
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'])[data-brand][data-brand] .uc-cat { background: #fff !important; }
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'])[data-brand][data-brand] .uc-cat:hover,
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'])[data-brand][data-brand] .uc-card:hover { border-color: var(--d-main) !important; box-shadow: 0 18px 34px -22px rgba(var(--a1), .6) !important; }
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'])[data-brand][data-brand] .bk-hero { background: linear-gradient(120deg, #F5F9FE 0%, var(--accent-soft) 60%, #FFF1E3 100%) !important; }
 /* Danat Dark / Midnight navy bar: logo on a white chip, icons readable */
 :root[data-brand='danatfix']:is([data-shade='32'],[data-shade='35']) .bs-logo { padding: 3px 8px; border-radius: 12px; background: #fff; }
 :root[data-brand='danatfix']:is([data-shade='32'],[data-shade='35']) .nav-search,
 :root[data-brand='danatfix']:is([data-shade='32'],[data-shade='35']) .nav-cart { color: #fff; border-color: rgba(255,255,255,.25); }
 :root[data-brand='danatfix']:is([data-shade='32'],[data-shade='35']) .bs-btn { background: transparent; color: #fff; border-color: rgba(255,255,255,.3); }
+
+/* Danat Logo Palette (sampled from the logo): warm white base, navy text, orange actions,
+   blue secondary, blue → purple accent gradient */
+:root[data-brand][data-brand='danatfix'][data-shade='36'][data-shade] {
+  --d-main: #0455C0; --d-cyan: #049AE9; --d-purple: #A20ABF; --d-orange: #F78E36; --d-orange2: #FFA65A;
+  --d-bg: #FFF9F5; --d-navbg: #FFFFFF; --d-navink: #211D38;
+  --d-word: linear-gradient(100deg, #049AE9 0%, #6A4FD8 45%, #A20ABF 75%, #D22AD4 100%);
+  --ink: #211D38; --ink-2: #4A4659; --ink-3: #6B6870; --navy: #211D38;
+  --accent-soft: #FDEEE3; --glow: #E9D3F5; --a1: 4, 154, 233; --a2: 162, 10, 191;
+  --grad: linear-gradient(120deg, #049AE9, #A20ABF);
+  --line: rgba(33, 29, 56, .1); --tint: rgba(33, 29, 56, .04); --tint-2: rgba(33, 29, 56, .07);
+}
+:root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] .vhero .btn-wa { background: #049AE9 !important; color: #fff !important; }
+:root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] .vhero .btn-wa svg { color: #fff !important; }
+:root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] .uc-cat:hover,
+:root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] .uc-card:hover { border-color: transparent !important; box-shadow: 0 0 0 2px #A20ABF, 0 18px 34px -20px rgba(162, 10, 191, .55) !important; }
+:root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] .uc-ci, :root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] .uc-ti { background: linear-gradient(135deg, #E3F4FD, #F3E3F8) !important; }
+:root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] .eyebrow { color: #A20ABF !important; }
+:root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] .eyebrow::before { background: #A20ABF !important; }
+:root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] .uc-badge { background: #FDEEE3 !important; color: #D06A14 !important; }
+:root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] .bk-hero { background: linear-gradient(120deg, #FFF9F5 0%, #E8F5FD 50%, #F6E6FA 100%) !important; }
