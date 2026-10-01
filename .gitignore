@@ -4,3 +4,4 @@ dist/
 video/frames/
 .env
 .DS_Store
+.cache/
