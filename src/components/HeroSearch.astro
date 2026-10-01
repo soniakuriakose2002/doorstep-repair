@@ -237,23 +237,68 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
     });
 
+    // Location result card
+    const I = {
+      pin: '<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+      ok: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+      globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
+      gps: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7"/>',
+      wa: '<path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2z"/>',
+      arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+    };
+    const svg = (k: keyof typeof I, fill = false) => `<svg viewBox="0 0 24 24" fill="${fill ? 'currentColor' : 'none'}" stroke="${fill ? 'none' : 'currentColor'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[k]}</svg>`;
+    const card = (o: { tone: 'ok' | 'warn'; kicker: string; title: string; route?: [string, string, string]; text: string; chips?: string[]; actions: string; foot: string }) => `
+      <button type="button" class="lr-x" data-lr-x aria-label="Close">×</button>
+      <div class="lr-head">
+        <span class="lr-ic">${svg(o.tone === 'ok' ? 'ok' : 'globe')}</span>
+        <div><small class="lr-kick">${o.kicker}</small><b class="lr-title">${o.title}</b></div>
+      </div>
+      ${o.route ? `<div class="lr-route"><span class="lr-dot you">${o.route[0]}</span><span class="lr-line"><i>${o.route[1]}</i></span><span class="lr-dot hq">${o.route[2]}</span></div>` : ''}
+      ${o.chips?.length ? `<div class="lr-chips">${o.chips.map((c) => `<span>${c}</span>`).join('')}</div>` : ''}
+      <p class="lr-text">${o.text}</p>
+      <div class="lr-acts">${o.actions}</div>
+      <div class="lr-foot">${o.foot}</div>`;
+    const waBtn = (msg: string, label: string, primary = false) => `<a class="lr-btn wa${primary ? ' pri' : ''}" href="https://wa.me/${tel}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${svg('wa', true)}${label}</a>`;
+
     const showFor = (me: [number, number], how: 'ip' | 'gps') => {
         const near = Object.entries(geo.areaGeo).map(([n, at]) => ({ n, d: km(me, at) })).sort((a, b) => a.d - b.d)[0];
         const br = geo.branchGeo.map((b) => ({ ...b, d: km(me, b.at) })).sort((a, b) => a.d - b.d)[0];
-        const where = how === 'ip' && lastIp ? `${esc([lastIp.city, lastIp.country].filter(Boolean).join(', '))}` : '';
-        const src = how === 'ip' ? `<small class="hs-src">Detected from your IP address${where ? ` · ${where}` : ''} · <button type="button" class="hs-exact" data-hs-exact>Use exact location</button></small>` : '<small class="hs-src">Using your exact location</small>';
+        const where = how === 'ip' && lastIp ? esc([lastIp.city, lastIp.country].filter(Boolean).join(', ')) : '';
+        const foot = how === 'ip'
+          ? `<span>${svg('pin')}Detected from your IP address</span><button type="button" class="hs-exact" data-hs-exact>${svg('gps')}Use exact location</button>`
+          : `<span>${svg('gps')}Using your exact location</span>`;
+        const dist = `${Math.round(br.d).toLocaleString()} km`;
+        const mapLink = `https://maps.google.com/?q=${me[0].toFixed(5)},${me[1].toFixed(5)}`;
         const covered = near.d <= (how === 'ip' ? 40 : 12);
         if (covered) {
           area = near.n;
           try { localStorage.setItem('area', area); } catch {}
           linkify();
-          const modes = [geo.doorstep.includes(near.n) && 'Doorstep', geo.pickup.includes(near.n) && 'Pickup'].filter(Boolean).join(' & ');
-          show(`<b>📍 You're ${how === 'ip' ? 'around' : 'near'} ${esc(near.n)}</b><span>✓ We cover your area — ${modes} available. Nearest branch: ${esc(br.name)} (${Math.round(br.d)} km).</span><a href="${withArea('/services#catalog')}">Book a repair here →</a>${src}`, 'ok');
+          const modes = [geo.doorstep.includes(near.n) && 'Doorstep', geo.pickup.includes(near.n) && 'Pickup'].filter(Boolean) as string[];
+          show(card({
+            tone: 'ok', kicker: 'Great news — we cover your area', title: esc(near.n),
+            route: ['You', dist, esc(br.name)],
+            chips: modes.map((m) => `✓ ${m}`),
+            text: `Our technicians come to you from the ${esc(br.name)} branch.`,
+            actions: `<a class="lr-btn pri" href="${withArea('/services#catalog')}">Book a repair${svg('arrow')}</a>${waBtn(`Hi Danat Fix, I'm in ${near.n} and want to book a repair.`, 'Chat')}`,
+            foot,
+          }), 'ok');
         } else {
           const outside = br.d > 400;
-          show(`<b>📍 ${outside ? `You seem to be outside Oman${where ? ` (${where})` : ''}` : `Nearest branch: ${esc(br.name)}`} — ${Math.round(br.d).toLocaleString()} km from ${outside ? 'our nearest branch (' + esc(br.name) + ')' : 'you'}</b><span>${outside ? 'We repair across Oman only (Muscat, Al Batinah and Dhofar). Message us and we\'ll help.' : 'Your exact spot isn\'t on our coverage list yet. Message us and we\'ll confirm if we can reach you.'}</span><a href="https://wa.me/${tel}?text=${encodeURIComponent(`Hi Danat Fix, do you cover my location? https://maps.google.com/?q=${me[0].toFixed(5)},${me[1].toFixed(5)}`)}" target="_blank" rel="noopener">Ask on WhatsApp →</a>${src}`, 'warn');
-          }
+          show(card({
+            tone: 'warn',
+            kicker: outside ? 'Outside our service area' : 'Not on our coverage list yet',
+            title: where || (outside ? 'Outside Oman' : `Near ${esc(br.name)}`),
+            route: ['You', dist, esc(br.name)],
+            text: outside
+              ? 'We repair across Oman — Muscat, Al Batinah and Dhofar. Message us and we’ll still try to help.'
+              : 'Message us and we’ll confirm whether a technician can reach you.',
+            actions: `${waBtn(`Hi Danat Fix, do you cover my location? ${mapLink}`, 'Ask on WhatsApp', true)}<a class="lr-btn" href="/services#modes">See coverage</a>`,
+            foot,
+          }), 'warn');
+        }
     };
+    result.addEventListener('click', (ev) => { if ((ev.target as HTMLElement).closest('[data-lr-x]')) result.hidden = true; });
     // ---- Track your repair ----
     const tr = document.querySelector<HTMLElement>('[data-tr]')!;
     const openTr = () => { tr.hidden = false; requestAnimationFrame(() => tr.classList.add('in')); tr.querySelector<HTMLInputElement>('input:not([hidden] input)')?.focus(); };
@@ -313,19 +358,49 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
   .hs-act.busy .hs-ai svg { animation: hsPulse .9s ease-in-out infinite; }
   @keyframes hsPulse { 50% { transform: translateY(-3px); } }
 
-  .hs-result :global(.hs-src) { display: block; margin-top: 8px; font-size: 12px; color: var(--ink-3); }
-  .hs-result :global(.hs-exact) { padding: 0; border: 0; background: none; font: inherit; font-weight: 700; color: var(--violet); text-decoration: underline; cursor: pointer; }
-  .hs-result { display: grid; gap: 4px; padding: 14px 16px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); font-size: 14px; color: var(--ink-2); animation: hsIn .3s ease; }
+  .hs-result { position: relative; display: grid; gap: 12px; padding: 18px 18px 14px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 24px 50px -28px rgba(0,0,0,.55); font-size: 14px; color: var(--ink-2); animation: hsIn .35s cubic-bezier(.2,.8,.2,1); }
   .hs-result[hidden] { display: none; }
+  .hs-result.wait { display: flex; align-items: center; gap: 8px; padding: 14px 16px; }
+  .hs-result :global(.spin) { display: inline-block; width: 14px; height: 14px; margin-right: 6px; vertical-align: -2px; border: 2px solid var(--line); border-top-color: var(--violet); border-radius: 50%; animation: spin .8s linear infinite; }
+  .hs-result :global(.lr-x) { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; border: 0; border-radius: 50%; background: var(--tint-2); color: var(--ink-2); font-size: 18px; line-height: 1; cursor: pointer; }
+  .hs-result :global(.lr-x:hover) { background: var(--line); color: var(--ink); }
+  .hs-result :global(.lr-head) { display: flex; align-items: center; gap: 12px; padding-right: 34px; }
+  .hs-result :global(.lr-ic) { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; }
+  .hs-result :global(.lr-ic svg) { width: 22px; height: 22px; }
+  .hs-result.ok :global(.lr-ic) { background: #DCFCE7; color: #15803D; }
+  .hs-result.warn :global(.lr-ic) { background: #FFEDD5; color: #C2410C; }
+  .hs-result :global(.lr-kick) { display: block; font-size: 11.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+  .hs-result.ok :global(.lr-kick) { color: #15803D; }
+  .hs-result.warn :global(.lr-kick) { color: #C2410C; }
+  .hs-result :global(.lr-title) { display: block; margin-top: 2px; font-size: 19px; color: var(--ink); line-height: 1.2; }
+  .hs-result :global(.lr-route) { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--tint); font-size: 12.5px; font-weight: 700; color: var(--ink-2); }
+  .hs-result :global(.lr-dot) { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .hs-result :global(.lr-dot::before) { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--violet); box-shadow: 0 0 0 4px var(--accent-soft); }
+  .hs-result :global(.lr-dot.hq::before) { background: #FF7A00; box-shadow: 0 0 0 4px #FFEDD5; }
+  .hs-result :global(.lr-line) { position: relative; flex: 1; height: 2px; min-width: 40px; background: repeating-linear-gradient(90deg, var(--ink-3) 0 6px, transparent 6px 11px); opacity: .7; }
+  .hs-result :global(.lr-line i) { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 2px 8px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); font-style: normal; font-size: 12px; color: var(--ink); white-space: nowrap; }
+  .hs-result :global(.lr-chips) { display: flex; flex-wrap: wrap; gap: 6px; }
+  .hs-result :global(.lr-chips span) { padding: 4px 10px; border-radius: 999px; background: #DCFCE7; color: #15803D; font-size: 12.5px; font-weight: 700; }
+  .hs-result :global(.lr-text) { margin: 0; line-height: 1.55; color: var(--ink-2); }
+  .hs-result :global(.lr-acts) { display: flex; flex-wrap: wrap; gap: 8px; }
+  .hs-result :global(.lr-btn) { display: inline-flex; align-items: center; gap: 8px; height: 42px; padding: 0 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-weight: 700; font-size: 14px; transition: transform .2s, filter .2s, border-color .2s; }
+  .hs-result :global(.lr-btn:hover) { transform: translateY(-1px); border-color: var(--violet); }
+  .hs-result :global(.lr-btn svg) { width: 17px; height: 17px; }
+  .hs-result :global(.lr-btn.pri) { border-color: transparent; background: var(--violet); color: var(--on-accent); }
+  .hs-result :global(.lr-btn.wa) { color: #128C4A; }
+  .hs-result :global(.lr-btn.wa.pri) { background: #25D366; color: #fff; }
+  .hs-result :global(.lr-btn.pri:hover) { filter: brightness(1.06); }
+  .hs-result :global(.lr-foot) { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; padding-top: 10px; border-top: 1px dashed var(--line); font-size: 12px; color: var(--ink-3); }
+  .hs-result :global(.lr-foot span), .hs-result :global(.hs-exact) { display: inline-flex; align-items: center; gap: 5px; }
+  .hs-result :global(.lr-foot svg) { width: 14px; height: 14px; }
+  .hs-result :global(.hs-exact) { padding: 0; border: 0; background: none; font: inherit; font-weight: 700; color: var(--violet); cursor: pointer; }
+  .hs-result :global(.hs-exact:hover) { text-decoration: underline; }
+  .hs-result.warn > :global(b) { display: block; color: var(--ink); font-size: 15px; }
   @keyframes hsIn { from { opacity: 0; transform: translateY(6px); } }
-  .hs-result.ok { border-color: var(--lime); }
-  .hs-result :global(b) { color: var(--ink); font-size: 15px; }
-  .hs-result.ok :global(span) { color: var(--lime); font-weight: 600; }
-  .hs-result :global(a) { justify-self: start; margin-top: 4px; font-weight: 700; color: var(--violet); }
   .hs-result :global(.spin) { display: inline-block; width: 14px; height: 14px; margin-right: 6px; vertical-align: -2px; border: 2px solid var(--line); border-top-color: var(--violet); border-radius: 50%; animation: spin .8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .hs-result.warn :global(span) { color: var(--ink-2); }  .hs { position: relative; }
+  .hs { position: relative; }
   .hs-sugg { position: absolute; left: 0; right: 0; top: 62px; z-index: 30; display: grid; padding: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 24px 50px -20px rgba(0,0,0,.45); animation: hsIn .2s ease; }
   .hs-sugg[hidden] { display: none; }
   .hs-sugg :global(a) { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 10px 12px; border-radius: 10px; color: var(--ink); }
