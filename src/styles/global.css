@@ -447,15 +447,6 @@ a.glass:hover, .issue.glass:hover { transform: translateY(-4px); border-color: r
 :root .page-head .chip { background: rgba(255,255,255,.08) !important; border-color: rgba(255,255,255,.16) !important; color: rgba(255,255,255,.85) !important; }
 
 /* ---------- Brand themes (header switcher): colours follow the chosen logo ---------- */
-:root[data-brand][data-brand='danatfix'] {
-  /* Danat Fix — from the Danat Group brain: purple + blue, orange accent */
-  --bg: #f6f5fb; --ink: #16122a; --ink-2: #4d4863; --ink-3: #8a86a0; --navy: #140f24;
-  --violet: #6d28d9; --blue: #2563eb; --cyan: #6d28d9; --lime: #ea580c; --deep: #4c1d95;
-  --a1: 109, 40, 217; --a2: 37, 99, 235;
-  --accent-soft: #efe9fd; --glow: #d9ccfb; --on-accent: #ffffff; --media-hue: 190deg;
-  --line: rgba(22, 18, 42, .1); --tint: rgba(22, 18, 42, .04); --tint-2: rgba(22, 18, 42, .07);
-  --shadow: 0 1px 2px rgba(22, 18, 42, .05), 0 16px 36px -22px rgba(22, 18, 42, .28);
-}
 :root[data-brand][data-brand='369'] {
   /* 369 ai Fix — from the 369 logo: blue, orange accent */
   --bg: #f4f7fb; --ink: #0b1f3a; --ink-2: #44546c; --ink-3: #8593a8; --navy: #0a1a2e;
@@ -466,127 +457,6 @@ a.glass:hover, .issue.glass:hover { transform: translateY(-4px); border-color: r
   --shadow: 0 1px 2px rgba(11, 31, 58, .05), 0 16px 36px -22px rgba(11, 31, 58, .28);
 }
 
-/* Danat Fix uses every colour in its logo: blue → purple → magenta brain, orange nodes + FIX,
-   charcoal DANAT letters. Headlines and main buttons carry the full gradient. */
-:root[data-brand][data-brand='danatfix'] {
-  --ink: #26252b; --navy: #1b1a21;
-  --violet: #7c3aed; --blue: #2563eb; --pink: #d946ef; --orange: #f97316; --lime: #f97316;
-  --grad: linear-gradient(115deg, #2563eb 0%, #7c3aed 50%, #d946ef 100%);
-  --grad-warm: linear-gradient(115deg, #f97316, #fb923c);
-  --accent-soft: #f1ebfe;
-}
-:root[data-brand='danatfix'] .grad-text,
-:root[data-brand='danatfix'] .vhero .grad-text,
-:root[data-brand='danatfix'] .hero .grad-text,
-:root[data-brand='danatfix'] .page-head .grad-text {
-  background: linear-gradient(100deg, #3b82f6 0%, #8b5cf6 45%, #e879f9 80%, #fb923c 100%) !important;
-  -webkit-background-clip: text !important; background-clip: text !important;
-  -webkit-text-fill-color: transparent !important; color: transparent !important; padding-bottom: .08em;
-}
-:root[data-brand='danatfix'] .btn-primary,
-:root[data-brand='danatfix'] .nav-cta { background: var(--grad) !important; border-color: transparent !important; }
-:root[data-brand='danatfix'] .eyebrow { color: var(--orange) !important; }
-:root[data-brand='danatfix'] .eyebrow::before { background: var(--orange) !important; }
-
-:root[data-brand='danatfix'] .uc-all, :root[data-brand='danatfix'] .cd-go, :root[data-brand='danatfix'] .cta2-btn { background: var(--grad) !important; }
-
-/* ---------- Danat Fix, richer shades + living colour (v2) ---------- */
-:root[data-brand][data-brand='danatfix'] {
-  --bg: #f7f4ff;                       /* soft lilac paper instead of flat grey */
-  --ink: #1f1a33; --ink-2: #4a4462; --ink-3: #857f9e;
-  --violet: #6d3ef5;                   /* electric violet */
-  --blue: #2f6bff;                     /* bright cobalt */
-  --pink: #e040fb;                     /* neon magenta */
-  --orange: #ff7a1a; --lime: #ff7a1a;
-  --deep: #3b1c9e;
-  --a1: 109, 62, 245; --a2: 47, 107, 255;
-  --accent-soft: #eee7ff; --glow: #c9b5ff;
-  --grad: linear-gradient(110deg, #2f6bff 0%, #6d3ef5 35%, #b23cf0 65%, #e040fb 85%, #2f6bff 100%);
-  --shadow: 0 1px 2px rgba(59, 28, 158, .06), 0 18px 40px -22px rgba(59, 28, 158, .35);
-}
-/* colourful page backdrop: three slow-moving blobs in the logo colours */
-:root[data-brand='danatfix'] body {
-  background:
-    radial-gradient(900px 600px at 105% -5%, rgba(224, 64, 251, .16), transparent 60%),
-    radial-gradient(800px 600px at -10% 30%, rgba(47, 107, 255, .14), transparent 60%),
-    radial-gradient(700px 500px at 50% 110%, rgba(255, 122, 26, .10), transparent 60%),
-    var(--bg);
-  background-attachment: fixed;
-}
-:root[data-brand='danatfix'] .orb { opacity: .55; background: conic-gradient(from 0deg, #2f6bff, #6d3ef5, #e040fb, #ff7a1a, #2f6bff); animation: drift 18s ease-in-out infinite alternate, dfHue 14s linear infinite; }
-@keyframes dfHue { to { filter: blur(110px) hue-rotate(40deg); } }
-
-/* gradients slowly flow across buttons and the hero highlight */
-:root[data-brand='danatfix'] .btn-primary, :root[data-brand='danatfix'] .nav-cta,
-:root[data-brand='danatfix'] .uc-all, :root[data-brand='danatfix'] .cd-go, :root[data-brand='danatfix'] .cta2-btn {
-  background: var(--grad) !important; background-size: 250% 100% !important;
-  animation: dfFlow 6s ease-in-out infinite alternate;
-  box-shadow: 0 14px 30px -12px rgba(109, 62, 245, .65), 0 0 0 1px rgba(255,255,255,.12) inset !important;
-}
-:root[data-brand='danatfix'] .btn-primary:hover, :root[data-brand='danatfix'] .nav-cta:hover { box-shadow: 0 18px 40px -10px rgba(224, 64, 251, .7) !important; transform: translateY(-2px); }
-:root[data-brand='danatfix'] .grad-text,
-:root[data-brand='danatfix'] .vhero .grad-text,
-:root[data-brand='danatfix'] .page-head .grad-text {
-  background: linear-gradient(95deg, #4f8bff 0%, #8b5cf6 30%, #e879f9 55%, #ff9a3c 75%, #4f8bff 100%) !important;
-  background-size: 220% 100% !important; -webkit-background-clip: text !important; background-clip: text !important;
-  animation: dfFlow 7s linear infinite;
-}
-@keyframes dfFlow { from { background-position: 0% 50%; } to { background-position: 100% 50%; } }
-
-/* headings get a hint of the palette; cards glow violet on hover */
-:root[data-brand='danatfix'] h2 { color: #1f1a33; }
-:root[data-brand='danatfix'] .uc-badge, :root[data-brand='danatfix'] .pt-eyebrow { color: #b23cf0; }
-:root[data-brand='danatfix'] .uc-card:hover, :root[data-brand='danatfix'] .uc-cat:hover { border-color: #b23cf0 !important; box-shadow: 0 20px 40px -22px rgba(178, 60, 240, .6) !important; }
-:root[data-brand='danatfix'] .aurora .grid { opacity: .5; }
-@media (prefers-reduced-motion: reduce) {
-  :root[data-brand='danatfix'] .btn-primary, :root[data-brand='danatfix'] .nav-cta, :root[data-brand='danatfix'] .uc-all,
-  :root[data-brand='danatfix'] .cd-go, :root[data-brand='danatfix'] .cta2-btn, :root[data-brand='danatfix'] .grad-text, :root[data-brand='danatfix'] .orb { animation: none; }
-}
-
-/* ---------- Danat Fix: richer shades + living colour (the logo's blue → violet → magenta, orange) ---------- */
-:root[data-brand][data-brand='danatfix'] {
-  --bg: #f8f5ff;
-  --violet: #6d28d9; --blue: #1d4ed8; --pink: #c026d3; --orange: #f97316; --lime: #ea580c;
-  --grad: linear-gradient(110deg, #1d4ed8, #6d28d9 30%, #c026d3 60%, #6d28d9 80%, #1d4ed8);
-  --accent-soft: #efe7ff; --glow: #c4b5fd;
-  --line: rgba(76, 29, 149, .12);
-  --shadow: 0 1px 2px rgba(76, 29, 149, .06), 0 18px 40px -22px rgba(76, 29, 149, .35);
-}
-/* soft colour clouds drifting behind the page */
-:root[data-brand='danatfix'] body { background:
-  radial-gradient(900px 600px at 105% -5%, rgba(192, 38, 211, .10), transparent 60%),
-  radial-gradient(800px 600px at -10% 30%, rgba(29, 78, 216, .09), transparent 60%),
-  radial-gradient(700px 500px at 60% 110%, rgba(249, 115, 22, .07), transparent 60%),
-  var(--bg); background-attachment: fixed; }
-:root[data-brand='danatfix'] .aurora .o1 { background: conic-gradient(from 0deg, #3b82f6, #8b5cf6, #d946ef, #fb923c, #3b82f6); opacity: .28; animation: drift 18s ease-in-out infinite alternate, dfSpin 40s linear infinite; }
-@keyframes dfSpin { to { rotate: 360deg; } }
-/* gradients flow slowly */
-@keyframes dfFlow { to { background-position: 200% 50%; } }
-:root[data-brand='danatfix'] .btn-primary,
-:root[data-brand='danatfix'] .nav-cta,
-:root[data-brand='danatfix'] .uc-all,
-:root[data-brand='danatfix'] .cd-go,
-:root[data-brand='danatfix'] .cta2-btn {
-  background: var(--grad) !important; background-size: 200% 100% !important; animation: dfFlow 6s linear infinite;
-  box-shadow: 0 14px 30px -12px rgba(192, 38, 211, .55), 0 6px 14px -8px rgba(29, 78, 216, .5) !important;
-}
-:root[data-brand='danatfix'] .grad-text,
-:root[data-brand='danatfix'] .vhero .grad-text,
-:root[data-brand='danatfix'] .hero .grad-text,
-:root[data-brand='danatfix'] .page-head .grad-text {
-  background: linear-gradient(100deg, #60a5fa, #a78bfa 25%, #f0abfc 45%, #fdba74 60%, #a78bfa 80%, #60a5fa) !important;
-  background-size: 200% 100% !important; -webkit-background-clip: text !important; background-clip: text !important;
-  animation: dfFlow 7s linear infinite;
-}
-/* tiles + cards pick up the logo colours on hover */
-:root[data-brand='danatfix'] .uc-cat:hover, :root[data-brand='danatfix'] .uc-card:hover { border-color: #c026d3; box-shadow: 0 18px 34px -22px rgba(192, 38, 211, .6); }
-:root[data-brand='danatfix'] .uc-badge { background: linear-gradient(90deg, #e0e7ff, #f3e8ff, #fae8ff); }
-@media (prefers-reduced-motion: reduce) {
-  :root[data-brand='danatfix'] .btn-primary, :root[data-brand='danatfix'] .nav-cta, :root[data-brand='danatfix'] .uc-all,
-  :root[data-brand='danatfix'] .cd-go, :root[data-brand='danatfix'] .cta2-btn, :root[data-brand='danatfix'] .grad-text,
-  :root[data-brand='danatfix'] .aurora .o1 { animation: none; }
-}
-:root[data-brand='danatfix'] .bk-hero { background: linear-gradient(120deg, #f5f3ff 0%, #ede4ff 45%, #f7e3fb 75%, #ffeede 100%) !important; }
 :root[data-brand='369'] .bk-hero { background: linear-gradient(120deg, #f3f8fe 0%, #e2effc 55%, #ffeedd 100%) !important; }
 
 /* ---------- Pastel shades (Theme button, ShadePicker.astro) ---------- */
@@ -602,6 +472,22 @@ a.glass:hover, .issue.glass:hover { transform: translateY(-4px); border-color: r
   --bg: #f3fbf8; --violet: #7a5fcf; --cyan: #7a5fcf; --accent-soft: #dcf3ec; --glow: #c6ebe0; --line: rgba(60, 40, 110, .1); }
 :root[data-brand][data-shade='6'][data-shade] { --p-bg: #faf7ff; --p-s1: #e3ecff; --p-s2: #f3dcff; --p-s3: #ffdcea; --p-acc: #8b5cf6; --p-warm: #ffcfa8;
   --bg: #faf7ff; --violet: #8b5cf6; --cyan: #8b5cf6; --accent-soft: #e3ecff; --glow: #f3dcff; --line: rgba(60, 40, 110, .1); }
+:root[data-brand][data-shade='7'][data-shade] { --p-bg: #fffdf2; --p-s1: #fff6c9; --p-s2: #ffec9e; --p-s3: #f5d97a; --p-acc: #c08a1e; --p-warm: #ffcfa8;
+  --bg: #fffdf2; --violet: #c08a1e; --cyan: #c08a1e; --accent-soft: #fff6c9; --glow: #ffec9e; --line: rgba(60, 40, 110, .1); }
+:root[data-brand][data-shade='8'][data-shade] { --p-bg: #f2fbfb; --p-s1: #d6f3f1; --p-s2: #b8e9e4; --p-s3: #9fd8e6; --p-acc: #2f8f9d; --p-warm: #ffd9c7;
+  --bg: #f2fbfb; --violet: #2f8f9d; --cyan: #2f8f9d; --accent-soft: #d6f3f1; --glow: #b8e9e4; --line: rgba(60, 40, 110, .1); }
+:root[data-brand][data-shade='9'][data-shade] { --p-bg: #fff6f7; --p-s1: #fde2e6; --p-s2: #f9c9d2; --p-s3: #eab3c6; --p-acc: #c04d74; --p-warm: #ffd8b8;
+  --bg: #fff6f7; --violet: #c04d74; --cyan: #c04d74; --accent-soft: #fde2e6; --glow: #f9c9d2; --line: rgba(60, 40, 110, .1); }
+:root[data-brand][data-shade='10'][data-shade] { --p-bg: #f5f6ff; --p-s1: #e3e6ff; --p-s2: #cdd2ff; --p-s3: #b3b9f5; --p-acc: #5a5fc8; --p-warm: #f7d2ff;
+  --bg: #f5f6ff; --violet: #5a5fc8; --cyan: #5a5fc8; --accent-soft: #e3e6ff; --glow: #cdd2ff; --line: rgba(60, 40, 110, .1); }
+:root[data-brand][data-shade='11'][data-shade] { --p-bg: #fff7f1; --p-s1: #ffe4d3; --p-s2: #ffcdb2; --p-s3: #f7b6a8; --p-acc: #d0634a; --p-warm: #ffe7a8;
+  --bg: #fff7f1; --violet: #d0634a; --cyan: #d0634a; --accent-soft: #ffe4d3; --glow: #ffcdb2; --line: rgba(60, 40, 110, .1); }
+:root[data-brand][data-shade='12'][data-shade] { --p-bg: #f6faf4; --p-s1: #e3efdd; --p-s2: #cfe3c6; --p-s3: #b9d4c4; --p-acc: #5f8a63; --p-warm: #f3dcc2;
+  --bg: #f6faf4; --violet: #5f8a63; --cyan: #5f8a63; --accent-soft: #e3efdd; --glow: #cfe3c6; --line: rgba(60, 40, 110, .1); }
+:root[data-brand][data-shade='13'][data-shade] { --p-bg: #f4faff; --p-s1: #dcefff; --p-s2: #c3e2ff; --p-s3: #a8cff5; --p-acc: #3a7cc4; --p-warm: #ffe0f0;
+  --bg: #f4faff; --violet: #3a7cc4; --cyan: #3a7cc4; --accent-soft: #dcefff; --glow: #c3e2ff; --line: rgba(60, 40, 110, .1); }
+:root[data-brand][data-shade='14'][data-shade] { --p-bg: #f8f7fb; --p-s1: #ebe8f2; --p-s2: #dcd7e8; --p-s3: #c8c0dc; --p-acc: #6f6391; --p-warm: #f4dcd2;
+  --bg: #f8f7fb; --violet: #6f6391; --cyan: #6f6391; --accent-soft: #ebe8f2; --glow: #dcd7e8; --line: rgba(60, 40, 110, .1); }
 :root[data-brand][data-shade] body { background:
   radial-gradient(900px 600px at 105% -5%, var(--p-s3), transparent 60%),
   radial-gradient(800px 600px at -10% 35%, var(--p-s1), transparent 60%),
@@ -620,22 +506,6 @@ a.glass:hover, .issue.glass:hover { transform: translateY(-4px); border-color: r
 :root[data-brand][data-shade] .aurora .o1 { background: conic-gradient(from 0deg, var(--p-s3), var(--p-s2), var(--p-warm), var(--p-s1), var(--p-s3)) !important; opacity: .45; }
 
 /* more pastel shades */
-:root[data-brand][data-shade='7'][data-shade] { --p-bg: #fffdf2; --p-s1: #fff6c9; --p-s2: #ffec9e; --p-s3: #f5d97a; --p-acc: #c08a1e; --p-warm: #ffcfa8;
-  --bg: #fffdf2; --violet: #c08a1e; --cyan: #c08a1e; --accent-soft: #fff6c9; --glow: #ffec9e; --line: rgba(60, 40, 110, .1); }
-:root[data-brand][data-shade='8'][data-shade] { --p-bg: #f2fbfb; --p-s1: #d6f3f1; --p-s2: #b8e9e4; --p-s3: #9fd8e6; --p-acc: #2f8f9d; --p-warm: #ffd9c7;
-  --bg: #f2fbfb; --violet: #2f8f9d; --cyan: #2f8f9d; --accent-soft: #d6f3f1; --glow: #b8e9e4; --line: rgba(60, 40, 110, .1); }
-:root[data-brand][data-shade='9'][data-shade] { --p-bg: #fff6f7; --p-s1: #fde2e6; --p-s2: #f9c9d2; --p-s3: #eab3c6; --p-acc: #c04d74; --p-warm: #ffd8b8;
-  --bg: #fff6f7; --violet: #c04d74; --cyan: #c04d74; --accent-soft: #fde2e6; --glow: #f9c9d2; --line: rgba(60, 40, 110, .1); }
-:root[data-brand][data-shade='10'][data-shade] { --p-bg: #f5f6ff; --p-s1: #e3e6ff; --p-s2: #cdd2ff; --p-s3: #b3b9f5; --p-acc: #5a5fc8; --p-warm: #f7d2ff;
-  --bg: #f5f6ff; --violet: #5a5fc8; --cyan: #5a5fc8; --accent-soft: #e3e6ff; --glow: #cdd2ff; --line: rgba(60, 40, 110, .1); }
-:root[data-brand][data-shade='11'][data-shade] { --p-bg: #fff7f1; --p-s1: #ffe4d3; --p-s2: #ffcdb2; --p-s3: #f7b6a8; --p-acc: #d0634a; --p-warm: #ffe7a8;
-  --bg: #fff7f1; --violet: #d0634a; --cyan: #d0634a; --accent-soft: #ffe4d3; --glow: #ffcdb2; --line: rgba(60, 40, 110, .1); }
-:root[data-brand][data-shade='12'][data-shade] { --p-bg: #f6faf4; --p-s1: #e3efdd; --p-s2: #cfe3c6; --p-s3: #b9d4c4; --p-acc: #5f8a63; --p-warm: #f3dcc2;
-  --bg: #f6faf4; --violet: #5f8a63; --cyan: #5f8a63; --accent-soft: #e3efdd; --glow: #cfe3c6; --line: rgba(60, 40, 110, .1); }
-:root[data-brand][data-shade='13'][data-shade] { --p-bg: #f4faff; --p-s1: #dcefff; --p-s2: #c3e2ff; --p-s3: #a8cff5; --p-acc: #3a7cc4; --p-warm: #ffe0f0;
-  --bg: #f4faff; --violet: #3a7cc4; --cyan: #3a7cc4; --accent-soft: #dcefff; --glow: #c3e2ff; --line: rgba(60, 40, 110, .1); }
-:root[data-brand][data-shade='14'][data-shade] { --p-bg: #f8f7fb; --p-s1: #ebe8f2; --p-s2: #dcd7e8; --p-s3: #c8c0dc; --p-acc: #6f6391; --p-warm: #f4dcd2;
-  --bg: #f8f7fb; --violet: #6f6391; --cyan: #6f6391; --accent-soft: #ebe8f2; --glow: #dcd7e8; --line: rgba(60, 40, 110, .1); }
 
 
 /* 369 ai Fix pastel shades (from its logo: 369 blue, orange arrow, silver ai) */
@@ -658,3 +528,74 @@ a.glass:hover, .issue.glass:hover { transform: translateY(-4px); border-color: r
 :root[data-brand][data-shade^='2'][data-shade] .grad-text, :root[data-brand][data-shade^='2'][data-shade] .vhero .grad-text, :root[data-brand][data-shade^='2'][data-shade] .page-head .grad-text {
   background: linear-gradient(100deg, var(--p-s3), #d7ecff 35%, var(--p-warm) 60%, var(--p-s3)) !important; background-size: 200% 100% !important; -webkit-background-clip: text !important; background-clip: text !important; -webkit-text-fill-color: transparent !important; color: transparent !important; animation: dfFlow 7s linear infinite; }
 
+
+/* ================= Danat Fix brand system (from the logo) =================
+   Tech Blue + Cyan + AI Purple (accent only) + Fix Orange (actions) on a navy/white base.
+   Theme button offers 5 brand themes: Danat Blue (default), Dark, AI, Light, Midnight. */
+:root[data-brand][data-brand='danatfix'] {
+  --d-main: #0757B8; --d-cyan: #18B9E8; --d-purple: #8B2BE2; --d-orange: #FF7A00; --d-orange2: #FF9A3D;
+  --d-bg: #F8FAFC; --d-navbg: #ffffff; --d-navink: #101828;
+  --d-word: linear-gradient(100deg, #18B9E8 0%, #3B8BEB 35%, #8B2BE2 70%, #FF7A00 100%);
+  --bg: var(--d-bg); --ink: #101828; --ink-2: #475467; --ink-3: #667085; --navy: #0B1630;
+  --violet: var(--d-main); --blue: var(--d-cyan); --cyan: var(--d-main); --lime: var(--d-main); --deep: #053F86;
+  --a1: 7, 87, 184; --a2: 24, 185, 232;
+  --accent-soft: #EAF2FD; --glow: #CFE6FB; --on-accent: #ffffff; --media-hue: 170deg;
+  --grad: linear-gradient(120deg, var(--d-main), var(--d-cyan));
+  --line: rgba(16, 24, 40, .1); --tint: rgba(16, 24, 40, .04); --tint-2: rgba(16, 24, 40, .07);
+  --shadow: 0 1px 2px rgba(16, 24, 40, .05), 0 16px 36px -22px rgba(16, 24, 40, .28);
+}
+/* Danat Dark — navy + blue + orange */
+:root[data-brand][data-brand='danatfix'][data-shade='32'][data-shade] { --d-main: #1E5FC8; --d-bg: #EEF2F7; --d-navbg: #0B1630; --d-navink: #ffffff; --accent-soft: #E3EAF5; --ink: #0B1630;
+  --d-word: linear-gradient(100deg, #5AA2FF, #18B9E8 55%, #FF9A3D); }
+/* Danat AI — blue + purple + orange */
+:root[data-brand][data-brand='danatfix'][data-shade='33'][data-shade] { --d-main: #6A2BD9; --d-bg: #F8F7FD; --accent-soft: #F0E9FD; --glow: #E0D2FB; --a1: 106, 43, 217;
+  --grad: linear-gradient(120deg, #0757B8, #8B2BE2); --d-word: linear-gradient(100deg, #3B8BEB, #8B2BE2 55%, #FF7A00); }
+/* Danat Light — white + blue + orange */
+:root[data-brand][data-brand='danatfix'][data-shade='34'][data-shade] { --d-bg: #FFFFFF; --accent-soft: #EEF5FE; --line: rgba(16, 24, 40, .08);
+  --d-word: linear-gradient(100deg, #3B9BF0, #18B9E8); }
+/* Danat Midnight — dark navy + cyan + orange */
+:root[data-brand][data-brand='danatfix'][data-shade='35'][data-shade] { --d-main: #0A8FC2; --d-cyan: #22D3EE; --d-bg: #F1F6FA; --d-navbg: #081224; --d-navink: #E6F6FF; --accent-soft: #E3F4FB; --glow: #C2ECF8; --a1: 10, 143, 194;
+  --grad: linear-gradient(120deg, #0A8FC2, #22D3EE); --d-word: linear-gradient(100deg, #22D3EE, #67E8F9 50%, #FF9A3D); }
+
+/* page: clean soft-white, no colour clouds (beats the generic pastel-shade rules) */
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] body { background: var(--d-bg) !important; }
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .aurora .orb,
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .aurora .o1 { background: var(--glow) !important; opacity: .25 !important; animation: drift 22s ease-in-out infinite alternate !important; }
+/* navbar */
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .nav-inner { background: var(--d-navbg) !important; }
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] nav a:not([aria-current]) { color: var(--d-navink); }
+:root[data-brand='danatfix'][data-shade='32'] nav a:not([aria-current]):hover,
+:root[data-brand='danatfix'][data-shade='35'] nav a:not([aria-current]):hover { color: var(--d-cyan); }
+/* orange = Fix / booking actions only */
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .btn-primary,
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .nav-cta,
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .cta2-btn,
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .cd-go,
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .uc-all {
+  background: linear-gradient(180deg, var(--d-orange2), var(--d-orange)) !important; background-size: auto !important; animation: none !important;
+  color: #fff !important; border-color: transparent !important; box-shadow: 0 14px 28px -14px rgba(255, 122, 0, .75) !important; }
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .btn-primary:hover,
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .nav-cta:hover { filter: brightness(1.05); box-shadow: 0 18px 34px -14px rgba(255, 122, 0, .85) !important; }
+/* WhatsApp Us = white button */
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .vhero .btn-wa { background: #fff !important; color: #101828 !important; box-shadow: 0 12px 26px -16px rgba(0,0,0,.6) !important; }
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .vhero .btn-wa svg { color: #25D366; }
+/* one highlighted phrase carries the Danat gradient */
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .grad-text,
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .vhero .grad-text,
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .hero .grad-text,
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .page-head .grad-text {
+  background: var(--d-word) !important; background-size: 100% 100% !important; animation: none !important;
+  -webkit-background-clip: text !important; background-clip: text !important; -webkit-text-fill-color: transparent !important; color: transparent !important; padding-bottom: .08em; }
+/* small labels, badges and cards: blue / cyan, purple only as a hint */
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .eyebrow { color: var(--d-cyan) !important; }
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .eyebrow::before { background: var(--d-cyan) !important; }
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .uc-badge { background: var(--accent-soft) !important; color: var(--d-main) !important; }
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .uc-cat { background: #fff !important; }
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .uc-cat:hover,
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .uc-card:hover { border-color: var(--d-main) !important; box-shadow: 0 18px 34px -22px rgba(var(--a1), .6) !important; }
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'])[data-brand][data-brand] .bk-hero { background: linear-gradient(120deg, #F5F9FE 0%, var(--accent-soft) 60%, #FFF1E3 100%) !important; }
+/* Danat Dark / Midnight navy bar: logo on a white chip, icons readable */
+:root[data-brand='danatfix']:is([data-shade='32'],[data-shade='35']) .bs-logo { padding: 3px 8px; border-radius: 12px; background: #fff; }
+:root[data-brand='danatfix']:is([data-shade='32'],[data-shade='35']) .nav-search,
+:root[data-brand='danatfix']:is([data-shade='32'],[data-shade='35']) .nav-cart { color: #fff; border-color: rgba(255,255,255,.25); }
+:root[data-brand='danatfix']:is([data-shade='32'],[data-shade='35']) .bs-btn { background: transparent; color: #fff; border-color: rgba(255,255,255,.3); }
