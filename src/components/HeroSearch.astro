@@ -85,24 +85,33 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
   </div>
   <!-- Where is the repair? current location, typed address, or a saved place -->
   <div class="lp-wrap" data-lp-wrap hidden><div class="lp-bg" data-lp-x></div>
-  <div class="lp" data-lp role="dialog" aria-modal="true" aria-label="Choose your location">
-    <div class="lp-head">
-      <div><b>Choose your location</b><small>Repair availability and service options depend on your area</small></div>
-      <button type="button" class="lp-x" data-lp-x aria-label="Close">×</button>
+  <aside class="lp" data-lp role="dialog" aria-modal="true" aria-labelledby="lp-title">
+    <div class="lp-top">
+      <button type="button" class="lp-x" data-lp-x aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <div class="lp-hero" aria-hidden="true"><span class="lp-pin"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5.3 7 13 7 13s7-7.7 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg></span><i></i><i></i><i></i></div>
+      <h3 id="lp-title">Choose your location</h3>
+      <p>Select where you need the repair to see doorstep and pickup options.</p>
     </div>
     <form class="lp-search" data-lp-form>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-      <input data-lp-q placeholder="Search area, street or landmark" autocomplete="off" aria-label="Search area, street or landmark" />
-      <button type="submit" class="lp-go" aria-label="Check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      <input data-lp-q placeholder="Area, street or landmark" autocomplete="off" aria-label="Search for area, street name or landmark" />
+      <button type="submit" class="lp-go">Check</button>
     </form>
     <ul class="lp-list" data-lp-list hidden></ul>
-    <button type="button" class="lp-row lp-cur" data-lp-current>
-      <span class="lp-ri"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7"/></svg></span>
-      <span class="lp-rt"><b>Use my current location</b><small>Detect automatically</small></span>
+    <button type="button" class="lp-gps" data-lp-current>
+      <span class="lp-gi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7"/></svg></span>
+      <span class="lp-rt"><b>Get current location</b><small>Using GPS or your internet connection</small></span>
       <svg class="lp-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
     </button>
     <div class="lp-saved" data-lp-saved></div>
-  </div></div>  <div class="hs-result" data-hs-result aria-live="polite" hidden></div>
+    <div class="lp-recent" data-lp-recent></div>
+    <div class="lp-pop">
+      <small class="lp-sec">Popular areas</small>
+      <div class="lp-pills">{['Ruwi', 'Qurum', 'Al Khuwair', 'Seeb', 'Al Mawaleh', 'Sohar', 'Barka', 'Salalah'].map((a) => <button type="button" data-place={a}>{a}</button>)}</div>
+    </div>
+    <p class="lp-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>We serve Muscat, Al Batinah and Dhofar from our Ruwi, Sohar and Salalah branches.</p>
+  </aside></div>
+  <div class="hs-result" data-hs-result aria-live="polite" hidden></div>
 
   <div class="hs-popular">
     <span>Popular:</span>
@@ -320,14 +329,23 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     };
     const lpWrap = root.querySelector<HTMLElement>('[data-lp-wrap]')!;
     document.body.append(lpWrap); // modal lives at page level (works from the header on any scroll position)
-    const openPanel = () => { renderSaved(); lpWrap.hidden = false; requestAnimationFrame(() => lpWrap.classList.add('in')); document.documentElement.style.overflow = 'hidden'; lpQ.value = ''; lpList.hidden = true; setTimeout(() => lpQ.focus(), 80); };
+    const openPanel = () => { renderSaved(); renderRecent(); lpWrap.hidden = false; requestAnimationFrame(() => lpWrap.classList.add('in')); document.documentElement.style.overflow = 'hidden'; lpQ.value = ''; lpList.hidden = true; setTimeout(() => lpQ.focus(), 80); };
     const closePanel = () => { lpWrap.classList.remove('in'); document.documentElement.style.overflow = ''; setTimeout(() => (lpWrap.hidden = true), 220); };
     (window as any).__openLocation = openPanel;
     if (location.hash === '#check-location') setTimeout(openPanel, 300);
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !lpWrap.hidden) closePanel(); });
     const areas = Object.keys(geo.areaGeo);
     const matches = (q: string) => { const n = norm(q); return n ? areas.filter((a) => norm(a).includes(n)).sort((a, b) => (norm(a).startsWith(n) ? 0 : 1) - (norm(b).startsWith(n) ? 0 : 1)).slice(0, 6) : []; };
-    const checkPlace = (name: string, at: [number, number]) => { lastPlace = name; closePanel(); showFor(at, 'typed'); };
+    const RECENT = 'recent-places';
+    const recent = (): { name: string; at: [number, number] }[] => { try { const v = JSON.parse(localStorage.getItem(RECENT) || '[]'); return Array.isArray(v) ? v : []; } catch { return []; } };
+    const renderRecent = () => {
+      const r = recent();
+      lp.querySelector('[data-lp-recent]')!.innerHTML = r.length ? `<small class="lp-sec">Recent searches</small>` + r.map((v, i) => `<button type="button" class="lp-rec" data-place-recent="${i}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>${esc(v.name)}</button>`).join('') : '';
+    };
+    const checkPlace = (name: string, at: [number, number]) => {
+      lastPlace = name; closePanel(); showFor(at, 'typed');
+      try { localStorage.setItem(RECENT, JSON.stringify([{ name, at }, ...recent().filter((v) => v.name !== name)].slice(0, 4))); } catch {}
+    };
     lpQ.addEventListener('input', () => {
       const m = matches(lpQ.value);
       lpList.innerHTML = m.map((a) => `<li><button type="button" data-place="${esc(a)}">${svg('pin')}<span><b>${esc(a)}</b><small>${geo.doorstep.includes(a) ? 'Doorstep & pickup' : 'Pickup'} area</small></span></button></li>`).join('');
@@ -342,7 +360,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       try {
         const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q)}`, { signal: AbortSignal.timeout(6000), headers: { 'accept-language': 'en' } });
         const j = await r.json();
-        if (j?.[0]) { lastPlace = q; showFor([Number(j[0].lat), Number(j[0].lon)], 'typed'); return; }
+        if (j?.[0]) { const at: [number, number] = [Number(j[0].lat), Number(j[0].lon)]; lastPlace = q; showFor(at, 'typed'); try { localStorage.setItem(RECENT, JSON.stringify([{ name: q, at }, ...recent().filter((v) => v.name !== q)].slice(0, 4))); } catch {} return; }
       } catch {}
       show(`<b>We couldn't find “${esc(q)}”</b><span>Try the area or town name, or <button type="button" class="hs-exact" data-lp-open>search again</button>.</span>`, 'warn');
     });
@@ -352,6 +370,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       if (t.closest('[data-lp-current]')) { closePanel(); runCurrent(); }
       const p = t.closest<HTMLElement>('[data-place]'); if (p) checkPlace(p.dataset.place!, geo.areaGeo[p.dataset.place!]);
       const s = t.closest<HTMLElement>('[data-place-saved]'); if (s) { const v = saved()[Number(s.dataset.placeSaved)]; if (v) checkPlace(v.name, v.at); }
+      const rc = t.closest<HTMLElement>('[data-place-recent]'); if (rc) { const v = recent()[Number(rc.dataset.placeRecent)]; if (v) checkPlace(v.name, v.at); }
       const d = t.closest<HTMLElement>('[data-place-del]'); if (d) { const all = saved(); all.splice(Number(d.dataset.placeDel), 1); putSaved(all); renderSaved(); }
     });
     locBtn.addEventListener('click', openPanel);
@@ -503,13 +522,16 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
   .hs-act.busy .hs-ai svg { animation: hsPulse .9s ease-in-out infinite; }
   @keyframes hsPulse { 50% { transform: translateY(-3px); } }
 
-  .lp-wrap { position: fixed; inset: 0; z-index: 93; display: grid; place-items: center; padding: 16px; }
+  /* Location drawer — left side panel on desktop (like Swiggy), bottom sheet on phones */
+  .lp-wrap { position: fixed; inset: 0; z-index: 93; }
   .lp-wrap[hidden] { display: none; }
-  .lp-bg { position: absolute; inset: 0; background: rgba(16, 24, 40, .38); backdrop-filter: blur(6px); opacity: 0; transition: opacity .22s; }
+  .lp-bg { position: absolute; inset: 0; background: rgba(16, 24, 40, .42); opacity: 0; transition: opacity .25s; }
   .lp-wrap.in .lp-bg { opacity: 1; }
-  .lp-wrap .lp { width: min(480px, 100%); max-height: calc(100vh - 32px); overflow: auto; transform: translateY(14px) scale(.98); opacity: 0; transition: transform .25s cubic-bezier(.2,.8,.2,1), opacity .22s; animation: none; }
-  .lp-wrap.in .lp { transform: none; opacity: 1; }
-  .hs-result :global(.lr-lines) { list-style: none; margin: 0; padding: 4px 0; display: grid; gap: 8px; }
+  .lp-wrap .lp { position: absolute; left: 0; top: 0; bottom: 0; width: min(440px, 100%); max-height: none; overflow-y: auto; border-radius: 0 24px 24px 0; padding: 0 22px 24px; gap: 14px; transform: translateX(-100%); opacity: 1; transition: transform .32s cubic-bezier(.2,.8,.2,1); animation: none; box-shadow: 30px 0 60px -30px rgba(0,0,0,.45); border: 0; }
+  .lp-wrap.in .lp { transform: none; }
+  @media (max-width: 640px) {
+    .lp-wrap .lp { top: auto; width: 100%; max-height: 88vh; border-radius: 24px 24px 0 0; transform: translateY(100%); }
+  }  .hs-result :global(.lr-lines) { list-style: none; margin: 0; padding: 4px 0; display: grid; gap: 8px; }
   .hs-result :global(.lr-lines li) { display: flex; gap: 10px; align-items: start; }
   .hs-result :global(.lr-lines i) { flex: none; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; font-style: normal; font-size: 12px; font-weight: 900; }
   .hs-result :global(.lr-lines li.y i) { background: #DCFCE7; color: #15803D; }
@@ -517,54 +539,66 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
   .hs-result :global(.lr-lines b) { display: block; color: var(--ink); font-size: 14px; }
   .hs-result :global(.lr-lines li.n b) { color: var(--ink-3); font-weight: 600; }
   .hs-result :global(.lr-lines small) { color: var(--ink-3); font-size: 12.5px; }
-  .lp { position: relative; display: grid; gap: 12px; padding: 18px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 28px 60px -30px rgba(0,0,0,.6); color: var(--ink-2); font-size: 14px; animation: hsIn .3s cubic-bezier(.2,.8,.2,1); }
-  .lp[hidden] { display: none; }
-  .lp-head { display: flex; align-items: start; justify-content: space-between; gap: 12px; }
-  .lp-head b { display: block; font-size: 17px; color: var(--ink); }
-  .lp-head small { color: var(--ink-3); font-size: 13px; }
-  .lp-x { flex: none; width: 32px; height: 32px; border: 0; border-radius: 50%; background: var(--tint-2); font-size: 18px; line-height: 1; color: var(--ink-2); cursor: pointer; }
-  .lp-x:hover { background: var(--line); }
-  .lp-search { display: flex; align-items: center; gap: 10px; height: 52px; padding: 0 6px 0 16px; border-radius: 14px; background: var(--tint); border: 1.5px solid transparent; transition: border-color .2s, background .2s; }
-  .lp-search:focus-within { background: var(--surface); border-color: var(--violet); box-shadow: 0 0 0 4px var(--accent-soft); }
+  .lp { position: relative; display: grid; align-content: start; background: var(--surface); color: var(--ink-2); font-size: 14px; }
+  .lp-top { position: relative; margin: 0 -22px; padding: 20px 22px 18px; background: radial-gradient(260px 160px at 85% 30%, color-mix(in srgb, var(--violet) 18%, transparent), transparent 70%), linear-gradient(160deg, var(--accent-soft), var(--surface)); border-bottom: 1px solid var(--line); }
+  .lp-x { position: absolute; top: 14px; right: 14px; display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 50%; background: var(--surface); box-shadow: 0 4px 12px -6px rgba(0,0,0,.3); color: var(--ink); cursor: pointer; }
+  .lp-x svg { width: 16px; height: 16px; }
+  .lp-hero { position: relative; display: grid; place-items: center; width: 64px; height: 64px; margin-bottom: 12px; }
+  .lp-hero i { position: absolute; inset: 0; border-radius: 50%; border: 2px solid color-mix(in srgb, var(--violet) 35%, transparent); animation: lpRing 2.4s ease-out infinite; }
+  .lp-hero i:nth-child(3) { animation-delay: .8s; } .lp-hero i:nth-child(4) { animation-delay: 1.6s; }
+  @keyframes lpRing { from { transform: scale(.45); opacity: 1; } to { transform: scale(1.25); opacity: 0; } }
+  .lp-pin { position: relative; z-index: 1; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--violet); color: #fff; box-shadow: 0 10px 20px -8px var(--violet); animation: lpBob 2.4s ease-in-out infinite; }
+  .lp-pin svg { width: 24px; height: 24px; }
+  @keyframes lpBob { 50% { transform: translateY(-4px); } }
+  .lp-top h3 { font-size: 22px; color: var(--ink); letter-spacing: -.01em; }
+  .lp-top p { margin-top: 4px; color: var(--ink-3); font-size: 13.5px; line-height: 1.5; padding-right: 30px; }
+  .lp-search { display: flex; align-items: center; gap: 10px; height: 54px; padding: 0 6px 0 16px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); transition: border-color .2s, box-shadow .2s; }
+  .lp-search:focus-within { border-color: var(--violet); box-shadow: 0 0 0 4px var(--accent-soft); }
   .lp-search > svg { width: 19px; height: 19px; color: var(--ink-3); flex: none; }
   .lp-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font: inherit; font-size: 15px; color: var(--ink); }
-  .lp-go { display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 11px; background: var(--violet); color: var(--on-accent); cursor: pointer; }
-  .lp-go svg { width: 18px; height: 18px; }
-  .lp-list { list-style: none; margin: -4px 0 0; padding: 4px; display: grid; gap: 2px; border: 1px solid var(--line); border-radius: 14px; }
+  .lp-go { height: 40px; padding: 0 16px; border: 0; border-radius: 11px; background: var(--violet); color: var(--on-accent); font: inherit; font-weight: 700; cursor: pointer; }
+  .lp-list { list-style: none; margin: -6px 0 0; padding: 4px; display: grid; gap: 2px; border: 1px solid var(--line); border-radius: 14px; }
   .lp-list[hidden] { display: none; }
   .lp-list :global(button) { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; border: 0; border-radius: 10px; background: none; text-align: left; font: inherit; cursor: pointer; }
   .lp-list :global(button:hover) { background: var(--accent-soft); }
   .lp-list :global(svg) { width: 16px; height: 16px; color: var(--violet); flex: none; }
   .lp-list :global(b) { display: block; color: var(--ink); }
   .lp-list :global(small) { color: var(--ink-3); font-size: 12px; }
-  .lp-row, .lp-saved :global(.lp-row) { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 6px; border: 0; border-top: 1px solid var(--line); background: none; text-align: left; font: inherit; cursor: pointer; }
-  .lp-cur { border-top: 0; padding-top: 4px; }
-  .lp-ri, .lp-saved :global(.lp-ri) { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--accent-soft); color: var(--violet); }
-  .lp-ri svg, .lp-saved :global(.lp-ri svg) { width: 19px; height: 19px; }
-  .lp-rt, .lp-saved :global(.lp-rt) { flex: 1; min-width: 0; }
-  .lp-rt b, .lp-saved :global(.lp-rt b) { display: block; color: var(--violet); font-size: 15px; }
-  .lp-saved :global(.lp-rt b) { color: var(--ink); }
-  .lp-rt small, .lp-saved :global(.lp-rt small) { display: block; color: var(--ink-3); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lp-gps { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); text-align: left; font: inherit; cursor: pointer; transition: border-color .2s, box-shadow .2s; }
+  .lp-gps:hover { border-color: var(--violet); box-shadow: 0 10px 22px -16px var(--violet); }
+  .lp-gi { flex: none; display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: #FFF1E3; color: #FF7A00; }
+  .lp-gi svg { width: 21px; height: 21px; animation: lpSpin 6s linear infinite; }
+  @keyframes lpSpin { to { transform: rotate(360deg); } }
+  .lp-rt { flex: 1; min-width: 0; }
+  .lp-gps b { display: block; color: #E26A00; font-size: 15px; }
+  .lp-gps small { color: var(--ink-3); font-size: 12.5px; }
   .lp-chev { width: 18px; height: 18px; color: var(--ink-3); transition: transform .2s; }
-  .lp-row:hover .lp-chev { transform: translateX(3px); color: var(--violet); }
-  .lp-saved { display: grid; }
-  .lp-saved :global(.lp-sec) { padding: 8px 6px 4px; border-top: 1px solid var(--line); font-size: 11.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
-  .lp-saved :global(.lp-sv) { padding: 4px 0; cursor: default; }
-  .lp-saved :global(.lp-sec + .lp-sv) { border-top: 0; }
-  .lp-saved :global(.lp-sv-go) { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; padding: 6px; border: 0; border-radius: 12px; background: none; text-align: left; font: inherit; cursor: pointer; }
+  .lp-gps:hover .lp-chev { transform: translateX(3px); }
+  .lp :global(.lp-sec) { display: block; margin: 4px 0 8px; font-size: 11.5px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+  .lp-saved, .lp-recent { display: grid; }
+  .lp-saved:empty, .lp-recent:empty { display: none; }
+  .lp-saved :global(.lp-sv) { display: flex; align-items: center; gap: 6px; padding: 2px 0; border-bottom: 1px solid var(--line); }
+  .lp-saved :global(.lp-sv:last-child) { border-bottom: 0; }
+  .lp-saved :global(.lp-sv-go) { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; padding: 10px 6px; border: 0; border-radius: 12px; background: none; text-align: left; font: inherit; cursor: pointer; }
   .lp-saved :global(.lp-sv-go:hover) { background: var(--tint); }
+  .lp-saved :global(.lp-ri) { flex: none; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; background: var(--accent-soft); color: var(--violet); }
+  .lp-saved :global(.lp-ri svg) { width: 18px; height: 18px; }
+  .lp-saved :global(.lp-rt b) { display: block; color: var(--ink); font-size: 14.5px; }
+  .lp-saved :global(.lp-rt small) { display: block; color: var(--ink-3); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .lp-saved :global(.lp-del) { flex: none; width: 28px; height: 28px; border: 0; border-radius: 50%; background: none; color: var(--ink-3); font-size: 16px; cursor: pointer; }
   .lp-saved :global(.lp-del:hover) { background: #FEE4E2; color: #B42318; }
-  .lp-saved :global(.lp-tip) { display: flex; align-items: center; gap: 8px; margin: 0; padding: 12px 6px 2px; border-top: 1px solid var(--line); color: var(--ink-3); font-size: 12.5px; }
+  .lp-saved :global(.lp-tip) { display: flex; align-items: center; gap: 8px; margin: 0; padding: 10px 12px; border-radius: 12px; background: var(--tint); color: var(--ink-3); font-size: 12.5px; }
   .lp-saved :global(.lp-tip svg) { width: 15px; height: 15px; flex: none; }
-  .hs-result :global(.lr-save button svg) { width: 14px; height: 14px; }
-  .hs-result :global(.lr-save button) { display: inline-flex; align-items: center; gap: 5px; }
-  .hs-result :global(.lr-other-name) { display: inline-flex; gap: 6px; }
-  .hs-result :global(.lr-other-name[hidden]) { display: none; }
-  .hs-result :global(.lr-other-name input) { width: 150px; height: 32px; padding: 0 10px; border: 1px solid var(--violet); border-radius: 999px; font: inherit; font-size: 13px; outline: 0; }
-  .hs-result :global(.lr-other-name [data-save-ok]) { background: var(--violet) !important; border-color: var(--violet) !important; color: var(--on-accent) !important; }
-  .hs-result :global(.lr-saved-ok) { display: inline-flex; align-items: center; gap: 6px; color: #15803D !important; font-size: 13px !important; }
-  .hs-result :global(.lr-saved-ok svg) { width: 15px; height: 15px; }  .hs-result :global(.lr-save) { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .lp-recent :global(.lp-rec) { display: flex; align-items: center; gap: 10px; padding: 9px 6px; border: 0; border-bottom: 1px solid var(--line); background: none; text-align: left; font: inherit; color: var(--ink); cursor: pointer; }
+  .lp-recent :global(.lp-rec:last-child) { border-bottom: 0; }
+  .lp-recent :global(.lp-rec:hover) { color: var(--violet); }
+  .lp-recent :global(.lp-rec svg) { width: 16px; height: 16px; color: var(--ink-3); }
+  .lp-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .lp-pills button { padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font: inherit; font-size: 13px; font-weight: 600; color: var(--ink-2); cursor: pointer; transition: all .2s; }
+  .lp-pills button:hover { border-color: var(--violet); color: var(--violet); background: var(--accent-soft); transform: translateY(-1px); }
+  .lp-note { display: flex; align-items: center; gap: 8px; margin: 4px 0 0; padding: 12px 14px; border-radius: 14px; background: #ECFDF3; color: #067647; font-size: 12.5px; line-height: 1.45; }
+  .lp-note svg { width: 18px; height: 18px; flex: none; }
+  @media (prefers-reduced-motion: reduce) { .lp-hero i, .lp-pin, .lp-gi svg { animation: none; } }  .hs-result :global(.lr-save) { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
   .hs-result :global(.lr-save small) { margin-right: 4px; color: var(--ink-3); font-size: 12px; font-weight: 700; }
   .hs-result :global(.lr-save button) { padding: 6px 11px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font: inherit; font-size: 12.5px; font-weight: 700; color: var(--ink-2); cursor: pointer; }
   .hs-result :global(.lr-save button:hover) { border-color: var(--violet); color: var(--violet); }
