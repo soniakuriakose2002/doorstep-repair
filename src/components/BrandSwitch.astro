@@ -89,8 +89,11 @@ export const brands = [
     .bs-logo .logo-369 { height: 80px; width: auto; max-width: none; flex: none; margin: 0; }
     .bs-logo .logo-369[data-for='369'] { height: 62px; } /* wider mark: smaller so it matches Danat's visual size */
     .bs-menu { left: 0; }
+    /* after scrolling, the sticky header sits over the dark hero — tuck the logo inside the white bar */
+    :global(.nav.scrolled) .bs { position: relative; right: auto; top: auto; bottom: auto; padding: 0; }
+    :global(.nav.scrolled) .bs-logo .logo-369 { height: 52px; margin-block: -4px; }
+    :global(.nav.scrolled) .bs-logo .logo-369[data-for='369'] { height: 44px; }
   }
-  /* wide screens: logo stands on its own in the empty space left of the header bar */
 
   :global(:root[data-brand='danatfix']) .bs-logo [data-for='danatfix'],
   :global(:root[data-brand='369']) .bs-logo [data-for='369'],
