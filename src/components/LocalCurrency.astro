@@ -11,24 +11,20 @@ const base = site.currency.trim();
 
 <script is:inline define:vars={{ base }}>
 (() => {
-  const KEY = 'fx-v2', TTL = 600e3; // reuse the answer for 10 minutes in this tab
-  try { localStorage.removeItem('fx-v1'); } catch {} // old browser-side cache
+  // No browser-side copy: the server already caches countries and rates, so asking on each
+  // page load is ~2 ms and an admin change shows on the very next reload.
+  try { localStorage.removeItem('fx-v1'); sessionStorage.removeItem('fx-v2'); } catch {} // old browser-side caches
 
   const valid = (fx) => fx && /^[A-Z]{3}$/.test(fx.currency) && typeof fx.rate === 'number' && isFinite(fx.rate) && fx.rate > 0
     && fx.format && typeof fx.format.decimals === 'number';
 
   async function load() {
     const test = new URLSearchParams(location.search).get('country'); // only honoured by the server in dev/test mode
-    if (!test) {
-      try { const c = JSON.parse(sessionStorage.getItem(KEY) || 'null'); if (c && Date.now() - c.t < TTL && valid(c.fx)) return c.fx; } catch {}
-    }
     try {
       const r = await fetch('/api/currency' + (test ? `?country=${encodeURIComponent(test)}` : ''), { headers: { accept: 'application/json' }, cache: 'no-store' });
       if (!r.ok) return null;
       const fx = await r.json();
-      if (!valid(fx)) return null;
-      if (!test) { try { sessionStorage.setItem(KEY, JSON.stringify({ t: Date.now(), fx })); } catch {} }
-      return fx;
+      return valid(fx) ? fx : null;
     } catch { return null; }
   }
 

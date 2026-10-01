@@ -43,7 +43,7 @@ export const GET: APIRoute = async ({ request, clientAddress }) => {
     {
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        // the page keeps its own 10-minute copy; the browser must not hold an older answer
+        // always fresh: an admin change must show on the next page load (server caches keep this fast)
         'cache-control': 'no-store',
         vary: 'x-test-country',
       },
