@@ -1,6 +1,6 @@
 ---
-// Hero actions: "What are you looking for?" search, Find my location (browser
-// geolocation → nearest covered area + branch, computed on the device), and
+// Hero actions: "What are you looking for?" search, Find my location (IP address,
+// optional exact GPS → nearest covered area + branch, computed on the device), and
 // Track your repair (sends the reference to Danat on WhatsApp — there is no
 // booking system yet, so no status is shown that we cannot know).
 import { site } from '../data/site';
@@ -192,7 +192,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       else if (e.key === 'Escape') box.hidden = true;
     });
     document.addEventListener('click', (e) => { if (!root.contains(e.target as Node)) box.hidden = true; });
-    // ---- Find my location (computed on the device; nothing is sent to us) ----
+    // ---- Find my location (IP address → nearest covered area + branch) ----
     const km = (a: [number, number], b: [number, number]) => {
       const R = 6371, r = Math.PI / 180;
       const dLa = (b[0] - a[0]) * r, dLo = (b[1] - a[1]) * r;
@@ -201,37 +201,59 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     };
     const show = (html: string, cls: string) => { result.hidden = false; result.className = `hs-result ${cls}`; result.innerHTML = html; };
     const locBtn = root.querySelector<HTMLButtonElement>('[data-hs-locate]')!;
-    locBtn.addEventListener('click', () => {
-      if (!navigator.geolocation) { show('<b>Your browser can\'t share location</b><span>Search for your service above, or message us on WhatsApp.</span>', 'warn'); return; }
+    // Manager's brief: find the visitor from their IP address (no browser permission pop-up).
+    // IP lookups are city-level, so "covered" uses a wider radius than an exact GPS fix.
+    const ipLookup = async (): Promise<{ at: [number, number]; city: string; country: string; cc: string } | null> => {
+      const tries: [string, (j: any) => any][] = [
+        ['https://ipapi.co/json/', (j) => j.latitude != null && { at: [j.latitude, j.longitude], city: j.city || j.region || '', country: j.country_name || '', cc: j.country_code || '' }],
+        ['https://ipwho.is/', (j) => j.success !== false && j.latitude != null && { at: [j.latitude, j.longitude], city: j.city || j.region || '', country: j.country || '', cc: j.country_code || '' }],
+      ];
+      for (const [url, pick] of tries) {
+        try {
+          const j = await Promise.race([fetch(url).then((r) => r.json()), new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 5000))]);
+          const v = pick(j); if (v) return v;
+        } catch {}
+      }
+      return null;
+    };
+    let lastIp: { city: string; country: string } | null = null;
+    locBtn.addEventListener('click', async () => {
       locBtn.classList.add('busy');
-      show('<span class="spin"></span> Finding your location…', 'wait');
-      navigator.geolocation.getCurrentPosition((pos) => {
-        locBtn.classList.remove('busy');
-        const me: [number, number] = [pos.coords.latitude, pos.coords.longitude];
-        showFor(me);
-      }, (err) => {
-        locBtn.classList.remove('busy');
-        const why = err.code === 1 ? 'Location is blocked for this site (click the 🔒 / location icon in the address bar to allow it).' : err.code === 3 ? 'Finding your location took too long.' : 'Your device couldn\'t find its location (on Windows, turn on Settings › Privacy › Location).';
-        show(`<b>We couldn't get your location</b><span>${why}</span>`, 'warn');
-      }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 });
+      show('<span class="spin"></span> Finding your location from your internet connection…', 'wait');
+      const ip = await ipLookup();
+      locBtn.classList.remove('busy');
+      if (!ip) { show('<b>We couldn\'t detect your location</b><span>Your connection didn\'t share a location. <button type="button" class="hs-exact" data-hs-exact>Use exact location instead</button></span>', 'warn'); return; }
+      lastIp = ip;
+      showFor(ip.at, 'ip');
+    });
+    // Optional precise check with the device's GPS (asks the browser for permission)
+    result.addEventListener('click', (ev) => {
+      if (!(ev.target as HTMLElement).closest('[data-hs-exact]')) return;
+      if (!navigator.geolocation) { show('<b>Your browser can\'t share exact location</b><span>Message us on WhatsApp and we\'ll confirm.</span>', 'warn'); return; }
+      show('<span class="spin"></span> Getting your exact location…', 'wait');
+      navigator.geolocation.getCurrentPosition((pos) => showFor([pos.coords.latitude, pos.coords.longitude], 'gps'), (err) => {
+        const why = err.code === 1 ? 'Location is blocked for this site (click the location icon in the address bar to allow it).' : 'Your device couldn\'t find its location.';
+        show(`<b>We couldn't get your exact location</b><span>${why}</span>`, 'warn');
+      }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
     });
 
-    const showFor = (me: [number, number]) => {
+    const showFor = (me: [number, number], how: 'ip' | 'gps') => {
         const near = Object.entries(geo.areaGeo).map(([n, at]) => ({ n, d: km(me, at) })).sort((a, b) => a.d - b.d)[0];
         const br = geo.branchGeo.map((b) => ({ ...b, d: km(me, b.at) })).sort((a, b) => a.d - b.d)[0];
-        const covered = near.d <= 12;
+        const where = how === 'ip' && lastIp ? `${esc([lastIp.city, lastIp.country].filter(Boolean).join(', '))}` : '';
+        const src = how === 'ip' ? `<small class="hs-src">Detected from your IP address${where ? ` · ${where}` : ''} · <button type="button" class="hs-exact" data-hs-exact>Use exact location</button></small>` : '<small class="hs-src">Using your exact location</small>';
+        const covered = near.d <= (how === 'ip' ? 40 : 12);
         if (covered) {
           area = near.n;
           try { localStorage.setItem('area', area); } catch {}
           linkify();
           const modes = [geo.doorstep.includes(near.n) && 'Doorstep', geo.pickup.includes(near.n) && 'Pickup'].filter(Boolean).join(' & ');
-          show(`<b>📍 You're near ${esc(near.n)}</b><span>✓ We cover your area — ${modes} available. Nearest branch: ${esc(br.name)} (${Math.round(br.d)} km).</span><a href="${withArea('/services#catalog')}">Book a repair here →</a>`, 'ok');
+          show(`<b>📍 You're ${how === 'ip' ? 'around' : 'near'} ${esc(near.n)}</b><span>✓ We cover your area — ${modes} available. Nearest branch: ${esc(br.name)} (${Math.round(br.d)} km).</span><a href="${withArea('/services#catalog')}">Book a repair here →</a>${src}`, 'ok');
         } else {
           const outside = br.d > 400;
-          show(`<b>📍 ${outside ? `You seem to be outside ${'Oman'}` : `Nearest branch: ${esc(br.name)}`} — ${Math.round(br.d).toLocaleString()} km from ${outside ? 'our nearest branch (' + esc(br.name) + ')' : 'you'}</b><span>${outside ? 'We repair across Oman only (Muscat, Al Batinah and Dhofar). Message us and we\'ll help.' : 'Your exact spot isn\'t on our coverage list yet. Message us and we\'ll confirm if we can reach you.'}</span><a href="https://wa.me/${tel}?text=${encodeURIComponent(`Hi Danat Fix, do you cover my location? https://maps.google.com/?q=${me[0].toFixed(5)},${me[1].toFixed(5)}`)}" target="_blank" rel="noopener">Ask on WhatsApp →</a>`, 'warn');
+          show(`<b>📍 ${outside ? `You seem to be outside Oman${where ? ` (${where})` : ''}` : `Nearest branch: ${esc(br.name)}`} — ${Math.round(br.d).toLocaleString()} km from ${outside ? 'our nearest branch (' + esc(br.name) + ')' : 'you'}</b><span>${outside ? 'We repair across Oman only (Muscat, Al Batinah and Dhofar). Message us and we\'ll help.' : 'Your exact spot isn\'t on our coverage list yet. Message us and we\'ll confirm if we can reach you.'}</span><a href="https://wa.me/${tel}?text=${encodeURIComponent(`Hi Danat Fix, do you cover my location? https://maps.google.com/?q=${me[0].toFixed(5)},${me[1].toFixed(5)}`)}" target="_blank" rel="noopener">Ask on WhatsApp →</a>${src}`, 'warn');
           }
     };
-
     // ---- Track your repair ----
     const tr = document.querySelector<HTMLElement>('[data-tr]')!;
     const openTr = () => { tr.hidden = false; requestAnimationFrame(() => tr.classList.add('in')); tr.querySelector<HTMLInputElement>('input:not([hidden] input)')?.focus(); };
@@ -291,6 +313,8 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
   .hs-act.busy .hs-ai svg { animation: hsPulse .9s ease-in-out infinite; }
   @keyframes hsPulse { 50% { transform: translateY(-3px); } }
 
+  .hs-result :global(.hs-src) { display: block; margin-top: 8px; font-size: 12px; color: var(--ink-3); }
+  .hs-result :global(.hs-exact) { padding: 0; border: 0; background: none; font: inherit; font-weight: 700; color: var(--violet); text-decoration: underline; cursor: pointer; }
   .hs-result { display: grid; gap: 4px; padding: 14px 16px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); font-size: 14px; color: var(--ink-2); animation: hsIn .3s ease; }
   .hs-result[hidden] { display: none; }
   @keyframes hsIn { from { opacity: 0; transform: translateY(6px); } }
