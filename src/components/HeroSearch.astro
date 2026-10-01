@@ -76,7 +76,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
   <div class="hs-actions">
     <button type="button" class="hs-act" data-hs-locate>
       <span class="hs-ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.6"/></svg></span>
-      <span><b>Check location</b><small>Yours or a family member's</small></span>
+      <span><b>Check location</b><small>See if we cover an address</small></span>
     </button>
     <button type="button" class="hs-act" data-hs-track>
       <span class="hs-ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="17.5" cy="18" r="2"/></svg></span>
@@ -85,21 +85,23 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
   </div>
   <!-- Where is the repair? current location, typed address, or a saved place -->
   <div class="lp" data-lp hidden>
-    <div class="lp-head"><b>Where do you need the repair?</b><button type="button" class="lp-x" data-lp-x aria-label="Close">×</button></div>
-    <button type="button" class="lp-cur" data-lp-current>
-      <span class="lp-ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7"/></svg></span>
-      <span><b>Use my current location</b><small>Detect where I am right now</small></span>
-    </button>
-    <div class="lp-or"><span>or check another address</span></div>
+    <div class="lp-head">
+      <div><b>Select a location</b><small>Where should our technician come?</small></div>
+      <button type="button" class="lp-x" data-lp-x aria-label="Close">×</button>
+    </div>
     <form class="lp-search" data-lp-form>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-      <input data-lp-q placeholder="Area, landmark or city — e.g. Al Khuwair" autocomplete="off" aria-label="Area, landmark or city" />
-      <button type="submit" class="lp-go">Check</button>
+      <input data-lp-q placeholder="Search area, street or landmark" autocomplete="off" aria-label="Search area, street or landmark" />
+      <button type="submit" class="lp-go" aria-label="Check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
     </form>
     <ul class="lp-list" data-lp-list hidden></ul>
+    <button type="button" class="lp-row lp-cur" data-lp-current>
+      <span class="lp-ri"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7"/></svg></span>
+      <span class="lp-rt"><b>Use my current location</b><small>Detect automatically</small></span>
+      <svg class="lp-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+    </button>
     <div class="lp-saved" data-lp-saved></div>
-  </div>
-  <div class="hs-result" data-hs-result aria-live="polite" hidden></div>
+  </div>  <div class="hs-result" data-hs-result aria-live="polite" hidden></div>
 
   <div class="hs-popular">
     <span>Popular:</span>
@@ -298,13 +300,21 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     const lpQ = lp.querySelector<HTMLInputElement>('[data-lp-q]')!;
     const lpList = lp.querySelector<HTMLElement>('[data-lp-list]')!;
     const SAVE_KEY = 'saved-places';
-    const LABELS: [string, string][] = [['Home', '🏠'], ["Parents' house", '👪'], ['Work', '💼']];
-    const saved = (): Record<string, { name: string; at: [number, number] }> => { try { return JSON.parse(localStorage.getItem(SAVE_KEY) || '{}'); } catch { return {}; } };
+    const LABELS: [string, string][] = [['Home', 'home'], ['Work', 'work'], ['Other', 'pin']];
+    type Saved = { label: string; kind: string; name: string; at: [number, number] };
+    const saved = (): Saved[] => { try { const v = JSON.parse(localStorage.getItem(SAVE_KEY) || '[]'); return Array.isArray(v) ? v : []; } catch { return []; } };
+    const putSaved = (v: Saved[]) => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(v.slice(0, 8))); } catch {} };
+    const ICON: Record<string, string> = {
+      home: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+      work: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/>',
+      pin: '<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+    };
+    const ico = (k: string) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k] ?? ICON.pin}</svg>`;
     const renderSaved = () => {
-      const s = saved(); const keys = LABELS.filter(([l]) => s[l]);
-      lp.querySelector('[data-lp-saved]')!.innerHTML = keys.length
-        ? `<small>Saved places</small>` + keys.map(([l, ic]) => `<button type="button" class="lp-chip" data-place-saved="${esc(l)}">${ic} ${esc(l)}<em>${esc(s[l].name)}</em></button>`).join('')
-        : `<small>Tip: after checking an address you can save it as Home, Parents' house or Work.</small>`;
+      const s = saved();
+      lp.querySelector('[data-lp-saved]')!.innerHTML = s.length
+        ? `<small class="lp-sec">Saved addresses</small>` + s.map((v, i) => `<div class="lp-row lp-sv"><button type="button" class="lp-sv-go" data-place-saved="${i}"><span class="lp-ri">${ico(v.kind)}</span><span class="lp-rt"><b>${esc(v.label)}</b><small>${esc(v.name)}</small></span></button><button type="button" class="lp-del" data-place-del="${i}" aria-label="Remove ${esc(v.label)}">×</button></div>`).join('')
+        : `<p class="lp-tip">${ico('pin')}Check an address once, then save it as Home, Work or any name for next time.</p>`;
     };
     const openPanel = () => { renderSaved(); lp.hidden = false; result.hidden = true; lpQ.value = ''; lpList.hidden = true; setTimeout(() => lpQ.focus(), 50); };
     const closePanel = () => { lp.hidden = true; };
@@ -334,15 +344,16 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       if (t.closest('[data-lp-x]')) closePanel();
       if (t.closest('[data-lp-current]')) { closePanel(); runCurrent(); }
       const p = t.closest<HTMLElement>('[data-place]'); if (p) checkPlace(p.dataset.place!, geo.areaGeo[p.dataset.place!]);
-      const s = t.closest<HTMLElement>('[data-place-saved]'); if (s) { const v = saved()[s.dataset.placeSaved!]; if (v) checkPlace(v.name, v.at); }
+      const s = t.closest<HTMLElement>('[data-place-saved]'); if (s) { const v = saved()[Number(s.dataset.placeSaved)]; if (v) checkPlace(v.name, v.at); }
+      const d = t.closest<HTMLElement>('[data-place-del]'); if (d) { const all = saved(); all.splice(Number(d.dataset.placeDel), 1); putSaved(all); renderSaved(); }
     });
     locBtn.addEventListener('click', () => (lp.hidden ? openPanel() : closePanel()));
 
     // extra blocks under every result: save this place, and book for someone else
     const extras = () => !check ? '' : `
-      <div class="lr-save"><small>Save as</small>${LABELS.map(([l, ic]) => `<button type="button" data-save="${esc(l)}">${ic} ${esc(l)}</button>`).join('')}</div>
+      <div class="lr-save" data-save-row><small>Save address as</small>${LABELS.map(([l, k]) => `<button type="button" data-save="${esc(l)}" data-kind="${k}">${ico(k)}${esc(l)}</button>`).join('')}<span class="lr-other-name" hidden><input placeholder="Name this place" maxlength="24" data-save-name /><button type="button" data-save-ok>Save</button></span></div>
       <details class="lr-other">
-        <summary><span>👪 Booking for someone else?</span><small>e.g. your parents — they don't need to use the website</small></summary>
+        <summary><span>Booking for someone else?</span><small>Add their name, phone and address</small></summary>
         <form data-other>
           <input name="n" placeholder="Their name" required autocomplete="off" />
           <input name="p" inputmode="tel" placeholder="Their phone — e.g. +968 9123 4567" required autocomplete="off" />
@@ -354,14 +365,19 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     result.addEventListener('click', (e) => {
       const t = e.target as HTMLElement;
       if (t.closest('[data-lp-open]')) openPanel();
+      const doSave = (label: string, kind: string) => {
+        if (!check || !label.trim()) return;
+        const all = saved().filter((v) => v.label.toLowerCase() !== label.trim().toLowerCase());
+        all.unshift({ label: label.trim(), kind, name: check.name, at: check.at }); putSaved(all);
+        const row = result.querySelector('[data-save-row]')!;
+        row.innerHTML = `<small class="lr-saved-ok">${ico(kind)}Saved as “${esc(label.trim())}”</small>`;
+      };
       const sv = t.closest<HTMLButtonElement>('[data-save]');
-      if (sv && check) {
-        const all = saved(); all[sv.dataset.save!] = { name: check.name, at: check.at };
-        try { localStorage.setItem(SAVE_KEY, JSON.stringify(all)); } catch {}
-        result.querySelectorAll('[data-save]').forEach((b) => b.classList.toggle('on', b === sv));
-        sv.textContent = `✓ Saved as ${sv.dataset.save}`;
+      if (sv) {
+        if (sv.dataset.kind === 'pin') { const box = result.querySelector<HTMLElement>('.lr-other-name')!; box.hidden = false; box.querySelector('input')!.focus(); }
+        else doSave(sv.dataset.save!, sv.dataset.kind!);
       }
-    });
+      if (t.closest('[data-save-ok]')) doSave(result.querySelector<HTMLInputElement>('[data-save-name]')!.value || 'Other', 'pin');    });
     result.addEventListener('submit', (e) => {
       const f = (e.target as HTMLElement).closest<HTMLFormElement>('[data-other]'); if (!f || !check) return;
       e.preventDefault();
@@ -392,7 +408,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             tone: 'ok', kicker: 'Great news — we cover your area', title: how === 'typed' ? esc(lastPlace) : esc(near.n),
             route: [how === 'typed' ? 'This address' : 'You', dist, esc(br.name)],
             chips: modes.map((m) => `✓ ${m}`),
-            text: `Our technicians come to you from the ${esc(br.name)} branch.`,
+            text: modes.includes('Doorstep') ? `Our technicians come to you from the ${esc(br.name)} branch.` : `We pick up your device, repair it at our ${esc(br.name)} branch and bring it back.`,
             actions: `<a class="lr-btn pri" href="${withArea('/services#catalog')}">Book a repair${svg('arrow')}</a>${waBtn(`Hi Danat Fix, I'm in ${near.n} and want to book a repair.`, 'Chat')}`,
             foot,
           }), 'ok');
@@ -471,37 +487,54 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
   .hs-act.busy .hs-ai svg { animation: hsPulse .9s ease-in-out infinite; }
   @keyframes hsPulse { 50% { transform: translateY(-3px); } }
 
-  .lp { position: relative; display: grid; gap: 10px; padding: 16px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 24px 50px -28px rgba(0,0,0,.55); color: var(--ink-2); font-size: 14px; animation: hsIn .3s cubic-bezier(.2,.8,.2,1); }
+  .lp { position: relative; display: grid; gap: 12px; padding: 18px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 28px 60px -30px rgba(0,0,0,.6); color: var(--ink-2); font-size: 14px; animation: hsIn .3s cubic-bezier(.2,.8,.2,1); }
   .lp[hidden] { display: none; }
-  .lp-head { display: flex; align-items: center; justify-content: space-between; }
-  .lp-head b { font-size: 16px; color: var(--ink); }
-  .lp-x { width: 30px; height: 30px; border: 0; border-radius: 50%; background: var(--tint-2); font-size: 18px; line-height: 1; color: var(--ink-2); cursor: pointer; }
-  .lp-cur { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--accent-soft); text-align: left; font: inherit; cursor: pointer; transition: border-color .2s; }
-  .lp-cur:hover { border-color: var(--violet); }
-  .lp-ci { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; background: var(--surface); color: var(--violet); }
-  .lp-ci svg { width: 20px; height: 20px; }
-  .lp-cur b { display: block; color: var(--ink); }
-  .lp-cur small { color: var(--ink-3); font-size: 12.5px; }
-  .lp-or { display: flex; align-items: center; gap: 10px; color: var(--ink-3); font-size: 12px; }
-  .lp-or::before, .lp-or::after { content: ''; flex: 1; height: 1px; background: var(--line); }
-  .lp-search { display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 6px 0 14px; border: 1.5px solid var(--line); border-radius: 14px; background: var(--surface); }
-  .lp-search:focus-within { border-color: var(--violet); box-shadow: 0 0 0 3px var(--accent-soft); }
-  .lp-search svg { width: 18px; height: 18px; color: var(--ink-3); flex: none; }
+  .lp-head { display: flex; align-items: start; justify-content: space-between; gap: 12px; }
+  .lp-head b { display: block; font-size: 17px; color: var(--ink); }
+  .lp-head small { color: var(--ink-3); font-size: 13px; }
+  .lp-x { flex: none; width: 32px; height: 32px; border: 0; border-radius: 50%; background: var(--tint-2); font-size: 18px; line-height: 1; color: var(--ink-2); cursor: pointer; }
+  .lp-x:hover { background: var(--line); }
+  .lp-search { display: flex; align-items: center; gap: 10px; height: 52px; padding: 0 6px 0 16px; border-radius: 14px; background: var(--tint); border: 1.5px solid transparent; transition: border-color .2s, background .2s; }
+  .lp-search:focus-within { background: var(--surface); border-color: var(--violet); box-shadow: 0 0 0 4px var(--accent-soft); }
+  .lp-search > svg { width: 19px; height: 19px; color: var(--ink-3); flex: none; }
   .lp-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font: inherit; font-size: 15px; color: var(--ink); }
-  .lp-go { height: 36px; padding: 0 14px; border: 0; border-radius: 10px; background: var(--violet); color: var(--on-accent); font: inherit; font-weight: 700; cursor: pointer; }
-  .lp-list { list-style: none; margin: 0; padding: 4px; display: grid; gap: 2px; border: 1px solid var(--line); border-radius: 14px; }
+  .lp-go { display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 11px; background: var(--violet); color: var(--on-accent); cursor: pointer; }
+  .lp-go svg { width: 18px; height: 18px; }
+  .lp-list { list-style: none; margin: -4px 0 0; padding: 4px; display: grid; gap: 2px; border: 1px solid var(--line); border-radius: 14px; }
   .lp-list[hidden] { display: none; }
-  .lp-list :global(button) { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border: 0; border-radius: 10px; background: none; text-align: left; font: inherit; cursor: pointer; }
+  .lp-list :global(button) { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; border: 0; border-radius: 10px; background: none; text-align: left; font: inherit; cursor: pointer; }
   .lp-list :global(button:hover) { background: var(--accent-soft); }
   .lp-list :global(svg) { width: 16px; height: 16px; color: var(--violet); flex: none; }
   .lp-list :global(b) { display: block; color: var(--ink); }
   .lp-list :global(small) { color: var(--ink-3); font-size: 12px; }
-  .lp-saved { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
-  .lp-saved :global(small) { width: 100%; color: var(--ink-3); font-size: 12px; }
-  .lp-saved :global(.lp-chip) { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font: inherit; font-weight: 700; font-size: 13px; color: var(--ink); cursor: pointer; }
-  .lp-saved :global(.lp-chip:hover) { border-color: var(--violet); }
-  .lp-saved :global(.lp-chip em) { font-style: normal; font-weight: 500; color: var(--ink-3); }
-  .hs-result :global(.lr-save) { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .lp-row, .lp-saved :global(.lp-row) { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 6px; border: 0; border-top: 1px solid var(--line); background: none; text-align: left; font: inherit; cursor: pointer; }
+  .lp-cur { border-top: 0; padding-top: 4px; }
+  .lp-ri, .lp-saved :global(.lp-ri) { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--accent-soft); color: var(--violet); }
+  .lp-ri svg, .lp-saved :global(.lp-ri svg) { width: 19px; height: 19px; }
+  .lp-rt, .lp-saved :global(.lp-rt) { flex: 1; min-width: 0; }
+  .lp-rt b, .lp-saved :global(.lp-rt b) { display: block; color: var(--violet); font-size: 15px; }
+  .lp-saved :global(.lp-rt b) { color: var(--ink); }
+  .lp-rt small, .lp-saved :global(.lp-rt small) { display: block; color: var(--ink-3); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lp-chev { width: 18px; height: 18px; color: var(--ink-3); transition: transform .2s; }
+  .lp-row:hover .lp-chev { transform: translateX(3px); color: var(--violet); }
+  .lp-saved { display: grid; }
+  .lp-saved :global(.lp-sec) { padding: 8px 6px 4px; border-top: 1px solid var(--line); font-size: 11.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  .lp-saved :global(.lp-sv) { padding: 4px 0; cursor: default; }
+  .lp-saved :global(.lp-sec + .lp-sv) { border-top: 0; }
+  .lp-saved :global(.lp-sv-go) { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; padding: 6px; border: 0; border-radius: 12px; background: none; text-align: left; font: inherit; cursor: pointer; }
+  .lp-saved :global(.lp-sv-go:hover) { background: var(--tint); }
+  .lp-saved :global(.lp-del) { flex: none; width: 28px; height: 28px; border: 0; border-radius: 50%; background: none; color: var(--ink-3); font-size: 16px; cursor: pointer; }
+  .lp-saved :global(.lp-del:hover) { background: #FEE4E2; color: #B42318; }
+  .lp-saved :global(.lp-tip) { display: flex; align-items: center; gap: 8px; margin: 0; padding: 12px 6px 2px; border-top: 1px solid var(--line); color: var(--ink-3); font-size: 12.5px; }
+  .lp-saved :global(.lp-tip svg) { width: 15px; height: 15px; flex: none; }
+  .hs-result :global(.lr-save button svg) { width: 14px; height: 14px; }
+  .hs-result :global(.lr-save button) { display: inline-flex; align-items: center; gap: 5px; }
+  .hs-result :global(.lr-other-name) { display: inline-flex; gap: 6px; }
+  .hs-result :global(.lr-other-name[hidden]) { display: none; }
+  .hs-result :global(.lr-other-name input) { width: 150px; height: 32px; padding: 0 10px; border: 1px solid var(--violet); border-radius: 999px; font: inherit; font-size: 13px; outline: 0; }
+  .hs-result :global(.lr-other-name [data-save-ok]) { background: var(--violet) !important; border-color: var(--violet) !important; color: var(--on-accent) !important; }
+  .hs-result :global(.lr-saved-ok) { display: inline-flex; align-items: center; gap: 6px; color: #15803D !important; font-size: 13px !important; }
+  .hs-result :global(.lr-saved-ok svg) { width: 15px; height: 15px; }  .hs-result :global(.lr-save) { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
   .hs-result :global(.lr-save small) { margin-right: 4px; color: var(--ink-3); font-size: 12px; font-weight: 700; }
   .hs-result :global(.lr-save button) { padding: 6px 11px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font: inherit; font-size: 12.5px; font-weight: 700; color: var(--ink-2); cursor: pointer; }
   .hs-result :global(.lr-save button:hover) { border-color: var(--violet); color: var(--violet); }
