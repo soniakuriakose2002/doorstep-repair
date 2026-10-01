@@ -76,12 +76,28 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
   <div class="hs-actions">
     <button type="button" class="hs-act" data-hs-locate>
       <span class="hs-ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.6"/></svg></span>
-      <span><b>Find my location</b><small>Check if we cover your area</small></span>
+      <span><b>Check location</b><small>Yours or a family member's</small></span>
     </button>
     <button type="button" class="hs-act" data-hs-track>
       <span class="hs-ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="17.5" cy="18" r="2"/></svg></span>
       <span><b>Track your repair</b><small>Get your repair status</small></span>
     </button>
+  </div>
+  <!-- Where is the repair? current location, typed address, or a saved place -->
+  <div class="lp" data-lp hidden>
+    <div class="lp-head"><b>Where do you need the repair?</b><button type="button" class="lp-x" data-lp-x aria-label="Close">×</button></div>
+    <button type="button" class="lp-cur" data-lp-current>
+      <span class="lp-ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7"/></svg></span>
+      <span><b>Use my current location</b><small>Detect where I am right now</small></span>
+    </button>
+    <div class="lp-or"><span>or check another address</span></div>
+    <form class="lp-search" data-lp-form>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input data-lp-q placeholder="Area, landmark or city — e.g. Al Khuwair" autocomplete="off" aria-label="Area, landmark or city" />
+      <button type="submit" class="lp-go">Check</button>
+    </form>
+    <ul class="lp-list" data-lp-list hidden></ul>
+    <div class="lp-saved" data-lp-saved></div>
   </div>
   <div class="hs-result" data-hs-result aria-live="polite" hidden></div>
 
@@ -226,7 +242,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         return [j.locality || j.city, j.principalSubdivision, j.countryName].filter(Boolean).filter((v, i, a) => a.indexOf(v) === i).join(', ');
       } catch { return ''; }
     };
-    locBtn.addEventListener('click', async () => {
+    const runCurrent = async () => {
       locBtn.classList.add('busy');
       show('<span class="spin"></span> Finding your location from your internet connection…', 'wait');
       const ip = await ipLookup();
@@ -234,7 +250,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       if (!ip) { show('<b>We couldn\'t detect your location</b><span>Your connection didn\'t share a location. <button type="button" class="hs-exact" data-hs-exact>Use exact location instead</button></span>', 'warn'); return; }
       lastIp = ip;
       showFor(ip.at, 'ip');
-    });
+    };
     // Optional precise check with the device's GPS (asks the browser for permission)
     result.addEventListener('click', (ev) => {
       if (!(ev.target as HTMLElement).closest('[data-hs-exact]')) return;
@@ -243,6 +259,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       navigator.geolocation.getCurrentPosition(async (pos) => {
         const me: [number, number] = [pos.coords.latitude, pos.coords.longitude];
         lastGps = await placeName(me);
+        lastPlace = '';
         showFor(me, 'gps');
       }, (err) => {
         const why = err.code === 1 ? 'Location is blocked for this site (click the location icon in the address bar to allow it).' : 'Your device couldn\'t find its location.';
@@ -270,27 +287,110 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       ${o.chips?.length ? `<div class="lr-chips">${o.chips.map((c) => `<span>${c}</span>`).join('')}</div>` : ''}
       <p class="lr-text">${o.text}</p>
       <div class="lr-acts">${o.actions}</div>
+      ${extras()}
       <div class="lr-foot">${o.foot}</div>`;
     const waBtn = (msg: string, label: string, primary = false) => `<a class="lr-btn wa${primary ? ' pri' : ''}" href="https://wa.me/${tel}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${svg('wa', true)}${label}</a>`;
 
-    const showFor = (me: [number, number], how: 'ip' | 'gps') => {
+    // ---------- typed address, saved places, booking for someone else ----------
+    let lastPlace = '';
+    let check: { name: string; at: [number, number]; covered: boolean; branch: string } | null = null;
+    const lp = root.querySelector<HTMLElement>('[data-lp]')!;
+    const lpQ = lp.querySelector<HTMLInputElement>('[data-lp-q]')!;
+    const lpList = lp.querySelector<HTMLElement>('[data-lp-list]')!;
+    const SAVE_KEY = 'saved-places';
+    const LABELS: [string, string][] = [['Home', '🏠'], ["Parents' house", '👪'], ['Work', '💼']];
+    const saved = (): Record<string, { name: string; at: [number, number] }> => { try { return JSON.parse(localStorage.getItem(SAVE_KEY) || '{}'); } catch { return {}; } };
+    const renderSaved = () => {
+      const s = saved(); const keys = LABELS.filter(([l]) => s[l]);
+      lp.querySelector('[data-lp-saved]')!.innerHTML = keys.length
+        ? `<small>Saved places</small>` + keys.map(([l, ic]) => `<button type="button" class="lp-chip" data-place-saved="${esc(l)}">${ic} ${esc(l)}<em>${esc(s[l].name)}</em></button>`).join('')
+        : `<small>Tip: after checking an address you can save it as Home, Parents' house or Work.</small>`;
+    };
+    const openPanel = () => { renderSaved(); lp.hidden = false; result.hidden = true; lpQ.value = ''; lpList.hidden = true; setTimeout(() => lpQ.focus(), 50); };
+    const closePanel = () => { lp.hidden = true; };
+    const areas = Object.keys(geo.areaGeo);
+    const matches = (q: string) => { const n = norm(q); return n ? areas.filter((a) => norm(a).includes(n)).sort((a, b) => (norm(a).startsWith(n) ? 0 : 1) - (norm(b).startsWith(n) ? 0 : 1)).slice(0, 6) : []; };
+    const checkPlace = (name: string, at: [number, number]) => { lastPlace = name; closePanel(); showFor(at, 'typed'); };
+    lpQ.addEventListener('input', () => {
+      const m = matches(lpQ.value);
+      lpList.innerHTML = m.map((a) => `<li><button type="button" data-place="${esc(a)}">${svg('pin')}<span><b>${esc(a)}</b><small>${geo.doorstep.includes(a) ? 'Doorstep & pickup' : 'Pickup'} area</small></span></button></li>`).join('');
+      lpList.hidden = !m.length;
+    });
+    lp.querySelector('[data-lp-form]')!.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const q = lpQ.value.trim(); if (!q) { lpQ.focus(); return; }
+      const m = matches(q); if (m.length) { checkPlace(m[0], geo.areaGeo[m[0]]); return; }
+      // not one of our area names: look the place up on the map (OpenStreetMap, no key)
+      closePanel(); show(`<span class="spin"></span> Looking up “${esc(q)}”…`, 'wait');
+      try {
+        const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q)}`, { signal: AbortSignal.timeout(6000), headers: { 'accept-language': 'en' } });
+        const j = await r.json();
+        if (j?.[0]) { lastPlace = q; showFor([Number(j[0].lat), Number(j[0].lon)], 'typed'); return; }
+      } catch {}
+      show(`<b>We couldn't find “${esc(q)}”</b><span>Try the area or town name, or <button type="button" class="hs-exact" data-lp-open>search again</button>.</span>`, 'warn');
+    });
+    lp.addEventListener('click', (e) => {
+      const t = e.target as HTMLElement;
+      if (t.closest('[data-lp-x]')) closePanel();
+      if (t.closest('[data-lp-current]')) { closePanel(); runCurrent(); }
+      const p = t.closest<HTMLElement>('[data-place]'); if (p) checkPlace(p.dataset.place!, geo.areaGeo[p.dataset.place!]);
+      const s = t.closest<HTMLElement>('[data-place-saved]'); if (s) { const v = saved()[s.dataset.placeSaved!]; if (v) checkPlace(v.name, v.at); }
+    });
+    locBtn.addEventListener('click', () => (lp.hidden ? openPanel() : closePanel()));
+
+    // extra blocks under every result: save this place, and book for someone else
+    const extras = () => !check ? '' : `
+      <div class="lr-save"><small>Save as</small>${LABELS.map(([l, ic]) => `<button type="button" data-save="${esc(l)}">${ic} ${esc(l)}</button>`).join('')}</div>
+      <details class="lr-other">
+        <summary><span>👪 Booking for someone else?</span><small>e.g. your parents — they don't need to use the website</small></summary>
+        <form data-other>
+          <input name="n" placeholder="Their name" required autocomplete="off" />
+          <input name="p" inputmode="tel" placeholder="Their phone — e.g. +968 9123 4567" required autocomplete="off" />
+          <input name="a" placeholder="House / building, street, landmark" value="${esc(check.name)}" required autocomplete="off" />
+          <button type="submit" class="lr-btn wa pri">${svg('wa', true)}Send their booking on WhatsApp</button>
+          <small>We'll call them to confirm the time.</small>
+        </form>
+      </details>`;
+    result.addEventListener('click', (e) => {
+      const t = e.target as HTMLElement;
+      if (t.closest('[data-lp-open]')) openPanel();
+      const sv = t.closest<HTMLButtonElement>('[data-save]');
+      if (sv && check) {
+        const all = saved(); all[sv.dataset.save!] = { name: check.name, at: check.at };
+        try { localStorage.setItem(SAVE_KEY, JSON.stringify(all)); } catch {}
+        result.querySelectorAll('[data-save]').forEach((b) => b.classList.toggle('on', b === sv));
+        sv.textContent = `✓ Saved as ${sv.dataset.save}`;
+      }
+    });
+    result.addEventListener('submit', (e) => {
+      const f = (e.target as HTMLElement).closest<HTMLFormElement>('[data-other]'); if (!f || !check) return;
+      e.preventDefault();
+      const d = new FormData(f); const n = String(d.get('n')).trim(), p = String(d.get('p')).trim(), a = String(d.get('a')).trim();
+      if (!n || !/[\d]{6,}/.test(p.replace(/\D/g, '')) || !a) { f.reportValidity(); return; }
+      const msg = `Hi Danat Fix, I'd like to book a repair for someone else.\nName: ${n}\nPhone: ${p}\nAddress: ${a}\nArea check: ${check.name} — ${check.covered ? 'covered' : 'please confirm coverage'} (nearest branch ${check.branch})`;
+      window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
+    });
+
+    const showFor = (me: [number, number], how: 'ip' | 'gps' | 'typed') => {
         const near = Object.entries(geo.areaGeo).map(([n, at]) => ({ n, d: km(me, at) })).sort((a, b) => a.d - b.d)[0];
         const br = geo.branchGeo.map((b) => ({ ...b, d: km(me, b.at) })).sort((a, b) => a.d - b.d)[0];
-        const where = how === 'ip' ? (lastIp ? esc([lastIp.city, lastIp.country].filter(Boolean).join(', ')) : '') : esc(lastGps);
+        const where = how === 'ip' ? (lastIp ? esc([lastIp.city, lastIp.country].filter(Boolean).join(', ')) : '') : how === 'typed' ? esc(lastPlace) : esc(lastGps);
         const foot = how === 'ip'
           ? `<span>${svg('pin')}Approximate — from your internet provider</span><button type="button" class="hs-exact" data-hs-exact>${svg('gps')}Not right? Use exact location</button>`
+          : how === 'typed' ? `<span>${svg('pin')}Checked for: ${esc(lastPlace)}</span><button type="button" class="hs-exact" data-lp-open>Change address</button>`
           : `<span>${svg('gps')}Exact location from your device</span>`;
         const dist = `${Math.round(br.d).toLocaleString()} km`;
         const mapLink = `https://maps.google.com/?q=${me[0].toFixed(5)},${me[1].toFixed(5)}`;
         const covered = near.d <= (how === 'ip' ? 40 : 12);
+        check = { name: where || near.n, at: me, covered, branch: br.name };
         if (covered) {
           area = near.n;
           try { localStorage.setItem('area', area); } catch {}
           linkify();
           const modes = [geo.doorstep.includes(near.n) && 'Doorstep', geo.pickup.includes(near.n) && 'Pickup'].filter(Boolean) as string[];
           show(card({
-            tone: 'ok', kicker: 'Great news — we cover your area', title: esc(near.n),
-            route: ['You', dist, esc(br.name)],
+            tone: 'ok', kicker: 'Great news — we cover your area', title: how === 'typed' ? esc(lastPlace) : esc(near.n),
+            route: [how === 'typed' ? 'This address' : 'You', dist, esc(br.name)],
             chips: modes.map((m) => `✓ ${m}`),
             text: `Our technicians come to you from the ${esc(br.name)} branch.`,
             actions: `<a class="lr-btn pri" href="${withArea('/services#catalog')}">Book a repair${svg('arrow')}</a>${waBtn(`Hi Danat Fix, I'm in ${near.n} and want to book a repair.`, 'Chat')}`,
@@ -302,7 +402,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             tone: 'warn',
             kicker: outside ? 'Outside our service area' : 'Not on our coverage list yet',
             title: where || (outside ? 'Outside Oman' : `Near ${esc(br.name)}`),
-            route: ['You', dist, esc(br.name)],
+            route: [how === 'typed' ? 'This address' : 'You', dist, esc(br.name)],
             text: outside
               ? 'We repair across Oman — Muscat, Al Batinah and Dhofar. Message us and we’ll still try to help.'
               : 'Message us and we’ll confirm whether a technician can reach you.',
@@ -371,7 +471,50 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
   .hs-act.busy .hs-ai svg { animation: hsPulse .9s ease-in-out infinite; }
   @keyframes hsPulse { 50% { transform: translateY(-3px); } }
 
-  .hs-result { position: relative; display: grid; gap: 12px; padding: 18px 18px 14px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 24px 50px -28px rgba(0,0,0,.55); font-size: 14px; color: var(--ink-2); animation: hsIn .35s cubic-bezier(.2,.8,.2,1); }
+  .lp { position: relative; display: grid; gap: 10px; padding: 16px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 24px 50px -28px rgba(0,0,0,.55); color: var(--ink-2); font-size: 14px; animation: hsIn .3s cubic-bezier(.2,.8,.2,1); }
+  .lp[hidden] { display: none; }
+  .lp-head { display: flex; align-items: center; justify-content: space-between; }
+  .lp-head b { font-size: 16px; color: var(--ink); }
+  .lp-x { width: 30px; height: 30px; border: 0; border-radius: 50%; background: var(--tint-2); font-size: 18px; line-height: 1; color: var(--ink-2); cursor: pointer; }
+  .lp-cur { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--accent-soft); text-align: left; font: inherit; cursor: pointer; transition: border-color .2s; }
+  .lp-cur:hover { border-color: var(--violet); }
+  .lp-ci { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; background: var(--surface); color: var(--violet); }
+  .lp-ci svg { width: 20px; height: 20px; }
+  .lp-cur b { display: block; color: var(--ink); }
+  .lp-cur small { color: var(--ink-3); font-size: 12.5px; }
+  .lp-or { display: flex; align-items: center; gap: 10px; color: var(--ink-3); font-size: 12px; }
+  .lp-or::before, .lp-or::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+  .lp-search { display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 6px 0 14px; border: 1.5px solid var(--line); border-radius: 14px; background: var(--surface); }
+  .lp-search:focus-within { border-color: var(--violet); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .lp-search svg { width: 18px; height: 18px; color: var(--ink-3); flex: none; }
+  .lp-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font: inherit; font-size: 15px; color: var(--ink); }
+  .lp-go { height: 36px; padding: 0 14px; border: 0; border-radius: 10px; background: var(--violet); color: var(--on-accent); font: inherit; font-weight: 700; cursor: pointer; }
+  .lp-list { list-style: none; margin: 0; padding: 4px; display: grid; gap: 2px; border: 1px solid var(--line); border-radius: 14px; }
+  .lp-list[hidden] { display: none; }
+  .lp-list :global(button) { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border: 0; border-radius: 10px; background: none; text-align: left; font: inherit; cursor: pointer; }
+  .lp-list :global(button:hover) { background: var(--accent-soft); }
+  .lp-list :global(svg) { width: 16px; height: 16px; color: var(--violet); flex: none; }
+  .lp-list :global(b) { display: block; color: var(--ink); }
+  .lp-list :global(small) { color: var(--ink-3); font-size: 12px; }
+  .lp-saved { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .lp-saved :global(small) { width: 100%; color: var(--ink-3); font-size: 12px; }
+  .lp-saved :global(.lp-chip) { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font: inherit; font-weight: 700; font-size: 13px; color: var(--ink); cursor: pointer; }
+  .lp-saved :global(.lp-chip:hover) { border-color: var(--violet); }
+  .lp-saved :global(.lp-chip em) { font-style: normal; font-weight: 500; color: var(--ink-3); }
+  .hs-result :global(.lr-save) { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .hs-result :global(.lr-save small) { margin-right: 4px; color: var(--ink-3); font-size: 12px; font-weight: 700; }
+  .hs-result :global(.lr-save button) { padding: 6px 11px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font: inherit; font-size: 12.5px; font-weight: 700; color: var(--ink-2); cursor: pointer; }
+  .hs-result :global(.lr-save button:hover) { border-color: var(--violet); color: var(--violet); }
+  .hs-result :global(.lr-save button.on) { background: #DCFCE7; border-color: #86EFAC; color: #15803D; }
+  .hs-result :global(.lr-other) { border: 1px dashed var(--line); border-radius: 14px; padding: 10px 12px; background: var(--tint); }
+  .hs-result :global(.lr-other summary) { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; cursor: pointer; list-style: none; }
+  .hs-result :global(.lr-other summary::-webkit-details-marker) { display: none; }
+  .hs-result :global(.lr-other summary span) { font-weight: 800; color: var(--ink); }
+  .hs-result :global(.lr-other summary small) { color: var(--ink-3); font-size: 12px; }
+  .hs-result :global(.lr-other form) { display: grid; gap: 8px; margin-top: 10px; }
+  .hs-result :global(.lr-other input) { height: 42px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font: inherit; font-size: 14px; color: var(--ink); outline: 0; }
+  .hs-result :global(.lr-other input:focus) { border-color: var(--violet); }
+  .hs-result :global(.lr-other form > small) { color: var(--ink-3); font-size: 12px; }  .hs-result { position: relative; display: grid; gap: 12px; padding: 18px 18px 14px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 24px 50px -28px rgba(0,0,0,.55); font-size: 14px; color: var(--ink-2); animation: hsIn .35s cubic-bezier(.2,.8,.2,1); }
   .hs-result[hidden] { display: none; }
   .hs-result.wait { display: flex; align-items: center; gap: 8px; padding: 14px 16px; }
   .hs-result :global(.spin) { display: inline-block; width: 14px; height: 14px; margin-right: 6px; vertical-align: -2px; border: 2px solid var(--line); border-top-color: var(--violet); border-radius: 50%; animation: spin .8s linear infinite; }
