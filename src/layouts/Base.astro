@@ -126,22 +126,19 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
             <li><a href={`https://wa.me/${site.whatsapp}`} target="_blank" rel="noopener">Book on WhatsApp</a></li>
           </ul>
         </div>
-        <div class="ft-col">
-          <p class="ft-h">Our branches</p>
-          <ul class="ft-branches">
-            {site.branchInfo.map((b) => (
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
-                <span>
-                  <b>Oman — {b.name}</b>
-                  <small>{b.lines.map((l) => <>{l}<br /></>)}</small>
-                  {b.phones.map((p) => <a class="ft-tel" href={`tel:${p.replace(/\s/g, '')}`}>{p}</a>)}
-                  <a class="ft-dir" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(b.map)}`} target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l18-8-8 18-2-8z"/></svg>Get directions</a>
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
+      </div>
+      <div class="wrap ft-offices">
+        <p class="ft-h">Our branches</p>
+        <ul class="ft-branches">
+          {site.branchInfo.map((b) => (
+            <li>
+              <b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Oman — {b.name}</b>
+              <address>{b.lines.map((l) => <>{l}<br /></>)}</address>
+              <span class="ft-tels">{b.phones.map((p) => <a class="ft-tel" href={`tel:${p.replace(/\s/g, '')}`}>{p}</a>)}</span>
+              <a class="ft-dir" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(b.map)}`} target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l18-8-8 18-2-8z"/></svg>Get directions</a>
+            </li>
+          ))}
+        </ul>
       </div>
       <div class="wrap ft-base">
         <span>© {new Date().getFullYear()} {site.name}. All rights reserved. · Estimates shown as {price()} — pricing to be announced.</span>
@@ -355,7 +352,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 
   /* footer — light, columns like the Alphalize / 369 footers */
   .footer { margin-top: 40px; background: linear-gradient(180deg, var(--surface), color-mix(in srgb, var(--violet) 5%, var(--surface))); color: var(--ink-2); border-top: 1px solid var(--line); border-radius: 32px 32px 0 0; }
-  .ft-grid { display: grid; grid-template-columns: minmax(280px, 1.5fr) 1fr 1fr 1.2fr; gap: 40px 48px; padding: 56px 0 36px; }
+  .ft-grid { display: grid; grid-template-columns: minmax(280px, 1.4fr) 1fr 1fr; gap: 40px 56px; padding: 56px 0 36px; }
   .ft-about .foot-logo img { height: 72px; width: auto; }
   .ft-desc { margin: 14px 0 18px; max-width: 46ch; font-size: 14.5px; line-height: 1.6; color: var(--ink-2); }
   .ft-contact, .ft-col ul, .ft-icons, .ft-branches { list-style: none; margin: 0; padding: 0; }
@@ -366,24 +363,28 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
   .ft-h { margin: 26px 0 12px; font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
   .ft-col .ft-h { margin-top: 6px; }
   .ft-col ul { display: grid; gap: 11px; }
-  .ft-col a { position: relative; font-size: 14.5px; color: var(--ink); transition: color .2s, padding .2s; }
+  .ft-col a { position: relative; font-size: 14.5px; color: var(--ink-2); transition: color .2s, padding .2s; }
   .ft-col a:hover { color: var(--violet); padding-left: 6px; }
   .ft-icons { display: flex; flex-wrap: wrap; gap: 10px; }
   .ft-icons a { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); transition: transform .25s cubic-bezier(.3,1.5,.5,1), box-shadow .25s, border-color .25s; }
   .ft-icons i { width: 20px; height: 20px; background: var(--c); -webkit-mask: var(--m) center / contain no-repeat; mask: var(--m) center / contain no-repeat; }
   .ft-icons a:hover { transform: translateY(-4px); border-color: var(--c); box-shadow: 0 10px 20px -12px var(--c); }
-  .ft-branches { display: grid; gap: 14px; }
-  .ft-branches li { display: flex; gap: 10px; align-items: flex-start; }
-  .ft-branches svg { margin-top: 2px; }
-  .ft-branches span { display: grid; gap: 2px; }
-  .ft-branches b { font-size: 14.5px; color: var(--ink); }
-  .ft-branches small { font-size: 13px; line-height: 1.45; color: var(--ink-3); }
-  .ft-tel { font-size: 14px; font-weight: 700; color: var(--violet); }
+  /* branches: own full-width row of three roomy cards (like the 369 "Our offices" row) */
+  .ft-offices { padding: 28px 0 36px; border-top: 1px solid var(--line); }
+  .ft-offices .ft-h { margin: 0 0 16px; }
+  .ft-branches { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .ft-branches li { display: grid; align-content: start; gap: 10px; padding: 22px 24px; border-radius: 18px; background: color-mix(in srgb, var(--surface) 70%, transparent); border: 1px solid var(--line); transition: transform .25s, box-shadow .25s, border-color .25s; }
+  .ft-branches li:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--violet) 35%, var(--line)); box-shadow: 0 16px 30px -22px rgba(16, 24, 40, .35); }
+  .ft-branches b { display: flex; align-items: center; gap: 8px; font-size: 15.5px; font-weight: 700; color: var(--ink-2); }
+  .ft-branches b svg { margin: 0; }
+  .ft-branches address { font-style: normal; font-size: 14px; line-height: 1.75; color: var(--ink-3); }
+  .ft-tels { display: grid; gap: 4px; }
+  .ft-tel { justify-self: start; font-size: 14.5px; font-weight: 600; color: color-mix(in srgb, var(--violet) 80%, white); }
   .ft-tel:hover { text-decoration: underline; }
-  .ft-dir { display: inline-flex; align-items: center; gap: 6px; justify-self: start; margin-top: 6px; padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-size: 12.5px; font-weight: 600; color: var(--ink-2); transition: border-color .2s, color .2s, transform .2s; }
-  .ft-dir svg { width: 13px !important; height: 13px !important; margin: 0 !important; color: currentColor !important; }
+  .ft-dir { display: inline-flex; align-items: center; gap: 7px; justify-self: start; margin-top: 4px; padding: 7px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-size: 13px; font-weight: 600; color: var(--ink-2); transition: border-color .2s, color .2s, transform .2s; }
+  .ft-dir svg { width: 14px !important; height: 14px !important; margin: 0 !important; color: currentColor !important; }
   .ft-dir:hover { border-color: var(--violet); color: var(--violet); transform: translateY(-2px); }
-  .ft-branches { gap: 20px !important; }
+  @media (max-width: 900px) { .ft-branches { grid-template-columns: 1fr; } }
   .ft-dev { font-weight: 800; color: var(--violet); }
   @media (max-width: 1000px) { .ft-grid { grid-template-columns: 1fr 1fr; } .ft-about { grid-column: 1 / -1; } }
   @media (max-width: 560px) { .ft-grid { grid-template-columns: 1fr; gap: 28px; padding-top: 40px; } }
