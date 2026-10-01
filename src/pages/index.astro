@@ -608,16 +608,14 @@ const [rowA, rowB] = rowsOf(mostBooked);
   .bb-rows:hover .bb-track { animation-play-state: paused; }
   .bb-card { display: grid; justify-items: center; align-content: center; gap: 10px; width: 176px; height: 118px; margin: 0; padding: 14px 12px 12px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(16,24,40,.04); transition: transform .3s cubic-bezier(.3,1.4,.5,1), box-shadow .3s, border-color .3s; }
   .bb-logo { display: grid; place-items: center; height: 40px; width: 100%; }
-  .bb-mask { display: block; width: 140px; height: 40px; background: #8a94a6; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: var(--s) auto; mask-size: var(--s) auto; transition: background .3s; }
-  .bb-logo img { max-height: 30px; max-width: 120px; width: auto; filter: grayscale(1) contrast(.9) opacity(.62); transition: filter .3s; }
-  .bb-word { font-style: normal; font-weight: 900; font-size: 22px; letter-spacing: .04em; color: #8a94a6; transition: color .3s; }
+  .bb-mask { display: block; width: 140px; height: 40px; background: var(--c); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: var(--s) auto; mask-size: var(--s) auto; transition: transform .3s; }
+  .bb-logo img { max-height: 30px; max-width: 120px; width: auto; transition: transform .3s; }
+  .bb-word { font-style: normal; font-weight: 900; font-size: 22px; letter-spacing: .04em; color: #E11D2E; }
   .bb-card figcaption { display: grid; justify-items: center; line-height: 1.2; text-align: center; }
   .bb-card figcaption b { font-size: 13px; color: var(--ink); }
   .bb-card figcaption small { font-size: 11.5px; color: var(--ink-3); white-space: nowrap; }
   .bb-card:hover { transform: translateY(-5px); border-color: transparent; box-shadow: 0 0 0 2px var(--violet), 0 18px 34px -20px rgba(16,24,40,.45); }
-  .bb-card:hover .bb-mask { background: var(--c); }
-  .bb-card:hover .bb-logo img { filter: none; }
-  .bb-card:hover .bb-word { color: #E11D2E; }
+  .bb-card:hover .bb-logo > * { transform: scale(1.08); }
   @media (max-width: 560px) { .bb-card { width: 150px; height: 108px; } .bb-stats { display: none; } }
   @media (prefers-reduced-motion: reduce) { .bb-track, .bb-kick i { animation: none; } }
   .issues { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 48px; align-items: center; }
