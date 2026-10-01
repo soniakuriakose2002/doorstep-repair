@@ -17,6 +17,12 @@ export const site = {
   phone: { display: '+968 7832 3116', tel: '+96878323116' },
   address: 'Computer Street, Ruwi, PO Box 502, PC 118, Sultanate of Oman',
   branches: ['Ruwi, Muscat', 'Sohar', 'Salalah'],
+  whatsapp: '96878323116',
+  // Danat Computers' verified pages (from the DanatComputer project) — swap for Danat Fix's own when they exist
+  social: {
+    facebook: 'https://www.facebook.com/DanatCSOman/',
+    instagram: 'https://www.instagram.com/computersupermarketruwi/',
+  },
 };
 
 // Manager instruction: no real prices for now (shown as OMR 0). Every amount on the site
