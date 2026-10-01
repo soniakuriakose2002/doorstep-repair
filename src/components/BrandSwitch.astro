@@ -88,6 +88,22 @@ export const brands = [
     .bs-logo { display: grid; place-items: center; height: 84px; padding: 0 10px; border-radius: 22px; background: var(--surface); box-shadow: var(--shadow), 0 0 0 1px var(--line); }
     .bs-logo .logo-369 { height: 78px; width: auto; max-width: none; margin: 0; }
     .bs-menu { left: 0; }
+    /* living logo card: turning gradient border, glow, shine sweep, lift on hover */
+    .bs-logo { --c1: #049AE9; --c2: #8B2BE2; --c3: #FF7A00; position: relative; isolation: isolate; overflow: hidden; background: #fff; border: 2px solid transparent;
+      background: linear-gradient(#fff, #fff) padding-box, conic-gradient(from var(--ang, 0deg), var(--c1), var(--c2), var(--c3), var(--c1)) border-box;
+      box-shadow: 0 14px 30px -16px rgba(var(--a1), .55), 0 0 0 4px rgba(255,255,255,.6);
+      animation: bsSpin 6s linear infinite; transition: transform .35s cubic-bezier(.3,1.4,.5,1), box-shadow .35s; }
+    :global(:root[data-brand='369']) .bs-logo { --c1: #1F78C8; --c2: #29A3EC; --c3: #F07A1A; }
+    .bs-logo::after { content: ''; position: absolute; inset: -20%; z-index: 2; pointer-events: none;
+      background: linear-gradient(110deg, transparent 40%, rgba(255,255,255,.85) 50%, transparent 60%); transform: translateX(-120%); animation: bsShine 4.5s ease-in-out infinite; }
+    .bs-logo:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 20px 36px -14px rgba(var(--a1), .7), 0 0 0 4px rgba(255,255,255,.7); }
+    .bs-logo .logo-369 { position: relative; z-index: 1; }
+  }
+  @property --ang { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+  @keyframes bsSpin { to { --ang: 360deg; } }
+  @keyframes bsShine { 0%, 60% { transform: translateX(-120%); } 85%, 100% { transform: translateX(120%); } }
+  @media (prefers-reduced-motion: reduce) { .bs-logo, .bs-logo::after { animation: none !important; } }
+  @media (min-width: 1480px) {
   }
   :global(:root[data-brand='danatfix']) .bs-logo [data-for='danatfix'],
   :global(:root[data-brand='369']) .bs-logo [data-for='369'],
