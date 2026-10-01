@@ -18,6 +18,12 @@ export const site = {
   address: 'Computer Street, Ruwi, PO Box 502, PC 118, Sultanate of Oman',
   branches: ['Ruwi, Muscat', 'Sohar', 'Salalah'],
   whatsapp: '96878323116',
+  // Branch addresses and phones as listed on 369ai.biz (Our Offices), 2026-10-01
+  branchInfo: [
+    { name: 'Ruwi', lines: ['Computer Street, Ruwi', 'P.O. Box 502, PC 118', 'Sultanate of Oman'], phones: ['+968 9792 3077', '+968 9792 2924'], map: 'Computer Street, Ruwi, Muscat, Oman' },
+    { name: 'Salalah', lines: ['23rd July Street, near NBO', 'Opposite Sultan Qaboos Mosque', 'Salalah, Sultanate of Oman'], phones: ['+968 9792 3005'], map: '23rd July Street, Salalah, Oman' },
+    { name: 'Sohar', lines: ['Al Hambar Street', 'Sohar Souq, near Malabar Paris Restaurant', 'Sohar, Sultanate of Oman'], phones: ['+968 9792 3155'], map: 'Al Hambar Street, Sohar Souq, Sohar, Oman' },
+  ],
   // Danat Computers' verified pages (from the DanatComputer project) — swap for Danat Fix's own when they exist
   social: {
     facebook: 'https://www.facebook.com/DanatCSOman/',

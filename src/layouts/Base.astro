@@ -112,15 +112,6 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
             <li><a href={site.social.instagram} target="_blank" rel="noopener" aria-label="Instagram" style="--c:#E4405F"><i style="--m:url(/brand/ai/instagram.svg)"></i></a></li>
             <li><a href={`https://wa.me/${site.whatsapp}`} target="_blank" rel="noopener" aria-label="WhatsApp" style="--c:#25D366"><i style="--m:url(/brand/ai/whatsapp.svg)"></i></a></li>
           </ul>
-          <p class="ft-h">Summarize {site.name} with AI</p>
-          <ul class="ft-icons" data-ai-links>
-            <li><a data-ai="https://chatgpt.com/?q=" target="_blank" rel="noopener" aria-label="Ask ChatGPT" title="ChatGPT" style="--c:#10A37F"><i style="--m:url(/brand/ai/openai.svg)"></i></a></li>
-            <li><a data-ai="https://claude.ai/new?q=" target="_blank" rel="noopener" aria-label="Ask Claude" title="Claude" style="--c:#D97757"><i style="--m:url(/brand/ai/claude.svg)"></i></a></li>
-            <li><a data-ai="https://gemini.google.com/app?q=" target="_blank" rel="noopener" aria-label="Ask Gemini" title="Gemini" style="--c:#4285F4"><i style="--m:url(/brand/ai/googlegemini.svg)"></i></a></li>
-            <li><a data-ai="https://www.perplexity.ai/search?q=" target="_blank" rel="noopener" aria-label="Ask Perplexity" title="Perplexity" style="--c:#1FB8CD"><i style="--m:url(/brand/ai/perplexity.svg)"></i></a></li>
-            <li><a data-ai="https://grok.com/?q=" target="_blank" rel="noopener" aria-label="Ask Grok" title="Grok" style="--c:#111"><i style="--m:url(/brand/ai/x.svg)"></i></a></li>
-            <li><a data-ai="https://chat.mistral.ai/chat?q=" target="_blank" rel="noopener" aria-label="Ask Mistral" title="Mistral" style="--c:#FA520F"><i style="--m:url(/brand/ai/mistralai.svg)"></i></a></li>
-          </ul>
         </div>
         <div class="ft-col" role="navigation" aria-label="Services">
           <p class="ft-h">Services</p>
@@ -138,10 +129,15 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
         <div class="ft-col">
           <p class="ft-h">Our branches</p>
           <ul class="ft-branches">
-            {site.branches.map((b, i) => (
+            {site.branchInfo.map((b) => (
               <li>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
-                <span><b>{b}</b>{i === 0 ? <small>{site.address}</small> : <small>{site.country}</small>}</span>
+                <span>
+                  <b>Oman — {b.name}</b>
+                  <small>{b.lines.map((l) => <>{l}<br /></>)}</small>
+                  {b.phones.map((p) => <a class="ft-tel" href={`tel:${p.replace(/\s/g, '')}`}>{p}</a>)}
+                  <a class="ft-dir" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(b.map)}`} target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l18-8-8 18-2-8z"/></svg>Get directions</a>
+                </span>
               </li>
             ))}
           </ul>
@@ -154,11 +150,6 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     </footer>
 
     <script>
-      document.querySelectorAll<HTMLAnchorElement>('[data-ai]').forEach((a) => {
-        const q = `Summarize what ${document.title.split(' — ')[0].split(' · ').pop()} offers, its services and branches: ${location.origin}/`;
-        a.href = a.dataset.ai + encodeURIComponent(q);
-      });
-
       // Count-up numbers, site-wide: any <b data-count="12" data-from="0" data-suffix="+"> counts up the
       // first time it scrolls into view. The final value is already in the HTML, so nothing breaks without JS.
       // window.__countUp(el) replays it (used when a panel with a number is shown).
@@ -387,6 +378,12 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
   .ft-branches span { display: grid; gap: 2px; }
   .ft-branches b { font-size: 14.5px; color: var(--ink); }
   .ft-branches small { font-size: 13px; line-height: 1.45; color: var(--ink-3); }
+  .ft-tel { font-size: 14px; font-weight: 700; color: var(--violet); }
+  .ft-tel:hover { text-decoration: underline; }
+  .ft-dir { display: inline-flex; align-items: center; gap: 6px; justify-self: start; margin-top: 6px; padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-size: 12.5px; font-weight: 600; color: var(--ink-2); transition: border-color .2s, color .2s, transform .2s; }
+  .ft-dir svg { width: 13px !important; height: 13px !important; margin: 0 !important; color: currentColor !important; }
+  .ft-dir:hover { border-color: var(--violet); color: var(--violet); transform: translateY(-2px); }
+  .ft-branches { gap: 20px !important; }
   .ft-dev { font-weight: 800; color: var(--violet); }
   @media (max-width: 1000px) { .ft-grid { grid-template-columns: 1fr 1fr; } .ft-about { grid-column: 1 / -1; } }
   @media (max-width: 560px) { .ft-grid { grid-template-columns: 1fr; gap: 28px; padding-top: 40px; } }
