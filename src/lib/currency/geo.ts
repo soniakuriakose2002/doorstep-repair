@@ -54,6 +54,15 @@ async function lookup(ip: string): Promise<string | null> {
   return null;
 }
 
+/** Development only: country of this machine's own public IP (localhost visitors have none). */
+let selfCountry: Promise<string | null> | null = null;
+export function countryOfThisMachine(): Promise<string | null> {
+  selfCountry ??= getJson('https://api.country.is/')
+    .then((j) => (typeof j?.country === 'string' && /^[A-Z]{2}$/.test(j.country) ? j.country : null))
+    .catch(() => null);
+  return selfCountry;
+}
+
 /** Country code for a public IP, or null if it can't be found. Never throws. */
 export async function countryFromIp(ip: string): Promise<string | null> {
   if (!isPublicIp(ip)) return null;
