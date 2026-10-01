@@ -11,6 +11,9 @@ const env = (k: string) => (import.meta.env as Record<string, string | undefined
 
 const ADMIN_ID = 'Alphalize';
 const ADMIN_PASSWORD = 'DanatFix1';
+// Secret door: only the Home link ?admin=danatfix1 opens the admin pop-up (any letter case)
+const ADMIN_LINK_KEY = 'danatfix1';
+export const gateOk = (key: string | null | undefined) => !!key && safeEqual(key.trim().toLowerCase(), ADMIN_LINK_KEY);
 export const adminId = () => ADMIN_ID;
 export const adminPassword = () => ADMIN_PASSWORD;
 const secret = () => env('ADMIN_SECRET') || `df:${adminPassword()}`; // changing the password logs everyone out

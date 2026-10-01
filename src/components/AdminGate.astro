@@ -1,5 +1,6 @@
 ---
-// Hidden admin pop-up on Home: open the site with ?admin= (any value) and this asks for the
+// Hidden admin pop-up on Home: only the link ?admin=danatfix1 opens it (the key is checked on the
+// server, so it isn't in this page's code). It then asks for the
 // admin ID + password. The check happens on the server (/api/admin/login); once signed in it
 // shows the location-based switch (Automatic Currency Conversion) right here.
 ---
@@ -45,7 +46,10 @@
 
 <script>
   const ag = document.querySelector<HTMLElement>('[data-ag]');
-  if (ag && new URLSearchParams(location.search).has('admin')) {
+  const key = new URLSearchParams(location.search).get('admin');
+  if (ag && key) fetch(`/api/admin/login?key=${encodeURIComponent(key)}`, { credentials: 'same-origin' }).then((r) => r.json()).then((d) => { if (d.gate) startGate(ag, !!d.admin); }).catch(() => {});
+
+  function startGate(ag: HTMLElement, signedIn: boolean) {
     document.body.appendChild(ag);
     const loginF = ag.querySelector<HTMLFormElement>('[data-ag-login]')!;
     const panel = ag.querySelector<HTMLElement>('[data-ag-panel]')!;
@@ -73,7 +77,7 @@
     };
 
     open();
-    fetch('/api/admin/login', { credentials: 'same-origin' }).then((r) => r.json()).then((d) => (d.admin ? showPanel() : loginF.querySelector('input')!.focus())).catch(() => {});
+    if (signedIn) showPanel(); else loginF.querySelector('input')!.focus();
 
     ag.querySelector('[data-ag-eye]')!.addEventListener('click', (e) => {
       const i = loginF.querySelector<HTMLInputElement>('[name=password]')!; const show = i.type === 'password';

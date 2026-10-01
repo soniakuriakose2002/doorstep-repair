@@ -1,15 +1,19 @@
 // POST /api/admin/login — sign-in for the ?admin= pop-up on Home. JSON { id, password }.
-// GET tells the pop-up whether this browser is already signed in. DELETE signs out.
+// GET ?key=… tells the pop-up whether the link key is right (only then it opens) and whether
+// this browser is already signed in. DELETE signs out.
 // Same checks as /admin: server-side compare, 5 wrong tries → 15 min lock, http-only cookie.
 import type { APIRoute } from 'astro';
-import { isAdmin, login, logout, sameOrigin } from '../../../lib/adminAuth';
+import { isAdmin, login, logout, sameOrigin, gateOk } from '../../../lib/adminAuth';
 
 export const prerender = false;
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' } });
 
-export const GET: APIRoute = async ({ cookies }) => json({ admin: isAdmin(cookies) });
+export const GET: APIRoute = async ({ cookies, url }) => {
+  if (!gateOk(url.searchParams.get('key'))) return json({ gate: false });
+  return json({ gate: true, admin: isAdmin(cookies) });
+};
 
 export const POST: APIRoute = async ({ request, cookies, clientAddress, url }) => {
   if (!sameOrigin(request)) return json({ error: 'bad origin' }, 403);

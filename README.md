@@ -51,7 +51,7 @@ Visitors see prices in their own country's currency; stored prices never change.
 
 Two ways in, same login (ID **Alphalize**, password **DanatFix1** — set in code in `src/lib/adminAuth.ts`; change them there):
 
-- **Quick pop-up:** open the Home page with `?admin=` (any value, e.g. `/?admin=1`). A pop-up with the logo asks for the ID and password, then shows the **Location-based currency** ON/OFF switch.
+- **Quick pop-up:** open the Home page with `?admin=danatfix1` (e.g. `http://danat.alphalize.com/?admin=danatfix1`; key checked on the server, any letter case — other values do nothing). A pop-up with the logo asks for the ID and password, then shows the **Location-based currency** ON/OFF switch.
 - **Full dashboard:** `/admin` → **Automatic Currency Conversion: Enable / Disable**, live status and preview.
 
 The check runs on the server only; 5 wrong tries lock that IP for 15 minutes.
