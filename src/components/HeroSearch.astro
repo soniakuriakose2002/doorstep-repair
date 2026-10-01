@@ -58,7 +58,7 @@ const trackSteps = [
 const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg>';
 ---
 
-<div class="hs" data-hs data-sugg={JSON.stringify(suggIndex)} data-tel={tel} data-cats={JSON.stringify(catIndex)} data-geo={JSON.stringify({ areaGeo, branchGeo, doorstep, pickup })}>
+<div class="hs" data-hs data-sugg={JSON.stringify(suggIndex)} data-tel={tel} data-cats={JSON.stringify(catIndex)} data-geo={JSON.stringify({ areaGeo, branchGeo, doorstep, pickup, eta: { doorstep: coverage.doorstep.eta, pickup: coverage.pickup.eta } })}>
   <form class="hs-row" data-hs-find>
     <label class="hs-field">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
@@ -84,9 +84,10 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     </button>
   </div>
   <!-- Where is the repair? current location, typed address, or a saved place -->
-  <div class="lp" data-lp hidden>
+  <div class="lp-wrap" data-lp-wrap hidden><div class="lp-bg" data-lp-x></div>
+  <div class="lp" data-lp role="dialog" aria-modal="true" aria-label="Choose your location">
     <div class="lp-head">
-      <div><b>Select a location</b><small>Where should our technician come?</small></div>
+      <div><b>Choose your location</b><small>Repair availability and service options depend on your area</small></div>
       <button type="button" class="lp-x" data-lp-x aria-label="Close">×</button>
     </div>
     <form class="lp-search" data-lp-form>
@@ -101,7 +102,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <svg class="lp-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
     </button>
     <div class="lp-saved" data-lp-saved></div>
-  </div>  <div class="hs-result" data-hs-result aria-live="polite" hidden></div>
+  </div></div>  <div class="hs-result" data-hs-result aria-live="polite" hidden></div>
 
   <div class="hs-popular">
     <span>Popular:</span>
@@ -156,7 +157,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
   if (root) {
     const tel = root.dataset.tel!;
     const cats: { id: string; words: string[] }[] = JSON.parse(root.dataset.cats!);
-    const geo = JSON.parse(root.dataset.geo!) as { areaGeo: Record<string, [number, number]>; branchGeo: { name: string; at: [number, number] }[]; doorstep: string[]; pickup: string[] };
+    const geo = JSON.parse(root.dataset.geo!) as { areaGeo: Record<string, [number, number]>; branchGeo: { name: string; at: [number, number] }[]; doorstep: string[]; pickup: string[]; eta: { doorstep: string; pickup: string } };
     const norm = (s: string) => s.toLowerCase().replace(/\s+/g, ' ').trim();
     const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
     const result = root.querySelector<HTMLElement>('[data-hs-result]')!;
@@ -279,13 +280,14 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
     };
     const svg = (k: keyof typeof I, fill = false) => `<svg viewBox="0 0 24 24" fill="${fill ? 'currentColor' : 'none'}" stroke="${fill ? 'none' : 'currentColor'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[k]}</svg>`;
-    const card = (o: { tone: 'ok' | 'warn'; kicker: string; title: string; route?: [string, string, string]; text: string; chips?: string[]; actions: string; foot: string }) => `
+    const card = (o: { tone: 'ok' | 'warn'; kicker: string; title: string; route?: [string, string, string]; text: string; chips?: string[]; lines?: [boolean, string, string][]; actions: string; foot: string }) => `
       <button type="button" class="lr-x" data-lr-x aria-label="Close">×</button>
       <div class="lr-head">
         <span class="lr-ic">${svg(o.tone === 'ok' ? 'ok' : 'globe')}</span>
         <div><small class="lr-kick">${o.kicker}</small><b class="lr-title">${o.title}</b></div>
       </div>
       ${o.route ? `<div class="lr-route"><span class="lr-dot you">${o.route[0]}</span><span class="lr-line"><i>${o.route[1]}</i></span><span class="lr-dot hq">${o.route[2]}</span></div>` : ''}
+      ${o.lines?.length ? `<ul class="lr-lines">${o.lines.map(([ok, a, b]) => `<li class="${ok ? 'y' : 'n'}"><i>${ok ? '✓' : '✕'}</i><span><b>${a}</b>${b ? `<small>${b}</small>` : ''}</span></li>`).join('')}</ul>` : ''}
       ${o.chips?.length ? `<div class="lr-chips">${o.chips.map((c) => `<span>${c}</span>`).join('')}</div>` : ''}
       <p class="lr-text">${o.text}</p>
       <div class="lr-acts">${o.actions}</div>
@@ -316,8 +318,13 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         ? `<small class="lp-sec">Saved addresses</small>` + s.map((v, i) => `<div class="lp-row lp-sv"><button type="button" class="lp-sv-go" data-place-saved="${i}"><span class="lp-ri">${ico(v.kind)}</span><span class="lp-rt"><b>${esc(v.label)}</b><small>${esc(v.name)}</small></span></button><button type="button" class="lp-del" data-place-del="${i}" aria-label="Remove ${esc(v.label)}">×</button></div>`).join('')
         : `<p class="lp-tip">${ico('pin')}Check an address once, then save it as Home, Work or any name for next time.</p>`;
     };
-    const openPanel = () => { renderSaved(); lp.hidden = false; result.hidden = true; lpQ.value = ''; lpList.hidden = true; setTimeout(() => lpQ.focus(), 50); };
-    const closePanel = () => { lp.hidden = true; };
+    const lpWrap = root.querySelector<HTMLElement>('[data-lp-wrap]')!;
+    document.body.append(lpWrap); // modal lives at page level (works from the header on any scroll position)
+    const openPanel = () => { renderSaved(); lpWrap.hidden = false; requestAnimationFrame(() => lpWrap.classList.add('in')); document.documentElement.style.overflow = 'hidden'; lpQ.value = ''; lpList.hidden = true; setTimeout(() => lpQ.focus(), 80); };
+    const closePanel = () => { lpWrap.classList.remove('in'); document.documentElement.style.overflow = ''; setTimeout(() => (lpWrap.hidden = true), 220); };
+    (window as any).__openLocation = openPanel;
+    if (location.hash === '#check-location') setTimeout(openPanel, 300);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !lpWrap.hidden) closePanel(); });
     const areas = Object.keys(geo.areaGeo);
     const matches = (q: string) => { const n = norm(q); return n ? areas.filter((a) => norm(a).includes(n)).sort((a, b) => (norm(a).startsWith(n) ? 0 : 1) - (norm(b).startsWith(n) ? 0 : 1)).slice(0, 6) : []; };
     const checkPlace = (name: string, at: [number, number]) => { lastPlace = name; closePanel(); showFor(at, 'typed'); };
@@ -339,7 +346,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       } catch {}
       show(`<b>We couldn't find “${esc(q)}”</b><span>Try the area or town name, or <button type="button" class="hs-exact" data-lp-open>search again</button>.</span>`, 'warn');
     });
-    lp.addEventListener('click', (e) => {
+    lpWrap.addEventListener('click', (e) => {
       const t = e.target as HTMLElement;
       if (t.closest('[data-lp-x]')) closePanel();
       if (t.closest('[data-lp-current]')) { closePanel(); runCurrent(); }
@@ -347,7 +354,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       const s = t.closest<HTMLElement>('[data-place-saved]'); if (s) { const v = saved()[Number(s.dataset.placeSaved)]; if (v) checkPlace(v.name, v.at); }
       const d = t.closest<HTMLElement>('[data-place-del]'); if (d) { const all = saved(); all.splice(Number(d.dataset.placeDel), 1); putSaved(all); renderSaved(); }
     });
-    locBtn.addEventListener('click', () => (lp.hidden ? openPanel() : closePanel()));
+    locBtn.addEventListener('click', openPanel);
 
     // extra blocks under every result: save this place, and book for someone else
     const extras = () => !check ? '' : `
@@ -399,6 +406,10 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         const mapLink = `https://maps.google.com/?q=${me[0].toFixed(5)},${me[1].toFixed(5)}`;
         const covered = near.d <= (how === 'ip' ? 40 : 12);
         check = { name: where || near.n, at: me, covered, branch: br.name };
+        const label = how === 'typed' ? lastPlace : (covered ? near.n : (where || 'Outside Oman'));
+        try { localStorage.setItem('svc-loc', JSON.stringify({ name: label, covered })); } catch {}
+        window.dispatchEvent(new CustomEvent('svc-loc', { detail: { name: label, covered } }));
+        setTimeout(() => result.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60);
         if (covered) {
           area = near.n;
           try { localStorage.setItem('area', area); } catch {}
@@ -407,7 +418,11 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           show(card({
             tone: 'ok', kicker: 'Great news — we cover your area', title: how === 'typed' ? esc(lastPlace) : esc(near.n),
             route: [how === 'typed' ? 'This address' : 'You', dist, esc(br.name)],
-            chips: modes.map((m) => `✓ ${m}`),
+            lines: [
+              [modes.includes('Doorstep'), modes.includes('Doorstep') ? 'Doorstep repair available' : 'Doorstep repair not available here', modes.includes('Doorstep') ? geo.eta.doorstep : 'Use pickup & drop instead'],
+              [modes.includes('Pickup'), 'Pickup & drop available', geo.eta.pickup],
+              [true, 'Estimate before any work', 'You approve the price first'],
+            ],
             text: modes.includes('Doorstep') ? `Our technicians come to you from the ${esc(br.name)} branch.` : `We pick up your device, repair it at our ${esc(br.name)} branch and bring it back.`,
             actions: `<a class="lr-btn pri" href="${withArea('/services#catalog')}">Book a repair${svg('arrow')}</a>${waBtn(`Hi Danat Fix, I'm in ${near.n} and want to book a repair.`, 'Chat')}`,
             foot,
@@ -419,6 +434,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             kicker: outside ? 'Outside our service area' : 'Not on our coverage list yet',
             title: where || (outside ? 'Outside Oman' : `Near ${esc(br.name)}`),
             route: [how === 'typed' ? 'This address' : 'You', dist, esc(br.name)],
+            lines: [[false, 'Doorstep repair not available', ''], [false, 'Pickup & drop not available', '']],
             text: outside
               ? 'We repair across Oman — Muscat, Al Batinah and Dhofar. Message us and we’ll still try to help.'
               : 'Message us and we’ll confirm whether a technician can reach you.',
@@ -487,6 +503,20 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
   .hs-act.busy .hs-ai svg { animation: hsPulse .9s ease-in-out infinite; }
   @keyframes hsPulse { 50% { transform: translateY(-3px); } }
 
+  .lp-wrap { position: fixed; inset: 0; z-index: 93; display: grid; place-items: center; padding: 16px; }
+  .lp-wrap[hidden] { display: none; }
+  .lp-bg { position: absolute; inset: 0; background: rgba(16, 24, 40, .38); backdrop-filter: blur(6px); opacity: 0; transition: opacity .22s; }
+  .lp-wrap.in .lp-bg { opacity: 1; }
+  .lp-wrap .lp { width: min(480px, 100%); max-height: calc(100vh - 32px); overflow: auto; transform: translateY(14px) scale(.98); opacity: 0; transition: transform .25s cubic-bezier(.2,.8,.2,1), opacity .22s; animation: none; }
+  .lp-wrap.in .lp { transform: none; opacity: 1; }
+  .hs-result :global(.lr-lines) { list-style: none; margin: 0; padding: 4px 0; display: grid; gap: 8px; }
+  .hs-result :global(.lr-lines li) { display: flex; gap: 10px; align-items: start; }
+  .hs-result :global(.lr-lines i) { flex: none; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; font-style: normal; font-size: 12px; font-weight: 900; }
+  .hs-result :global(.lr-lines li.y i) { background: #DCFCE7; color: #15803D; }
+  .hs-result :global(.lr-lines li.n i) { background: #FEE4E2; color: #B42318; }
+  .hs-result :global(.lr-lines b) { display: block; color: var(--ink); font-size: 14px; }
+  .hs-result :global(.lr-lines li.n b) { color: var(--ink-3); font-weight: 600; }
+  .hs-result :global(.lr-lines small) { color: var(--ink-3); font-size: 12.5px; }
   .lp { position: relative; display: grid; gap: 12px; padding: 18px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 28px 60px -30px rgba(0,0,0,.6); color: var(--ink-2); font-size: 14px; animation: hsIn .3s cubic-bezier(.2,.8,.2,1); }
   .lp[hidden] { display: none; }
   .lp-head { display: flex; align-items: start; justify-content: space-between; gap: 12px; }
