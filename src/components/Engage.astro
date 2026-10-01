@@ -136,7 +136,7 @@ import { DIAL as dial } from '../lib/phone';
   </div>
 </aside>
 <script>
-  import { checkPhone } from '../lib/phone';
+  import { checkPhone, bindPhone, limitPhone } from '../lib/phone';
   const idle = document.querySelector<HTMLElement>('[data-idle]');
   const sl = document.querySelector<HTMLElement>('[data-slide-in]');
   if (idle && sl) {
@@ -198,11 +198,12 @@ import { DIAL as dial } from '../lib/phone';
     idle.querySelectorAll('[data-idle-x]').forEach((b) => b.addEventListener('click', closeIdle));
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !idle.hidden) closeIdle(); });
 
-    idle.querySelector<HTMLInputElement>('[data-ph]')!.addEventListener('input', () => { const m = idle.querySelector('[data-quick-msg]')!; if (m.classList.contains('err')) { m.textContent = ''; m.className = 'ig-msg'; } });
+    const qMsg = idle.querySelector<HTMLElement>('[data-quick-msg]')!;
     // Country code picker: shows flag + code, follows the visitor's country until they choose one
     const ccSel = idle.querySelector<HTMLSelectElement>('[data-cc]')!;
-    const ccShow = () => { const o = ccSel.selectedOptions[0]; idle.querySelector<HTMLImageElement>('[data-cc-flag]')!.src = `/flags/${o.value}.svg`; idle.querySelector('[data-cc-code]')!.textContent = o.dataset.code!; idle.querySelector<HTMLInputElement>('[data-ph]')!.placeholder = `${o.dataset.eg} (${o.dataset.len} digits)`; };
+    const ccShow = () => { const o = ccSel.selectedOptions[0]; idle.querySelector<HTMLImageElement>('[data-cc-flag]')!.src = `/flags/${o.value}.svg`; idle.querySelector('[data-cc-code]')!.textContent = o.dataset.code!; const ph = idle.querySelector<HTMLInputElement>('[data-ph]')!; ph.placeholder = o.dataset.eg!; ph.value = limitPhone(ph.value, ccSel.value); };
     ccShow();
+    bindPhone(idle.querySelector<HTMLInputElement>('[data-ph]')!, () => ccSel.value, (m) => { qMsg.textContent = m; qMsg.className = m ? 'ig-msg err' : 'ig-msg'; });
     let ccTouched = false;
     ccSel.addEventListener('change', () => { ccTouched = true; ccShow(); });
     const ccAuto = (cc: unknown) => { if (ccTouched || typeof cc !== 'string') return; const v = cc.toLowerCase(); if ([...ccSel.options].some((o) => o.value === v)) { ccSel.value = v; ccShow(); } };

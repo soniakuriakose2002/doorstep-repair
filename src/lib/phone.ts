@@ -23,6 +23,32 @@ export const DIAL: Dial[] = [
 
 export const dialFor = (cc: string | null | undefined): Dial => DIAL.find((d) => d.cc === (cc || '').toLowerCase()) ?? DIAL[0];
 
+/** While typing: drop letters and stop extra digits once the number is full for that country
+ *  (a typed country code or leading 0 doesn't count). Returns the cleaned value. */
+export function limitPhone(value: string, cc: string): string {
+  const d = dialFor(cc), code = d.code.slice(1);
+  const v = value.replace(/[^\d+\s-]/g, '').replace(/(?!^)\+/g, '');
+  const compact = v.replace(/[\s-]/g, '');
+  const prefix = compact.startsWith('+' + code) ? code.length : compact.startsWith('00' + code) ? code.length + 2 : compact.startsWith('0') ? 1 : 0;
+  let allowed = d.len + prefix, out = '';
+  for (const ch of v) { if (/\d/.test(ch)) { if (allowed <= 0) continue; allowed--; } out += ch; }
+  return out.replace(/[\s-]+$/, (m) => (allowed > 0 ? m : ''));
+}
+
+/** Wire a phone input: limits digits live, clears the error while typing, shows "too short" on leaving the box. */
+export function bindPhone(input: HTMLInputElement, getCc: () => string, showErr: (msg: string) => void) {
+  input.addEventListener('input', () => {
+    const cleaned = limitPhone(input.value, getCc());
+    if (cleaned !== input.value) input.value = cleaned;
+    showErr('');
+  });
+  input.addEventListener('blur', () => {
+    if (!input.value.trim()) return;
+    const r = checkPhone(getCc(), input.value);
+    showErr(r.ok ? '' : r.msg);
+  });
+}
+
 /** Validate a typed number for a country. Accepts spaces/dashes, an optional country code
  *  or a leading 0. Returns the full international number when valid. */
 export function checkPhone(cc: string, raw: string): { ok: boolean; full: string; msg: string } {
