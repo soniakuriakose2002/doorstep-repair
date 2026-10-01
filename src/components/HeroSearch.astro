@@ -217,6 +217,15 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       return null;
     };
     let lastIp: { city: string; country: string } | null = null;
+    let lastGps = '';
+    // GPS position → real place name (free, no key). Empty string if it can't be found.
+    const placeName = async (at: [number, number]) => {
+      try {
+        const r = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${at[0]}&longitude=${at[1]}&localityLanguage=en`, { signal: AbortSignal.timeout(5000) });
+        const j = await r.json();
+        return [j.locality || j.city, j.principalSubdivision, j.countryName].filter(Boolean).filter((v, i, a) => a.indexOf(v) === i).join(', ');
+      } catch { return ''; }
+    };
     locBtn.addEventListener('click', async () => {
       locBtn.classList.add('busy');
       show('<span class="spin"></span> Finding your location from your internet connection…', 'wait');
@@ -231,7 +240,11 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       if (!(ev.target as HTMLElement).closest('[data-hs-exact]')) return;
       if (!navigator.geolocation) { show('<b>Your browser can\'t share exact location</b><span>Message us on WhatsApp and we\'ll confirm.</span>', 'warn'); return; }
       show('<span class="spin"></span> Getting your exact location…', 'wait');
-      navigator.geolocation.getCurrentPosition((pos) => showFor([pos.coords.latitude, pos.coords.longitude], 'gps'), (err) => {
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        const me: [number, number] = [pos.coords.latitude, pos.coords.longitude];
+        lastGps = await placeName(me);
+        showFor(me, 'gps');
+      }, (err) => {
         const why = err.code === 1 ? 'Location is blocked for this site (click the location icon in the address bar to allow it).' : 'Your device couldn\'t find its location.';
         show(`<b>We couldn't get your exact location</b><span>${why}</span>`, 'warn');
       }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
@@ -263,10 +276,10 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     const showFor = (me: [number, number], how: 'ip' | 'gps') => {
         const near = Object.entries(geo.areaGeo).map(([n, at]) => ({ n, d: km(me, at) })).sort((a, b) => a.d - b.d)[0];
         const br = geo.branchGeo.map((b) => ({ ...b, d: km(me, b.at) })).sort((a, b) => a.d - b.d)[0];
-        const where = how === 'ip' && lastIp ? esc([lastIp.city, lastIp.country].filter(Boolean).join(', ')) : '';
+        const where = how === 'ip' ? (lastIp ? esc([lastIp.city, lastIp.country].filter(Boolean).join(', ')) : '') : esc(lastGps);
         const foot = how === 'ip'
-          ? `<span>${svg('pin')}Detected from your IP address</span><button type="button" class="hs-exact" data-hs-exact>${svg('gps')}Use exact location</button>`
-          : `<span>${svg('gps')}Using your exact location</span>`;
+          ? `<span>${svg('pin')}Approximate — from your internet provider</span><button type="button" class="hs-exact" data-hs-exact>${svg('gps')}Not right? Use exact location</button>`
+          : `<span>${svg('gps')}Exact location from your device</span>`;
         const dist = `${Math.round(br.d).toLocaleString()} km`;
         const mapLink = `https://maps.google.com/?q=${me[0].toFixed(5)},${me[1].toFixed(5)}`;
         const covered = near.d <= (how === 'ip' ? 40 : 12);
