@@ -19,7 +19,6 @@ in `astro.config.mjs`.
 
 | Variable | Required | Purpose |
 |---|---|---|
-| `ADMIN_PASSWORD` | yes, for /admin | Password for the admin page |
 | `ADMIN_SECRET` | recommended | Signs the admin login cookie (random long string) |
 | `FX_API_KEY` | no | Use the keyed exchangerate-api.com v6 instead of the free open.er-api.com |
 | `ALLOW_TEST_GEO` | no | `1` lets `?country=XX` / `X-Test-Country` simulate a country on a production server (testing only) |
@@ -50,7 +49,12 @@ Visitors see prices in their own country's currency; stored prices never change.
 
 ### Admin
 
-`/admin` → sign in with `ADMIN_PASSWORD` → **Automatic Currency Conversion: Enable / Disable**.
+Two ways in, same login (ID **Alphalize**, password **DanatFix1** — set in code in `src/lib/adminAuth.ts`; change them there):
+
+- **Quick pop-up:** open the Home page with `?admin=` (any value, e.g. `/?admin=1`). A pop-up with the logo asks for the ID and password, then shows the **Location-based currency** ON/OFF switch.
+- **Full dashboard:** `/admin` → **Automatic Currency Conversion: Enable / Disable**, live status and preview.
+
+The check runs on the server only; 5 wrong tries lock that IP for 15 minutes.
 Stored in `data/settings.json` (`src/lib/settings.ts`). Login cookie is signed, http-only,
 SameSite=Strict, 8 h; 5 wrong passwords lock that IP for 15 min; cross-site posts rejected.
 

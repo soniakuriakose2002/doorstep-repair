@@ -2,7 +2,7 @@
 // /admin — owner settings. Server-rendered on every request (never pre-built).
 // Shows a login form until the admin cookie is valid, then the settings dashboard.
 import '../../styles/global.css';
-import { isAdmin, login, logout, sameOrigin, adminPassword } from '../../lib/adminAuth';
+import { isAdmin, login, logout, sameOrigin } from '../../lib/adminAuth';
 import { getSettings } from '../../lib/settings';
 import { BASE_CURRENCY, resolveDisplayCurrency, formatMoney } from '../../lib/currency';
 import { getRates, rateFor } from '../../lib/currency/rates';
@@ -19,11 +19,11 @@ if (request.method === 'POST' && sameOrigin(request)) {
     logout(cookies);
     return Astro.redirect('/admin', 303);
   }
-  const r = login(String(f.get('password') ?? ''), clientAddress, cookies, url.protocol === 'https:');
+  const r = login(String(f.get('id') ?? ''), String(f.get('password') ?? ''), clientAddress, cookies, url.protocol === 'https:');
   if (r === 'ok') return Astro.redirect('/admin', 303);
   error = r === 'locked' ? 'Too many wrong attempts. Try again in 15 minutes.'
     : r === 'not-configured' ? 'Admin password is not set on the server (ADMIN_PASSWORD).'
-    : 'Wrong password. Please try again.';
+    : 'Wrong ID or password. Please try again.';
 }
 
 const authed = isAdmin(cookies);
@@ -80,11 +80,15 @@ const countryName = (cc?: string | null) => { if (!cc) return 'Unknown'; try { r
           </span>
           <h1>Welcome back</h1>
           <p class="lg-sub">Sign in to manage the website settings.</p>
-          {!adminPassword() && <p class="lg-warn">Set <code>ADMIN_PASSWORD</code> in the server's <code>.env</code> file to enable the admin.</p>}
+          <label for="aid">Admin ID</label>
+          <div class="lg-field">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+            <input id="aid" name="id" autocomplete="username" placeholder="Enter admin ID" required autofocus />
+          </div>
           <label for="pw">Password</label>
           <div class="lg-field">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M10.8 12.2 20 3M17 6l3 3M15 8l2 2"/></svg>
-            <input id="pw" type="password" name="password" autocomplete="current-password" placeholder="Enter admin password" required autofocus />
+            <input id="pw" type="password" name="password" autocomplete="current-password" placeholder="Enter admin password" required />
           </div>
           {error && <p class="lg-err" role="alert">{error}</p>}
           <button class="lg-btn" type="submit">Sign in <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>

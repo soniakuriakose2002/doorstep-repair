@@ -1,5 +1,6 @@
-// Admin login for /admin (server only).
-// Password comes from the ADMIN_PASSWORD environment variable (.env, never committed).
+// Admin login for /admin and the ?admin= pop-up on Home (server only).
+// ID and password are set here in code on the manager's request — change them here to change the login.
+// They are only ever checked on the server; the browser never sees them.
 // After login the browser gets a signed, http-only cookie valid for 8 hours.
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import type { AstroCookies } from 'astro';
@@ -8,7 +9,10 @@ const COOKIE = 'df_admin';
 const HOURS = 8;
 const env = (k: string) => (import.meta.env as Record<string, string | undefined>)[k] ?? process.env[k];
 
-export const adminPassword = () => env('ADMIN_PASSWORD') || '';
+const ADMIN_ID = 'Alphalize';
+const ADMIN_PASSWORD = 'DanatFix1';
+export const adminId = () => ADMIN_ID;
+export const adminPassword = () => ADMIN_PASSWORD;
 const secret = () => env('ADMIN_SECRET') || `df:${adminPassword()}`; // changing the password logs everyone out
 
 const sign = (data: string) => createHmac('sha256', secret()).update(data).digest('base64url');
@@ -31,11 +35,13 @@ function noteFail(ip: string) {
   fails.set(ip, f);
 }
 
-/** Check a password; on success set the login cookie. */
-export function login(password: string, ip: string, cookies: AstroCookies, secure: boolean): 'ok' | 'wrong' | 'locked' | 'not-configured' {
+/** Check ID + password; on success set the login cookie. The ID ignores upper/lower case. */
+export function login(id: string, password: string, ip: string, cookies: AstroCookies, secure: boolean): 'ok' | 'wrong' | 'locked' | 'not-configured' {
   if (!adminPassword()) return 'not-configured';
   if (isLockedOut(ip)) return 'locked';
-  if (!safeEqual(password, adminPassword())) { noteFail(ip); return 'wrong'; }
+  const idOk = safeEqual(id.trim().toLowerCase(), adminId().toLowerCase());
+  const pwOk = safeEqual(password, adminPassword());
+  if (!idOk || !pwOk) { noteFail(ip); return 'wrong'; }
   fails.delete(ip);
   const exp = String(Date.now() + HOURS * 3600 * 1000);
   cookies.set(COOKIE, `${exp}.${sign(exp)}`, { httpOnly: true, sameSite: 'strict', secure, path: '/', maxAge: HOURS * 3600 });

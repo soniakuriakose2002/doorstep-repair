@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import MediaFrame from '../components/MediaFrame.astro';
 import HeroSearch from '../components/HeroSearch.astro';
+import AdminGate from '../components/AdminGate.astro';
 import DeviceArt from '../components/DeviceArt.astro';
 import { artFor, note } from '../data/menu';
 
@@ -345,6 +346,7 @@ const [rowA, rowB] = rowsOf(mostBooked);
       </div>
     </div>
   </section>
+  <AdminGate />
 </Base>
 
 <script>
