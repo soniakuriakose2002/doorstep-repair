@@ -10,7 +10,8 @@ export const shades = [
   { id: '33', name: 'Danat AI', a: '#8B2BE2', b: '#0757B8' },
   { id: '34', name: 'Danat Light', a: '#FFFFFF', b: '#0757B8' },
   { id: '35', name: 'Danat Midnight', a: '#081224', b: '#22D3EE' },
-  { id: '36', name: 'Danat Logo Palette', a: '#049AE9', b: '#F78E36' },
+  { id: '36', name: 'Danat Logo Palette (Soft)', a: '#0757B8', b: '#FF7A00' },
+  { id: '37', name: 'Danat Logo Palette (Warm)', a: '#049AE9', b: '#F78E36' },
   { id: '1', name: 'Lavender Mist', a: '#7c5cd6', b: '#d8cbff', g: 'Pastel shades' },
   { id: '2', name: 'Cotton Candy', a: '#a45cc9', b: '#f3c6e6' },
   { id: '3', name: 'Sky Lilac', a: '#5b6fd6', b: '#c9d9ff' },
@@ -67,7 +68,7 @@ export const shades369 = [
   menu.addEventListener('click', (e) => { const b = e.target.closest('[data-shade-id]'); if (b) set(b.dataset.shadeId); });
   document.addEventListener('click', (e) => { if (!root.contains(e.target)) { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); } });
   // a shade belongs to one brand (1–14 Danat Fix, 21–28 369 ai Fix): drop it when the brand no longer matches
-  const fits = () => { const s = Number(document.documentElement.dataset.shade || 0), br = document.documentElement.dataset.brand || 'danatfix'; return !s || (br === '369' ? s >= 21 && s <= 28 : (s >= 1 && s <= 14) || (s >= 32 && s <= 36)); };
+  const fits = () => { const s = Number(document.documentElement.dataset.shade || 0), br = document.documentElement.dataset.brand || 'danatfix'; return !s || (br === '369' ? s >= 21 && s <= 28 : (s >= 1 && s <= 14) || (s >= 32 && s <= 37)); };
   const check = () => { if (!fits()) { delete document.documentElement.dataset.shade; try { localStorage.setItem('shade', '0'); } catch {} } mark(); };
   new MutationObserver(check).observe(document.documentElement, { attributes: true, attributeFilter: ['data-brand'] });
   check();
