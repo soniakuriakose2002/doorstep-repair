@@ -4,8 +4,8 @@
 // colour theme change (global.css :root[data-brand=…], taken from each logo).
 // Default: Danat Fix on every visit (not remembered). ?brand=369 links straight to 369 ai Fix.
 export const brands = [
-  { id: 'danatfix', name: 'Danat Fix', sub: 'A unit of Danat Group', logo: '/brand/danat-fix@240.png', icon: '/brand/danat-fix-icon.png', w: 222, h: 240 },
-  { id: '369', name: '369 ai Fix', sub: 'Smart service. Better solutions.', logo: '/brand/369-ai-fix@240.png', icon: '/brand/369-ai-fix-icon.png', w: 287, h: 240 },
+  { id: 'danatfix', name: 'Danat Fix', sub: 'A unit of Danat Group', logo: '/brand/danat-fix-mark.png', icon: '/brand/danat-fix-icon.png', w: 196, h: 200 },
+  { id: '369', name: '369 ai Fix', sub: 'Smart service. Better solutions.', logo: '/brand/369-ai-fix-mark.png', icon: '/brand/369-ai-fix-icon.png', w: 257, h: 200 },
 ];
 ---
 
@@ -80,19 +80,15 @@ export const brands = [
 <style>
   .bs { position: relative; display: flex; align-items: center; gap: 6px; }
   .bs-logo { display: block; }
-  .bs-logo .logo-369 { display: none; height: 64px; width: auto; margin-block: -6px; }
-  @media (max-width: 560px) { .bs-logo .logo-369 { height: 46px; } }
+  /* logo inside the header bar, no tagline (like 369ai.biz) */
+  .bs-logo .logo-369 { display: none; height: 52px; width: auto; margin-block: -4px; }
+  @media (max-width: 560px) { .bs-logo .logo-369 { height: 42px; } }
   /* wide screens: logo stands on its own in the empty space left of the header bar */
-  @media (min-width: 1480px) {
-    .bs { position: absolute; right: calc(100% + 28px); top: 50%; transform: translateY(-50%); flex-direction: row; gap: 10px; }
-    .bs-logo { display: grid; place-items: center; height: 88px; padding: 7px 14px; box-sizing: border-box; overflow: visible; border-radius: 22px; background: var(--surface); box-shadow: var(--shadow), 0 0 0 1px var(--line); }
-    .bs-logo .logo-369 { height: 74px; width: auto; max-width: none; margin: 0; object-fit: contain; }
-    .bs-menu { left: 0; }
-  }
+
   :global(:root[data-brand='danatfix']) .bs-logo [data-for='danatfix'],
   :global(:root[data-brand='369']) .bs-logo [data-for='369'],
   :global(:root:not([data-brand])) .bs-logo [data-for='danatfix'] { display: block; }
-  .bs-btn { display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); color: var(--ink-2); transition: all .2s; }
+  .bs-btn { display: grid; place-items: center; width: 30px; height: 30px; border: 0; border-radius: 9px; background: transparent; color: var(--ink-2); transition: all .2s; }
   .bs-btn:hover, .bs.open .bs-btn { border-color: var(--violet); color: var(--violet); background: var(--accent-soft); }
   .bs-btn svg { width: 15px; height: 15px; transition: transform .25s; }
   .bs.open .bs-btn svg { transform: rotate(180deg); }
