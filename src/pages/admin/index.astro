@@ -1,0 +1,111 @@
+---
+// /admin — owner settings. Server-rendered on every request (never pre-built).
+// Shows a login form until the admin cookie is valid, then the settings.
+import '../../styles/global.css';
+import { isAdmin, login, logout, sameOrigin, adminPassword } from '../../lib/adminAuth';
+import { getSettings } from '../../lib/settings';
+import { BASE_CURRENCY } from '../../lib/currency';
+
+export const prerender = false;
+
+const { request, cookies, url, clientAddress } = Astro;
+let error = '';
+
+if (request.method === 'POST' && sameOrigin(request)) {
+  const f = await request.formData();
+  if (f.get('action') === 'logout') {
+    logout(cookies);
+    return Astro.redirect('/admin', 303);
+  }
+  const r = login(String(f.get('password') ?? ''), clientAddress, cookies, url.protocol === 'https:');
+  if (r === 'ok') return Astro.redirect('/admin', 303);
+  error = r === 'locked' ? 'Too many wrong attempts. Try again in 15 minutes.'
+    : r === 'not-configured' ? 'Admin password is not set on the server (ADMIN_PASSWORD).'
+    : 'Wrong password.';
+}
+
+const authed = isAdmin(cookies);
+const settings = authed ? await getSettings() : null;
+const saved = url.searchParams.get('saved') === '1';
+Astro.response.headers.set('cache-control', 'no-store');
+---
+
+<!doctype html>
+<html lang="en" data-theme="danat" data-brand="danatfix">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Admin · Danat Fix</title>
+    <link rel="icon" href="/favicon-danat.png" type="image/png" />
+  </head>
+  <body>
+    <main class="ad">
+      <header class="ad-head">
+        <img src="/brand/danat-fix-mark.png" alt="Danat Fix" width="196" height="200" />
+        <div><h1>Admin settings</h1><p>Only for the site owner.</p></div>
+      </header>
+
+      {!authed ? (
+        <form method="post" class="ad-card">
+          <h2>Sign in</h2>
+          {!adminPassword() && <p class="ad-warn">Set <code>ADMIN_PASSWORD</code> in the server's <code>.env</code> file to enable the admin.</p>}
+          <label>Password<input type="password" name="password" autocomplete="current-password" required autofocus /></label>
+          {error && <p class="ad-err" role="alert">{error}</p>}
+          <button class="btn btn-primary" type="submit">Sign in</button>
+        </form>
+      ) : (
+        <>
+          <section class="ad-card">
+            <div class="ad-row">
+              <div>
+                <h2>Automatic Currency Conversion</h2>
+                <p>
+                  When <b>enabled</b>, each visitor's country is detected from their IP address and prices are
+                  shown in their local currency (converted from the base currency, <b>{BASE_CURRENCY}</b>, using live
+                  exchange rates). When <b>disabled</b>, every visitor sees prices in {BASE_CURRENCY} exactly as before.
+                  Stored prices are never changed.
+                </p>
+              </div>
+              <span class:list={['ad-state', { on: settings!.autoCurrency }]}>{settings!.autoCurrency ? 'Enabled' : 'Disabled'}</span>
+            </div>
+            <form method="post" action="/api/admin/settings" class="ad-toggle">
+              <button class:list={['btn', { 'btn-primary': settings!.autoCurrency }]} name="autoCurrency" value="on" type="submit" aria-pressed={settings!.autoCurrency}>Enable</button>
+              <button class:list={['btn', { 'btn-primary': !settings!.autoCurrency }]} name="autoCurrency" value="off" type="submit" aria-pressed={!settings!.autoCurrency}>Disable</button>
+            </form>
+            {saved && <p class="ad-ok" role="status">✓ Saved. Visitors get the new setting within an hour (or on their next new visit).</p>}
+          </section>
+          <form method="post" class="ad-out">
+            <input type="hidden" name="action" value="logout" />
+            <button type="submit">Sign out</button>
+          </form>
+        </>
+      )}
+    </main>
+  </body>
+</html>
+
+<style>
+  body { min-height: 100vh; background: var(--bg); }
+  .ad { width: min(720px, 100% - 32px); margin: 0 auto; padding: 48px 0; display: grid; gap: 18px; }
+  .ad-head { display: flex; align-items: center; gap: 16px; }
+  .ad-head img { width: 64px; height: auto; }
+  .ad-head h1 { font-size: 28px; }
+  .ad-head p { color: var(--ink-3); }
+  .ad-card { display: grid; gap: 14px; padding: 24px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface); box-shadow: var(--shadow); }
+  .ad-card h2 { font-size: 20px; }
+  .ad-card p { color: var(--ink-2); line-height: 1.6; font-size: 15px; }
+  .ad-card label { display: grid; gap: 6px; font-weight: 600; font-size: 14px; }
+  .ad-card input { height: 46px; padding: 0 14px; border: 1px solid var(--line); border-radius: 12px; font: inherit; }
+  .ad-row { display: flex; gap: 18px; align-items: start; justify-content: space-between; }
+  .ad-state { flex: none; padding: 6px 12px; border-radius: 999px; background: var(--tint-2); font-weight: 700; font-size: 13px; color: var(--ink-2); }
+  .ad-state.on { background: #dcfce7; color: #166534; }
+  .ad-toggle { display: flex; gap: 10px; }
+  .ad-toggle .btn:not(.btn-primary) { border: 1px solid var(--line); background: var(--surface); }
+  .ad-ok { color: #166534 !important; font-weight: 600; }
+  .ad-err { color: #b91c1c !important; font-weight: 600; }
+  .ad-warn { padding: 10px 12px; border-radius: 10px; background: #fff7ed; color: #9a3412 !important; }
+  .ad-out { justify-self: end; }
+  .ad-out button { border: 0; background: none; color: var(--ink-3); text-decoration: underline; font: inherit; cursor: pointer; }
+  @media (max-width: 560px) { .ad-row { flex-direction: column; } }
+</style>
