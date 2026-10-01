@@ -163,7 +163,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
   </div>
 </div>
 <script>
-  import { DIAL, checkPhone, dialFor, bindPhone, limitPhone } from '../lib/phone';
+  import { DIAL, checkPhone, dialFor, bindPhone, limitPhone, earlyPhoneError } from '../lib/phone';
   const root = document.querySelector<HTMLElement>('[data-hs]');
   if (root) {
     const tel = root.dataset.tel!;
@@ -428,7 +428,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     result.addEventListener('change', (e) => { const s = (e.target as HTMLElement).closest<HTMLSelectElement>('[data-of-cc]'); if (s) { const o = s.selectedOptions[0]; const i = s.parentElement!.querySelector('input')!; i.placeholder = o.dataset.eg || ''; i.value = limitPhone(i.value, s.value); } });
     // live limit + messages for the someone-else phone (form is re-rendered, so delegate)
     const ofErr = (t: string) => { const el = result.querySelector<HTMLElement>('[data-of-err]'); if (el) { el.textContent = t; el.hidden = !t; } };
-    result.addEventListener('input', (e) => { const i = (e.target as HTMLElement).closest<HTMLInputElement>('[data-other] [name=p]'); if (!i) return; const cc = result.querySelector<HTMLSelectElement>('[data-of-cc]')!.value; const v = limitPhone(i.value, cc); if (v !== i.value) i.value = v; ofErr(''); });
+    result.addEventListener('input', (e) => { const i = (e.target as HTMLElement).closest<HTMLInputElement>('[data-other] [name=p]'); if (!i) return; const cc = result.querySelector<HTMLSelectElement>('[data-of-cc]')!.value; const v = limitPhone(i.value, cc); if (v !== i.value) i.value = v; ofErr(earlyPhoneError(cc, v)); });
     result.addEventListener('focusout', (e) => { const i = (e.target as HTMLElement).closest<HTMLInputElement>('[data-other] [name=p]'); if (!i || !i.value.trim()) return; const r = checkPhone(result.querySelector<HTMLSelectElement>('[data-of-cc]')!.value, i.value); ofErr(r.ok ? '' : r.msg); });
     result.addEventListener('submit', (e) => {
       const f = (e.target as HTMLElement).closest<HTMLFormElement>('[data-other]'); if (!f || !check) return;

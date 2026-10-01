@@ -82,7 +82,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
         </nav>
         <button type="button" class="loc-chip" data-loc-chip title="Choose your location">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
-          <span class="loc-tx"><small>Service at</small><b data-loc-name>Select location</b></span>
+          <span class="loc-tx"><small data-loc-state>Your location</small><b data-loc-name>Select location</b></span>
           <svg class="loc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </button>        <ShadePicker />
         <a href="/services#catalog" class="nav-search" aria-label="Search devices and models"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></a>
@@ -122,8 +122,13 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
       const chip = document.querySelector<HTMLButtonElement>('[data-loc-chip]');
       if (chip) {
         const nameEl = chip.querySelector('[data-loc-name]')!;
+        const stateEl = chip.querySelector('[data-loc-state]')!;
+        // the small line says whether we actually serve there — never "Service at" a place we don't cover
         const paint = (v: { name?: string; covered?: boolean } | null) => {
-          if (v?.name) { nameEl.textContent = v.name; chip.classList.toggle('ok', !!v.covered); chip.classList.toggle('no', !v.covered); }
+          if (!v?.name) return;
+          nameEl.textContent = v.name; stateEl.textContent = v.covered ? 'We serve here' : 'Outside our area';
+          chip.classList.toggle('ok', !!v.covered); chip.classList.toggle('no', !v.covered);
+          chip.title = v.covered ? `Doorstep service available in ${v.name}` : `${v.name} is outside our service area — tap to change`;
         };
         try { paint(JSON.parse(localStorage.getItem('svc-loc') || 'null')); } catch {}
         window.addEventListener('svc-loc', (e) => paint((e as CustomEvent).detail));
@@ -318,6 +323,8 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
   .loc-chip.no > svg:first-child { color: #C2410C; }
   .loc-tx { display: grid; line-height: 1.1; min-width: 0; }
   .loc-tx small { font-size: 11px; color: var(--ink-3); }
+  .loc-chip.ok .loc-tx small { color: #15803D; font-weight: 700; }
+  .loc-chip.no .loc-tx small { color: #C2410C; font-weight: 700; }
   .loc-tx b { font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .loc-chev { width: 14px; height: 14px; color: var(--ink-3); flex: none; }
   @media (max-width: 1280px) { .loc-tx small { display: none; } .loc-chip { max-width: 170px; } }
