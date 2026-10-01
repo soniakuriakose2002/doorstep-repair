@@ -29,7 +29,8 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-danat.png" type="image/png" data-favicon />
+    <link rel="apple-touch-icon" href="/favicon-danat.png" data-favicon />
     <link rel="preload" href="/fonts/schibsted.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/jakarta.woff2" as="font" type="font/woff2" crossorigin />
     <script is:inline>
@@ -38,6 +39,8 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
         let br = new URLSearchParams(location.search).get('brand');
         try { localStorage.removeItem('brand'); } catch {} // every visit opens as Danat Fix; only a ?brand=369 link starts on 369
         document.documentElement.dataset.brand = br === '369' ? '369' : 'danatfix';
+        // browser-tab icon follows the brand
+        document.querySelectorAll('link[data-favicon]').forEach((l) => l.setAttribute('href', br === '369' ? '/favicon-369.png' : '/favicon-danat.png'));
         let sh = new URLSearchParams(location.search).get('shade');
         try { if (sh && /^(0|[1-9]|1[0-4]|2[1-8]|3[2-7])$/.test(sh)) localStorage.setItem('shade', sh); else sh = localStorage.getItem('shade'); } catch {}
         if (sh && /^([1-9]|1[0-4]|2[1-8]|3[2-7])$/.test(sh)) document.documentElement.dataset.shade = sh;
