@@ -3,7 +3,7 @@
 // prices; no API keys or raw provider data ever leave the server.
 import type { APIRoute } from 'astro';
 import { resolveDisplayCurrency } from '../../lib/currency';
-import { clientIp, countryOfThisMachine, isPublicIp } from '../../lib/currency/geo';
+import { clientIp, countryFromIp, countryOfThisMachine, isPublicIp } from '../../lib/currency/geo';
 import { getSettings } from '../../lib/settings';
 
 export const prerender = false;
@@ -30,6 +30,8 @@ export const GET: APIRoute = async ({ request, clientAddress }) => {
   }
 
   const body = result ?? (await resolveDisplayCurrency('', false));
+  // Visitor's country is reported even when conversion is off (used e.g. for the phone country code)
+  const visitor = result?.country ?? override ?? devCountry ?? (await countryFromIp(ip).catch(() => null));
   return new Response(
     JSON.stringify({
       enabled: body.enabled,
@@ -37,6 +39,7 @@ export const GET: APIRoute = async ({ request, clientAddress }) => {
       currency: body.currency,
       rate: Number(body.rate.toFixed(6)),
       country: body.country,
+      visitor,
       reason: body.reason,
       format: body.format,
     }),

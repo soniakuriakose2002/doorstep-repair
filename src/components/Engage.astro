@@ -28,6 +28,14 @@ const perks: Record<string, string[]> = {
   cctv: ['Site survey first', 'Clean cabling', 'Remote viewing', 'Maintenance plans'],
   data: ['Honest assessment', 'Secure handling', 'All drive types', 'Updates on WhatsApp'],
 };
+// Phone country codes for the quick booking form. The visitor's own country (from /api/currency) is pre-selected.
+const dial = [
+  { cc: 'om', name: 'Oman', code: '+968' }, { cc: 'in', name: 'India', code: '+91' }, { cc: 'ae', name: 'UAE', code: '+971' },
+  { cc: 'sa', name: 'Saudi Arabia', code: '+966' }, { cc: 'qa', name: 'Qatar', code: '+974' }, { cc: 'kw', name: 'Kuwait', code: '+965' },
+  { cc: 'bh', name: 'Bahrain', code: '+973' }, { cc: 'pk', name: 'Pakistan', code: '+92' }, { cc: 'bd', name: 'Bangladesh', code: '+880' },
+  { cc: 'lk', name: 'Sri Lanka', code: '+94' }, { cc: 'np', name: 'Nepal', code: '+977' }, { cc: 'ph', name: 'Philippines', code: '+63' },
+  { cc: 'eg', name: 'Egypt', code: '+20' }, { cc: 'gb', name: 'United Kingdom', code: '+44' }, { cc: 'us', name: 'USA / Canada', code: '+1' },
+];
 ---
 
 <!-- Book your slot popup (on open, and after 35 s idle) -->
@@ -83,7 +91,14 @@ const perks: Record<string, string[]> = {
       </div>
       <form class="ig-quick" data-quick novalidate>
         <div class="ig-row" data-row-phone>
-          <span class="ig-cc"><svg class="flag" viewBox="0 0 30 20" aria-hidden="true"><rect width="30" height="20" fill="#db161b"/><rect x="8" width="22" height="6.67" fill="#fff"/><rect x="8" y="13.33" width="22" height="6.67" fill="#008000"/></svg>+968<svg class="cc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></span>
+          <label class="ig-cc" title="Country code">
+            <img class="flag" src="/flags/om.svg" alt="" width="26" height="17" data-cc-flag />
+            <span data-cc-code>+968</span>
+            <svg class="cc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+            <select name="cc" aria-label="Country code" data-cc>
+              {dial.map((d) => <option value={d.cc} data-code={d.code} selected={d.cc === 'om'}>{d.name} ({d.code})</option>)}
+            </select>
+          </label>
           <input name="phone" inputmode="tel" placeholder="Enter your number" autocomplete="tel-national" aria-label="Mobile number" />
         </div>
         <div class="ig-row" data-row-email hidden>
@@ -188,13 +203,24 @@ const perks: Record<string, string[]> = {
     idle.querySelectorAll('[data-idle-x]').forEach((b) => b.addEventListener('click', closeIdle));
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !idle.hidden) closeIdle(); });
 
+    // Country code picker: shows flag + code, follows the visitor's country until they choose one
+    const ccSel = idle.querySelector<HTMLSelectElement>('[data-cc]')!;
+    const ccShow = () => { const o = ccSel.selectedOptions[0]; idle.querySelector<HTMLImageElement>('[data-cc-flag]')!.src = `/flags/${o.value}.svg`; idle.querySelector('[data-cc-code]')!.textContent = o.dataset.code!; };
+    let ccTouched = false;
+    ccSel.addEventListener('change', () => { ccTouched = true; ccShow(); });
+    const ccAuto = (cc: unknown) => { if (ccTouched || typeof cc !== 'string') return; const v = cc.toLowerCase(); if ([...ccSel.options].some((o) => o.value === v)) { ccSel.value = v; ccShow(); } };
+    ccAuto((window as any).__visitorCountry);
+    window.addEventListener('visitor-country', (e) => ccAuto((e as CustomEvent).detail));
+
     idle.querySelector<HTMLFormElement>('[data-quick]')!.addEventListener('submit', (e) => {
       e.preventDefault();
       const fd = new FormData(e.target as HTMLFormElement);
       const raw = String(fd.get(mode) ?? '').trim();
-      const v = mode === 'phone' ? `+968 ${raw.replace(/^(\+?968)/, '').trim()}` : raw;
+      const code = ccSel.selectedOptions[0]?.dataset.code || '+968';
+      const digits = raw.replace(/^\+?\d{1,4}(?=[\s-])/, '').trim();
+      const v = mode === 'phone' ? `${code} ${raw.startsWith('+') ? digits : raw}` : raw;
       const msg = idle.querySelector('[data-quick-msg]')!;
-      const ok = mode === 'phone' ? /^\+968 [\d\s-]{7,}$/.test(v) : /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v);
+      const ok = mode === 'phone' ? /^\+\d{1,4} [\d\s-]{6,}$/.test(v) : /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v);
       const slide = title_of(cur);
       if (!ok) { msg.textContent = mode === 'phone' ? 'Please enter your mobile number.' : 'Please enter a valid email.'; msg.className = 'ig-msg err'; return; }
       window.open(`https://wa.me/${tel}?text=${encodeURIComponent(`Hi Danat Fix, I want to book ${slide}. My contact: ${v}`)}`, '_blank', 'noopener');
@@ -298,8 +324,10 @@ const perks: Record<string, string[]> = {
   .ig-quick { display: grid; gap: 14px; }
   .ig-row { display: flex; gap: 10px; }
   .ig-row[hidden] { display: none; }
-  .ig-cc { display: inline-flex; align-items: center; gap: 8px; padding: 0 14px; height: 56px; border: 1px solid #dfe5e1; border-radius: 12px; font-size: 15px; font-weight: 600; color: #26322b; background: #fff; }
-  .ig-cc .flag { width: 26px; height: 17px; border-radius: 2px; }
+  .ig-cc { position: relative; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; padding: 0 14px; height: 56px; border: 1px solid #dfe5e1; border-radius: 12px; font-size: 15px; font-weight: 600; color: #26322b; background: #fff; }
+  .ig-cc .flag { width: 26px; height: 17px; border-radius: 3px; object-fit: cover; box-shadow: 0 0 0 1px rgba(0,0,0,.08); }
+  .ig-cc select { position: absolute; inset: 0; width: 100%; opacity: 0; cursor: pointer; font-size: 15px; }
+  .ig-cc:focus-within { border-color: var(--g); box-shadow: 0 0 0 3px var(--accent-soft); }
   .ig-cc .cc-chev { width: 14px; height: 14px; color: #6d7973; }
   .ig-row input { flex: 1; min-width: 0; height: 56px; padding: 0 16px; border: 1px solid #dfe5e1; border-radius: 12px; outline: none; font: inherit; font-size: 15.5px; background: #fff; color: #16211b; }
   .ig-row input:focus { border-color: var(--g); box-shadow: 0 0 0 4px rgba(31,138,76,.12); }

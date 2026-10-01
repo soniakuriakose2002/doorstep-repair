@@ -24,8 +24,11 @@ const base = site.currency.trim();
 
   // 1. ask the server right away
   const test = new URLSearchParams(location.search).get('country'); // only honoured by the server in dev/test mode
-  const fresh = fetch('/api/currency' + (test ? `?country=${encodeURIComponent(test)}` : ''), { headers: { accept: 'application/json' }, cache: 'no-store' })
-    .then((r) => (r.ok ? r.json() : null)).then((fx) => (valid(fx) ? fx : null)).catch(() => null);
+  const raw = fetch('/api/currency' + (test ? `?country=${encodeURIComponent(test)}` : ''), { headers: { accept: 'application/json' }, cache: 'no-store' })
+    .then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  // share the visitor's country with other parts of the page (e.g. phone country code)
+  raw.then((j) => { const cc = j && /^[A-Z]{2}$/.test(j.visitor || '') ? j.visitor : null; window.__visitorCountry = cc; window.dispatchEvent(new CustomEvent('visitor-country', { detail: cc })); });
+  const fresh = raw.then((fx) => (valid(fx) ? fx : null));
 
   // 2. last known answer (not used for test overrides)
   let last = null;
