@@ -663,8 +663,8 @@ const [rowA, rowB] = rowsOf(mostBooked);
   .btn-wa:hover { background: #1ebe5b; }
   .btn-wa svg { width: 18px; height: 18px; }
   .vhero-search { width: min(620px, 100%); }
-  .vhero-brand { position: absolute; right: clamp(40px, 8vw, 150px); top: 50%; z-index: 0; width: clamp(260px, 26vw, 400px); aspect-ratio: 1; display: grid; place-items: center; transform: translateY(-50%); pointer-events: none; }
-  .vb-card { position: relative; display: grid; place-items: center; width: 78%; aspect-ratio: 1; border-radius: 36px; background: rgba(255,255,255,.94); box-shadow: 0 40px 80px -30px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.4), 0 0 70px -10px rgba(var(--a1), .55); animation: vbFloat 6s ease-in-out infinite; }
+  .vhero-brand { position: absolute; right: clamp(40px, 9vw, 180px); top: clamp(110px, 14vh, 170px); z-index: 0; width: clamp(240px, 22vw, 340px); aspect-ratio: 1; display: grid; place-items: center; pointer-events: none; }
+  .vb-card { position: relative; display: grid; place-items: center; width: 78%; aspect-ratio: 1; border-radius: 36px; background: linear-gradient(160deg, rgba(255,255,255,.97), rgba(240,246,255,.92)); backdrop-filter: blur(6px); box-shadow: 0 40px 80px -30px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.4), 0 0 70px -10px rgba(var(--a1), .55); animation: vbFloat 6s ease-in-out infinite; }
   .vb-card img { display: none; width: 78%; height: auto; }
   :global(:root[data-brand='danatfix']) .vb-card img[data-for='danatfix'], :global(:root[data-brand='369']) .vb-card img[data-for='369'] { display: block; }
   .vb-ring { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, #049AE9, #8B2BE2, #FF7A00, #049AE9); filter: blur(46px); opacity: .45; animation: vbSpin 14s linear infinite; }
