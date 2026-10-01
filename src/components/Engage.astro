@@ -98,6 +98,7 @@ import { DIAL as dial } from '../lib/phone';
         <div class="ig-row" data-row-email hidden>
           <input name="email" type="email" placeholder="name@email.com" autocomplete="email" aria-label="Email address" />
         </div>
+        <p class="ig-err" data-field-err role="alert" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg><span data-err-text></span><button type="button" class="ig-fix" data-err-fix hidden>Use it</button></p>
         <button type="submit" class="ig-send"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg> <span>Send on WhatsApp</span><svg class="arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
         <p class="ig-msg" data-quick-msg aria-live="polite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>No spam. We only use your number to confirm the booking.</p>
       </form>
@@ -137,6 +138,7 @@ import { DIAL as dial } from '../lib/phone';
 </aside>
 <script>
   import { checkPhone, bindPhone, limitPhone } from '../lib/phone';
+    import { checkEmail } from '../lib/email';
   const idle = document.querySelector<HTMLElement>('[data-idle]');
   const sl = document.querySelector<HTMLElement>('[data-slide-in]');
   if (idle && sl) {
@@ -176,6 +178,7 @@ import { DIAL as dial } from '../lib/phone';
       idle.querySelectorAll('[data-mode]').forEach((x) => x.setAttribute('aria-selected', String(x === b)));
       idle.querySelector<HTMLElement>('[data-row-phone]')!.hidden = mode !== 'phone';
       idle.querySelector<HTMLElement>('[data-row-email]')!.hidden = mode !== 'email';
+      (window as any).__clearQuickErr?.();
       idle.querySelector<HTMLInputElement>(mode === 'phone' ? '[name=phone]' : '[name=email]')!.focus();
     }));
     idle.querySelector('[data-prev]')!.addEventListener('click', () => go(cur - 1));
@@ -203,7 +206,25 @@ import { DIAL as dial } from '../lib/phone';
     const ccSel = idle.querySelector<HTMLSelectElement>('[data-cc]')!;
     const ccShow = () => { const o = ccSel.selectedOptions[0]; idle.querySelector<HTMLImageElement>('[data-cc-flag]')!.src = `/flags/${o.value}.svg`; idle.querySelector('[data-cc-code]')!.textContent = o.dataset.code!; const ph = idle.querySelector<HTMLInputElement>('[data-ph]')!; ph.placeholder = o.dataset.eg!; ph.value = limitPhone(ph.value, ccSel.value); };
     ccShow();
-    bindPhone(idle.querySelector<HTMLInputElement>('[data-ph]')!, () => ccSel.value, (m) => { qMsg.textContent = m; qMsg.className = m ? 'ig-msg err' : 'ig-msg'; });
+    // Error box right under the field: slides in + shakes on each new message, red border on the input
+    const phIn = idle.querySelector<HTMLInputElement>('[data-ph]')!;
+    const emIn = idle.querySelector<HTMLInputElement>('[name=email]')!;
+    const errEl = idle.querySelector<HTMLElement>('[data-field-err]')!;
+    const errFix = idle.querySelector<HTMLButtonElement>('[data-err-fix]')!;
+    let suggestion = '';
+    const fieldErr = (input: HTMLInputElement, m: string, suggest = '') => {
+      const same = !errEl.hidden && errEl.querySelector('[data-err-text]')!.textContent === m;
+      errEl.querySelector('[data-err-text]')!.textContent = m;
+      errEl.hidden = !m; input.classList.toggle('bad', !!m); input.setAttribute('aria-invalid', String(!!m));
+      suggestion = suggest; errFix.hidden = !suggest;
+      if (m && !same) { errEl.classList.remove('shake'); void errEl.offsetWidth; errEl.classList.add('shake'); }
+    };
+    (window as any).__clearQuickErr = () => { fieldErr(phIn, ''); fieldErr(emIn, ''); };
+    errFix.addEventListener('click', () => { if (!suggestion) return; emIn.value = suggestion; fieldErr(emIn, ''); emIn.focus(); });
+    bindPhone(phIn, () => ccSel.value, (m) => fieldErr(phIn, m));
+    // email: check when leaving the box; once an error shows, re-check live so it clears as soon as it's fixed
+    emIn.addEventListener('blur', () => { if (!emIn.value.trim()) return; const r = checkEmail(emIn.value); fieldErr(emIn, r.msg, r.suggest); });
+    emIn.addEventListener('input', () => { if (errEl.hidden) return; const r = checkEmail(emIn.value); fieldErr(emIn, r.ok ? '' : r.msg, r.suggest); });
     let ccTouched = false;
     ccSel.addEventListener('change', () => { ccTouched = true; ccShow(); });
     const ccAuto = (cc: unknown) => { if (ccTouched || typeof cc !== 'string') return; const v = cc.toLowerCase(); if ([...ccSel.options].some((o) => o.value === v)) { ccSel.value = v; ccShow(); } };
@@ -219,10 +240,15 @@ import { DIAL as dial } from '../lib/phone';
       let v = raw;
       if (mode === 'phone') {
         const r = checkPhone(ccSel.value, raw);
-        if (!raw) { msg.textContent = 'Please enter your mobile number.'; msg.className = 'ig-msg err'; return; }
-        if (!r.ok) { msg.textContent = r.msg; msg.className = 'ig-msg err'; return; }
+        if (!raw) { fieldErr(phIn, 'Please enter your mobile number.'); phIn.focus(); return; }
+        if (!r.ok) { fieldErr(phIn, r.msg); phIn.focus(); return; }
         v = r.full;
-      } else if (!/^[^@s]+@[^@s]+.[^@s]+$/.test(raw)) { msg.textContent = 'Please enter a valid email.'; msg.className = 'ig-msg err'; return; }
+      } else {
+        const r = checkEmail(raw);
+        if (!r.ok) { fieldErr(emIn, r.msg, r.suggest); emIn.focus(); return; }
+        v = r.email;
+      }
+      fieldErr(mode === 'phone' ? phIn : emIn, '');
       window.open(`https://wa.me/${tel}?text=${encodeURIComponent(`Hi Danat Fix, I want to book ${slide}. My contact: ${v}`)}`, '_blank', 'noopener');
       msg.textContent = 'Thanks — opening WhatsApp to send it to our team.';
       msg.className = 'ig-msg ok';
@@ -341,6 +367,20 @@ import { DIAL as dial } from '../lib/phone';
   .ig-msg { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: #5b6861; }
   .ig-msg svg { width: 15px; height: 15px; flex: none; }
   .ig-msg.err { color: #be123c; }
+  /* field error: sits under the input, slides in and gives a small shake */
+  .ig-err { display: flex; align-items: flex-start; gap: 9px; margin: -6px 0 0; padding: 10px 12px; border-radius: 12px; background: linear-gradient(90deg, #FFF1F2, #FFF7F7); border: 1px solid #FECDD3; box-shadow: inset 3px 0 0 #E11D48; color: #9F1239; font-size: 13.5px; font-weight: 600; line-height: 1.4; animation: igErrIn .28s cubic-bezier(.2,.9,.3,1.2); }
+  .ig-err[hidden] { display: none; }
+  .ig-err > svg { width: 18px; height: 18px; flex: none; margin-top: 1px; color: #E11D48; animation: igErrPulse 1.6s ease-in-out infinite; }
+  .ig-err span { flex: 1; }
+  .ig-err.shake { animation: igErrIn .28s cubic-bezier(.2,.9,.3,1.2), igShake .42s .05s ease-in-out; }
+  .ig-fix { flex: none; padding: 3px 10px; border: 0; border-radius: 999px; background: #E11D48; color: #fff; font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+  .ig-fix:hover { background: #BE123C; }
+  .ig-fix[hidden] { display: none; }
+  .ig-row input.bad { border-color: #F43F5E; box-shadow: 0 0 0 4px rgba(244,63,94,.12); }
+  @keyframes igErrIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  @keyframes igShake { 0%, 100% { translate: 0; } 20% { translate: -6px; } 40% { translate: 5px; } 60% { translate: -3px; } 80% { translate: 2px; } }
+  @keyframes igErrPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+  @media (prefers-reduced-motion: reduce) { .ig-err, .ig-err.shake, .ig-err > svg { animation: none; } }
   .ig-msg.ok { color: var(--g); }
   .ig-or { display: flex; align-items: center; gap: 14px; font-size: 13px; color: #6d7973; }
   .ig-or::before, .ig-or::after { content: ''; flex: 1; height: 1px; background: #e3e8e5; }
