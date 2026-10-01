@@ -22,7 +22,7 @@ const bar = `Doorstep & pickup repair across ${site.country} — free diagnosis 
 <div class="ann" data-ann hidden>
   <div class="ann-track">
     {[0, 1, 2].map(() => (
-      <span class="ann-item"><i>●</i>{bar}<a href="/services#book">Book now →</a></span>
+      <span class="ann-item"><i>●</i>{bar}<a href="/services#catalog">Book now →</a></span>
     ))}
   </div>
   <button type="button" class="ann-x" data-ann-x aria-label="Close announcement">×</button>
@@ -67,7 +67,7 @@ const bar = `Doorstep & pickup repair across ${site.country} — free diagnosis 
         <span>Code</span><b>{promo.code}</b><em data-po-copied>Tap to copy</em>
       </button>
       <div class="po-btns">
-        <a href="/services#book" class="btn btn-primary" data-po-go>Book with offer</a>
+        <a href="/services#catalog" class="btn btn-primary" data-po-go>Book with offer</a>
         <a href={whatsappLink(`Hello Danat Fix — I'd like to use code ${promo.code}`)} target="_blank" rel="noopener" class="btn" data-po-go>WhatsApp us</a>
       </div>
       <button type="button" class="po-later" data-po-x>No thanks</button>

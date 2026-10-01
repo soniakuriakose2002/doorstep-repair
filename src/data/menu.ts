@@ -42,7 +42,7 @@ export const brandColor: Record<string, string> = {
 };
 
 export const quickLinks = [
-  { label: 'Book a Repair', href: '/services#book' },
+  { label: 'Book a Repair', href: '/services#catalog' },
   { label: 'Check Coverage', href: '/services#modes' },
   { label: 'Doorstep Service', href: '/services?mode=doorstep#modes' },
   { label: 'Pickup & Service', href: '/services?mode=pickup#modes' },
