@@ -546,16 +546,16 @@ a.glass:hover, .issue.glass:hover { transform: translateY(-4px); border-color: r
 }
 /* Danat Dark — navy + blue + orange */
 :root[data-brand][data-brand='danatfix'][data-shade='32'][data-shade] { --d-main: #1E5FC8; --d-bg: #EEF2F7; --d-navbg: #0B1630; --d-navink: #ffffff; --accent-soft: #E3EAF5; --ink: #0B1630;
-  --d-word: linear-gradient(100deg, #5AA2FF, #18B9E8 55%, #FF9A3D); }
+  --d-word: linear-gradient(100deg, #5AA2FF 0%, #18B9E8 35%, #8B5CF6 70%, #FF9A3D 100%); }
 /* Danat AI — blue + purple + orange */
 :root[data-brand][data-brand='danatfix'][data-shade='33'][data-shade] { --d-main: #6A2BD9; --d-bg: #F8F7FD; --accent-soft: #F0E9FD; --glow: #E0D2FB; --a1: 106, 43, 217;
   --grad: linear-gradient(120deg, #0757B8, #8B2BE2); --d-word: linear-gradient(100deg, #3B8BEB, #8B2BE2 55%, #FF7A00); }
 /* Danat Light — white + blue + orange */
 :root[data-brand][data-brand='danatfix'][data-shade='34'][data-shade] { --d-bg: #FFFFFF; --accent-soft: #EEF5FE; --line: rgba(16, 24, 40, .08);
-  --d-word: linear-gradient(100deg, #3B9BF0, #18B9E8); }
+  --d-word: linear-gradient(100deg, #3B9BF0 0%, #18B9E8 45%, #8B5CF6 100%); }
 /* Danat Midnight — dark navy + cyan + orange */
 :root[data-brand][data-brand='danatfix'][data-shade='35'][data-shade] { --d-main: #0A8FC2; --d-cyan: #22D3EE; --d-bg: #F1F6FA; --d-navbg: #081224; --d-navink: #E6F6FF; --accent-soft: #E3F4FB; --glow: #C2ECF8; --a1: 10, 143, 194;
-  --grad: linear-gradient(120deg, #0A8FC2, #22D3EE); --d-word: linear-gradient(100deg, #22D3EE, #67E8F9 50%, #FF9A3D); }
+  --grad: linear-gradient(120deg, #0A8FC2, #22D3EE); --d-word: linear-gradient(100deg, #22D3EE 0%, #67E8F9 35%, #A78BFA 70%, #FF9A3D 100%); }
 
 /* page: clean soft-white, no colour clouds (beats the generic pastel-shade rules) */
 :root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'])[data-brand][data-brand] body { background: var(--d-bg) !important; }
