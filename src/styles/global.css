@@ -533,7 +533,7 @@ a.glass:hover, .issue.glass:hover { transform: translateY(-4px); border-color: r
    Tech Blue + Cyan + AI Purple (accent only) + Fix Orange (actions) on a navy/white base.
    Theme button offers 5 brand themes: Danat Blue (default), Dark, AI, Light, Midnight. */
 :root[data-brand][data-brand='danatfix'] {
-  --d-main: #0757B8; --d-cyan: #18B9E8; --d-purple: #8B2BE2; --d-orange: #FF7A00; --d-orange2: #FF9A3D;
+  --d-main: #0757B8; --d-cyan: #18B9E8; --d-purple: #8B2BE2; --d-orange: #FF8A2A; --d-orange2: #FFB25C;
   --d-bg: #F8FAFC; --d-navbg: #ffffff; --d-navink: #101828;
   --d-word: linear-gradient(100deg, #18B9E8 0%, #3B8BEB 35%, #8B2BE2 70%, #FF7A00 100%);
   --bg: var(--d-bg); --ink: #101828; --ink-2: #475467; --ink-3: #667085; --navy: #0B1630;
@@ -573,9 +573,9 @@ a.glass:hover, .issue.glass:hover { transform: translateY(-4px); border-color: r
 :root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'],[data-shade='37'])[data-brand][data-brand] .cd-go,
 :root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'],[data-shade='37'])[data-brand][data-brand] .uc-all {
   background: linear-gradient(180deg, var(--d-orange2), var(--d-orange)) !important; background-size: auto !important; animation: none !important;
-  color: #fff !important; border-color: transparent !important; box-shadow: 0 14px 28px -14px rgba(255, 122, 0, .75) !important; }
+  color: #fff !important; border-color: transparent !important; box-shadow: 0 12px 26px -14px rgba(255, 138, 42, .5) !important; }
 :root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'],[data-shade='37'])[data-brand][data-brand] .btn-primary:hover,
-:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'],[data-shade='37'])[data-brand][data-brand] .nav-cta:hover { filter: brightness(1.05); box-shadow: 0 18px 34px -14px rgba(255, 122, 0, .85) !important; }
+:root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'],[data-shade='37'])[data-brand][data-brand] .nav-cta:hover { filter: brightness(1.05); box-shadow: 0 16px 30px -14px rgba(255, 138, 42, .6) !important; }
 /* WhatsApp Us = white button */
 :root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'],[data-shade='37'])[data-brand][data-brand] .vhero .btn-wa { background: #fff !important; color: #101828 !important; box-shadow: 0 12px 26px -16px rgba(0,0,0,.6) !important; }
 :root[data-brand='danatfix']:is(:not([data-shade]),[data-shade='32'],[data-shade='33'],[data-shade='34'],[data-shade='35'],[data-shade='36'],[data-shade='37'])[data-brand][data-brand] .vhero .btn-wa svg { color: #25D366; }
@@ -624,7 +624,7 @@ a.glass:hover, .issue.glass:hover { transform: translateY(-4px); border-color: r
 /* Danat Logo Palette, soft version: every pastel comes from a logo colour
    soft blue #E8F5FF · soft cyan #E8FAFF · soft purple #F3EAFF · soft orange #FFF0E5 */
 :root[data-brand][data-brand='danatfix'][data-shade='36'][data-shade] {
-  --d-main: #0757B8; --d-purple: #8B2BE2; --d-orange: #FF7A00; --d-orange2: #FF9A3D;
+  --d-main: #0757B8; --d-purple: #8B2BE2; --d-orange: #FF8A2A; --d-orange2: #FFB25C;
   --ink: #101828; --accent-soft: #E8F5FF; --glow: #F3EAFF;
 }
 :root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] body { background:

@@ -6,6 +6,7 @@
 import { site } from '../data/site';
 import { coverage } from '../data/coverage';
 import { categories } from '../data/devices';
+import { DIAL } from '../lib/phone';
 
 const doorstep = coverage.doorstep.zones.flatMap((z) => z.areas);
 const pickup = coverage.pickup.zones.flatMap((z) => z.areas);
@@ -151,8 +152,8 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <input name="id" placeholder="e.g. DN-10234" autocomplete="off" aria-label="Booking ID" />
         </div>
         <div class="tr-field" data-tr-fphone hidden>
-          <span class="tr-cc">+968</span>
-          <input name="phone" inputmode="tel" placeholder="9XXX XXXX" autocomplete="tel-national" aria-label="Phone number" />
+          <label class="tr-cc" title="Country code"><span data-tr-code>+968</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg><select name="cc" data-tr-cc aria-label="Country code">{DIAL.map((d) => <option value={d.cc} data-code={d.code} data-eg={d.eg} data-len={d.len} selected={d.cc === "om"}>{d.name} ({d.code})</option>)}</select></label>
+          <input name="phone" inputmode="tel" placeholder="9123 4567" maxlength="16" autocomplete="tel-national" aria-label="Phone number" data-tr-ph />
         </div>
         <button type="submit" class="tr-go"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg><span>Check status</span><svg class="arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
         <p class="tr-msg" data-tr-msg aria-live="polite"></p>
@@ -162,6 +163,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
   </div>
 </div>
 <script>
+  import { DIAL, checkPhone, dialFor } from '../lib/phone';
   const root = document.querySelector<HTMLElement>('[data-hs]');
   if (root) {
     const tel = root.dataset.tel!;
@@ -291,13 +293,14 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
     };
     const svg = (k: keyof typeof I, fill = false) => `<svg viewBox="0 0 24 24" fill="${fill ? 'currentColor' : 'none'}" stroke="${fill ? 'none' : 'currentColor'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[k]}</svg>`;
-    const card = (o: { tone: 'ok' | 'warn'; kicker: string; title: string; route?: [string, string, string]; text: string; chips?: string[]; lines?: [boolean, string, string][]; actions: string; foot: string }) => `
+    const card = (o: { tone: 'ok' | 'warn'; kicker: string; title: string; route?: [string, string, string]; branches?: string; text: string; chips?: string[]; lines?: [boolean, string, string][]; actions: string; foot: string }) => `
       <button type="button" class="lr-x" data-lr-x aria-label="Close">×</button>
       <div class="lr-head">
         <span class="lr-ic">${svg(o.tone === 'ok' ? 'ok' : 'globe')}</span>
         <div><small class="lr-kick">${o.kicker}</small><b class="lr-title">${o.title}</b></div>
       </div>
-      ${o.route ? `<div class="lr-route"><span class="lr-dot you">${o.route[0]}</span><span class="lr-line"><i>${o.route[1]}</i></span><span class="lr-dot hq">${o.route[2]}</span></div>` : ''}
+      ${o.branches ?? ''}
+      ${o.route && !o.branches ? `<div class="lr-route"><span class="lr-dot you">${o.route[0]}</span><span class="lr-line"><i>${o.route[1]}</i></span><span class="lr-dot hq">${o.route[2]}</span></div>` : ''}
       ${o.lines?.length ? `<ul class="lr-lines">${o.lines.map(([ok, a, b]) => `<li class="${ok ? 'y' : 'n'}"><i>${ok ? '✓' : '✕'}</i><span><b>${a}</b>${b ? `<small>${b}</small>` : ''}</span></li>`).join('')}</ul>` : ''}
       ${o.chips?.length ? `<div class="lr-chips">${o.chips.map((c) => `<span>${c}</span>`).join('')}</div>` : ''}
       <p class="lr-text">${o.text}</p>
@@ -378,6 +381,8 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     locBtn.addEventListener('click', openPanel);
 
     // extra blocks under every result: save this place, and book for someone else
+    // someone-else phone defaults to the visitor's country (or Oman)
+    const ofCc = () => { const v = String((window as any).__visitorCountry || 'om').toLowerCase(); return DIAL.some((d) => d.cc === v) ? v : 'om'; };
     const extras = () => !check ? '' : `
       <div class="lr-more">
         <button type="button" class="lr-tg" data-tg="save" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg>Save address</button>
@@ -390,7 +395,8 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <p class="lr-pane-t">We'll contact them directly — they don't need to use the website.</p>
         <form data-other class="lr-of">
           <label><span>Name</span><input name="n" placeholder="Full name" required autocomplete="off" /></label>
-          <label><span>Phone</span><input name="p" inputmode="tel" placeholder="+968 9123 4567" required autocomplete="off" /></label>
+          <label><span>Phone</span><span class="lr-ph"><select name="cc" aria-label="Country code" data-of-cc>${DIAL.map((d) => `<option value="${d.cc}" data-eg="${d.eg}" data-len="${d.len}"${d.cc === ofCc() ? ' selected' : ''}>${d.code}</option>`).join('')}</select><input name="p" inputmode="tel" maxlength="16" placeholder="${dialFor(ofCc()).eg}" required autocomplete="off" /></span></label>
+          <p class="lr-err" data-of-err hidden></p>
           <label class="full"><span>Address</span><input name="a" placeholder="House / building, street, landmark" value="${esc(check.name)}" required autocomplete="off" /></label>
           <button type="submit" class="lr-btn wa pri full">${svg('wa', true)}Send booking on WhatsApp</button>
         </form>
@@ -419,18 +425,25 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         else doSave(sv.dataset.save!, sv.dataset.kind!);
       }
       if (t.closest('[data-save-ok]')) doSave(result.querySelector<HTMLInputElement>('[data-save-name]')!.value || 'Other', 'pin');    });
+    result.addEventListener('change', (e) => { const s = (e.target as HTMLElement).closest<HTMLSelectElement>('[data-of-cc]'); if (s) { const o = s.selectedOptions[0]; s.parentElement!.querySelector('input')!.placeholder = o.dataset.eg || ''; } });
     result.addEventListener('submit', (e) => {
       const f = (e.target as HTMLElement).closest<HTMLFormElement>('[data-other]'); if (!f || !check) return;
       e.preventDefault();
       const d = new FormData(f); const n = String(d.get('n')).trim(), p = String(d.get('p')).trim(), a = String(d.get('a')).trim();
-      if (!n || !/[\d]{6,}/.test(p.replace(/\D/g, '')) || !a) { f.reportValidity(); return; }
-      const msg = `Hi Danat Fix, I'd like to book a repair for someone else.\nName: ${n}\nPhone: ${p}\nAddress: ${a}\nArea check: ${check.name} — ${check.covered ? 'covered' : 'please confirm coverage'} (nearest branch ${check.branch})`;
+      const errEl = f.querySelector<HTMLElement>('[data-of-err]')!;
+      if (!n || !a) { f.reportValidity(); return; }
+      const r = checkPhone(String(d.get('cc') || 'om'), p);
+      if (!r.ok) { errEl.hidden = false; errEl.textContent = p ? r.msg : 'Please enter their mobile number.'; f.querySelector<HTMLInputElement>('[name=p]')!.focus(); return; }
+      errEl.hidden = true;
+      const msg = `Hi Danat Fix, I'd like to book a repair for someone else.\nName: ${n}\nPhone: ${r.full}\nAddress: ${a}\nArea check: ${check.name} — ${check.covered ? 'covered' : 'please confirm coverage'} (nearest branch ${check.branch})`;
       window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
     });
 
     const showFor = (me: [number, number], how: 'ip' | 'gps' | 'typed') => {
         const near = Object.entries(geo.areaGeo).map(([n, at]) => ({ n, d: km(me, at) })).sort((a, b) => a.d - b.d)[0];
-        const br = geo.branchGeo.map((b) => ({ ...b, d: km(me, b.at) })).sort((a, b) => a.d - b.d)[0];
+        const brAll = geo.branchGeo.map((b) => ({ ...b, d: km(me, b.at) })).sort((a, b) => a.d - b.d);
+        const br = brAll[0];
+        const branchRow = `<div class="lr-br"><small>Our branches</small>${brAll.map((b, i) => `<span class="${i === 0 ? 'near' : ''}">${svg('pin')}<b>${esc(b.name)}</b><em>${Math.round(b.d).toLocaleString()} km</em>${i === 0 ? '<i>Nearest</i>' : ''}</span>`).join('')}</div>`;
         const where = how === 'ip' ? (lastIp ? esc([lastIp.city, lastIp.country].filter(Boolean).join(', ')) : '') : how === 'typed' ? esc(lastPlace) : esc(lastGps);
         const foot = how === 'ip'
           ? `<span>${svg('pin')}Approximate — from your internet provider</span><button type="button" class="hs-exact" data-hs-exact>${svg('gps')}Not right? Use exact location</button>`
@@ -466,6 +479,7 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           show(card({
             tone: 'warn',
             kicker: outside ? 'Outside our service area' : 'Not on our coverage list yet',
+            branches: branchRow,
             title: where || (outside ? 'Outside Oman' : `Near ${esc(br.name)}`),
             route: [how === 'typed' ? 'This address' : 'You', dist, esc(br.name)],
             lines: [[false, 'Doorstep repair not available', ''], [false, 'Pickup & drop not available', '']],
@@ -486,6 +500,12 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     document.querySelectorAll('[data-track-open]').forEach((b) => b.addEventListener('click', (e) => { e.preventDefault(); openTr(); }));
     tr.querySelectorAll('[data-tr-x]').forEach((b) => b.addEventListener('click', closeTr));
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !tr.hidden) closeTr(); });
+    // country code for the phone tab — follows the visitor's country until they pick one
+    const trCc = tr.querySelector<HTMLSelectElement>('[data-tr-cc]')!;
+    const trShow = () => { const o = trCc.selectedOptions[0]; tr.querySelector('[data-tr-code]')!.textContent = o.dataset.code!; tr.querySelector<HTMLInputElement>('[data-tr-ph]')!.placeholder = `${o.dataset.eg} (${o.dataset.len} digits)`; };
+    let trTouched = false; trCc.addEventListener('change', () => { trTouched = true; trShow(); });
+    const trAuto = (cc: unknown) => { if (trTouched || typeof cc !== 'string') return; if ([...trCc.options].some((o) => o.value === cc.toLowerCase())) { trCc.value = cc.toLowerCase(); trShow(); } };
+    trAuto((window as any).__visitorCountry); window.addEventListener('visitor-country', (e) => trAuto((e as CustomEvent).detail)); trShow();
     let trMode = 'id';
     tr.querySelectorAll<HTMLElement>('[data-tr-mode]').forEach((b) => b.addEventListener('click', () => {
       trMode = b.dataset.trMode!;
@@ -499,9 +519,9 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       const fd = new FormData(e.target as HTMLFormElement);
       const raw = String(fd.get(trMode) ?? '').trim();
       const msg = tr.querySelector<HTMLElement>('[data-tr-msg]')!;
-      const ok = trMode === 'id' ? raw.length >= 3 : /^[\d\s-]{7,}$/.test(raw);
-      if (!ok) { msg.className = 'tr-msg err'; msg.textContent = trMode === 'id' ? 'Please enter your booking ID.' : 'Please enter your mobile number.'; return; }
-      const ref = trMode === 'id' ? `Booking ID: ${raw}` : `Phone: +968 ${raw}`;
+      let ref = '';
+      if (trMode === 'id') { if (raw.length < 3) { msg.className = 'tr-msg err'; msg.textContent = 'Please enter your booking ID.'; return; } ref = `Booking ID: ${raw}`; }
+      else { const r = checkPhone(trCc.value, raw); if (!raw || !r.ok) { msg.className = 'tr-msg err'; msg.textContent = raw ? r.msg : 'Please enter your mobile number.'; return; } ref = `Phone: ${r.full}`; }
       window.open(`https://wa.me/${tel}?text=${encodeURIComponent(`Hi Danat Fix, please share the status of my repair. ${ref}`)}`, '_blank', 'noopener');
       msg.className = 'tr-msg ok';
       msg.textContent = '✓ Opening WhatsApp — send the message and we\'ll reply with your status.';
@@ -616,6 +636,19 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
   @media (prefers-reduced-motion: reduce) { .lp-hero i, .lp-pin, .lp-gi svg { animation: none; } }
   .hs-result :global(.lr-saved-ok) { display: flex !important; align-items: center; gap: 6px; margin: 0 !important; color: #15803D !important; font-size: 13px !important; font-weight: 700; }
   .hs-result :global(.lr-saved-ok svg) { width: 16px; height: 16px; flex: none; }
+  .hs-result :global(.lr-br) { display: grid; gap: 6px; padding: 10px 12px; border-radius: 12px; background: var(--tint); }
+  .hs-result :global(.lr-br small) { font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  .hs-result :global(.lr-br span) { display: flex; align-items: center; gap: 8px; font-size: 13.5px; }
+  .hs-result :global(.lr-br svg) { width: 15px; height: 15px; color: var(--ink-3); flex: none; }
+  .hs-result :global(.lr-br b) { color: var(--ink); font-weight: 700; }
+  .hs-result :global(.lr-br em) { margin-left: auto; font-style: normal; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .hs-result :global(.lr-br span.near svg) { color: #FF7A00; }
+  .hs-result :global(.lr-br i) { font-style: normal; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: #FFF1E3; color: #C2410C; }
+  .hs-result :global(.lr-ph) { display: flex; gap: 6px; }
+  .hs-result :global(.lr-ph select) { flex: none; width: 84px; height: 42px; padding: 0 6px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font: inherit; font-size: 14px; font-weight: 700; color: var(--ink); }
+  .hs-result :global(.lr-ph input) { flex: 1; min-width: 0; }
+  .hs-result :global(.lr-err) { grid-column: 1 / -1; margin: -2px 0 0; color: #B42318; font-size: 12.5px; font-weight: 600; }
+  .hs-result :global(.lr-err[hidden]) { display: none; }
   .hs-result :global(.lr-more) { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 12px; border-top: 1px solid var(--line); }
   .hs-result :global(.lr-tg) { display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font: inherit; font-size: 13px; font-weight: 700; color: var(--ink-2); cursor: pointer; transition: all .2s; }
   .hs-result :global(.lr-tg svg) { width: 16px; height: 16px; color: var(--violet); flex: none; }
@@ -740,7 +773,9 @@ const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
   .tr-field[hidden] { display: none; }
   .tr-field:focus-within { border-color: var(--g); box-shadow: 0 0 0 4px var(--accent-soft); }
   .tr-field svg { width: 20px; height: 20px; color: var(--ink-3); flex: none; }
-  .tr-cc { padding-right: 10px; border-right: 1px solid var(--line); font-weight: 700; color: var(--ink-2); }
+  .tr-cc { position: relative; display: inline-flex; align-items: center; gap: 4px; padding-right: 10px; border-right: 1px solid var(--line); font-weight: 700; color: var(--ink-2); cursor: pointer; }
+  .tr-cc svg { width: 13px !important; height: 13px !important; }
+  .tr-cc select { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
   .tr-field input { flex: 1; min-width: 0; border: 0; outline: none; background: none; font: inherit; font-size: 16px; color: var(--ink); }
   .tr-go { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 12px; height: 58px; border: 0; border-radius: 14px; background: linear-gradient(180deg, color-mix(in srgb, var(--violet) 85%, white), var(--violet)); color: #fff; font-size: 17px; font-weight: 700; box-shadow: 0 14px 28px -14px rgba(15,122,60,.9); transition: transform .2s; }
   .tr-go:hover { transform: translateY(-2px); }

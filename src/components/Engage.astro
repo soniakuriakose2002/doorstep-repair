@@ -28,14 +28,8 @@ const perks: Record<string, string[]> = {
   cctv: ['Site survey first', 'Clean cabling', 'Remote viewing', 'Maintenance plans'],
   data: ['Honest assessment', 'Secure handling', 'All drive types', 'Updates on WhatsApp'],
 };
-// Phone country codes for the quick booking form. The visitor's own country (from /api/currency) is pre-selected.
-const dial = [
-  { cc: 'om', name: 'Oman', code: '+968' }, { cc: 'in', name: 'India', code: '+91' }, { cc: 'ae', name: 'UAE', code: '+971' },
-  { cc: 'sa', name: 'Saudi Arabia', code: '+966' }, { cc: 'qa', name: 'Qatar', code: '+974' }, { cc: 'kw', name: 'Kuwait', code: '+965' },
-  { cc: 'bh', name: 'Bahrain', code: '+973' }, { cc: 'pk', name: 'Pakistan', code: '+92' }, { cc: 'bd', name: 'Bangladesh', code: '+880' },
-  { cc: 'lk', name: 'Sri Lanka', code: '+94' }, { cc: 'np', name: 'Nepal', code: '+977' }, { cc: 'ph', name: 'Philippines', code: '+63' },
-  { cc: 'eg', name: 'Egypt', code: '+20' }, { cc: 'gb', name: 'United Kingdom', code: '+44' }, { cc: 'us', name: 'USA / Canada', code: '+1' },
-];
+// Phone country codes + number lengths (shared). The visitor's own country (from /api/currency) is pre-selected.
+import { DIAL as dial } from '../lib/phone';
 ---
 
 <!-- Book your slot popup (on open, and after 35 s idle) -->
@@ -96,10 +90,10 @@ const dial = [
             <span data-cc-code>+968</span>
             <svg class="cc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
             <select name="cc" aria-label="Country code" data-cc>
-              {dial.map((d) => <option value={d.cc} data-code={d.code} selected={d.cc === 'om'}>{d.name} ({d.code})</option>)}
+              {dial.map((d) => <option value={d.cc} data-code={d.code} data-len={d.len} data-eg={d.eg} selected={d.cc === 'om'}>{d.name} ({d.code})</option>)}
             </select>
           </label>
-          <input name="phone" inputmode="tel" placeholder="Enter your number" autocomplete="tel-national" aria-label="Mobile number" />
+          <input name="phone" inputmode="tel" placeholder="9123 4567" maxlength="16" autocomplete="tel-national" aria-label="Mobile number" data-ph />
         </div>
         <div class="ig-row" data-row-email hidden>
           <input name="email" type="email" placeholder="name@email.com" autocomplete="email" aria-label="Email address" />
@@ -142,6 +136,7 @@ const dial = [
   </div>
 </aside>
 <script>
+  import { checkPhone } from '../lib/phone';
   const idle = document.querySelector<HTMLElement>('[data-idle]');
   const sl = document.querySelector<HTMLElement>('[data-slide-in]');
   if (idle && sl) {
@@ -203,9 +198,11 @@ const dial = [
     idle.querySelectorAll('[data-idle-x]').forEach((b) => b.addEventListener('click', closeIdle));
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !idle.hidden) closeIdle(); });
 
+    idle.querySelector<HTMLInputElement>('[data-ph]')!.addEventListener('input', () => { const m = idle.querySelector('[data-quick-msg]')!; if (m.classList.contains('err')) { m.textContent = ''; m.className = 'ig-msg'; } });
     // Country code picker: shows flag + code, follows the visitor's country until they choose one
     const ccSel = idle.querySelector<HTMLSelectElement>('[data-cc]')!;
-    const ccShow = () => { const o = ccSel.selectedOptions[0]; idle.querySelector<HTMLImageElement>('[data-cc-flag]')!.src = `/flags/${o.value}.svg`; idle.querySelector('[data-cc-code]')!.textContent = o.dataset.code!; };
+    const ccShow = () => { const o = ccSel.selectedOptions[0]; idle.querySelector<HTMLImageElement>('[data-cc-flag]')!.src = `/flags/${o.value}.svg`; idle.querySelector('[data-cc-code]')!.textContent = o.dataset.code!; idle.querySelector<HTMLInputElement>('[data-ph]')!.placeholder = `${o.dataset.eg} (${o.dataset.len} digits)`; };
+    ccShow();
     let ccTouched = false;
     ccSel.addEventListener('change', () => { ccTouched = true; ccShow(); });
     const ccAuto = (cc: unknown) => { if (ccTouched || typeof cc !== 'string') return; const v = cc.toLowerCase(); if ([...ccSel.options].some((o) => o.value === v)) { ccSel.value = v; ccShow(); } };
@@ -216,13 +213,15 @@ const dial = [
       e.preventDefault();
       const fd = new FormData(e.target as HTMLFormElement);
       const raw = String(fd.get(mode) ?? '').trim();
-      const code = ccSel.selectedOptions[0]?.dataset.code || '+968';
-      const digits = raw.replace(/^\+?\d{1,4}(?=[\s-])/, '').trim();
-      const v = mode === 'phone' ? `${code} ${raw.startsWith('+') ? digits : raw}` : raw;
       const msg = idle.querySelector('[data-quick-msg]')!;
-      const ok = mode === 'phone' ? /^\+\d{1,4} [\d\s-]{6,}$/.test(v) : /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v);
       const slide = title_of(cur);
-      if (!ok) { msg.textContent = mode === 'phone' ? 'Please enter your mobile number.' : 'Please enter a valid email.'; msg.className = 'ig-msg err'; return; }
+      let v = raw;
+      if (mode === 'phone') {
+        const r = checkPhone(ccSel.value, raw);
+        if (!raw) { msg.textContent = 'Please enter your mobile number.'; msg.className = 'ig-msg err'; return; }
+        if (!r.ok) { msg.textContent = r.msg; msg.className = 'ig-msg err'; return; }
+        v = r.full;
+      } else if (!/^[^@s]+@[^@s]+.[^@s]+$/.test(raw)) { msg.textContent = 'Please enter a valid email.'; msg.className = 'ig-msg err'; return; }
       window.open(`https://wa.me/${tel}?text=${encodeURIComponent(`Hi Danat Fix, I want to book ${slide}. My contact: ${v}`)}`, '_blank', 'noopener');
       msg.textContent = 'Thanks — opening WhatsApp to send it to our team.';
       msg.className = 'ig-msg ok';
