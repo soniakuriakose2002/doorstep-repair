@@ -79,14 +79,6 @@ const [rowA, rowB] = rowsOf(mostBooked);
   <section class="vhero">
     <video class="vhero-video" src={heroVideo} poster={heroPoster} autoplay muted loop playsinline preload="metadata" aria-hidden="true"></video>
     <div class="vhero-shade" aria-hidden="true"></div>
-    <!-- Big brand logo in the hero's empty right side (follows the brand switcher) -->
-    <div class="vhero-brand" aria-hidden="true" data-no-brand>
-      <span class="vb-ring"></span>
-      <div class="vb-card">
-        <img data-for="danatfix" src="/brand/danat-fix@240.png" alt="" width="222" height="240" />
-        <img data-for="369" src="/brand/369-ai-fix@240.png" alt="" width="287" height="240" />
-      </div>
-    </div>
     <div class="wrap vhero-in">
       <span class="eyebrow" data-reveal>Doorstep electronics repair · {site.country}</span>
       <h1 class="h-xl" data-reveal style="--d:.08s">Your Technology. <span class="grad-text">Fixed Right.</span></h1>
@@ -663,15 +655,6 @@ const [rowA, rowB] = rowsOf(mostBooked);
   .btn-wa:hover { background: #1ebe5b; }
   .btn-wa svg { width: 18px; height: 18px; }
   .vhero-search { width: min(620px, 100%); }
-  .vhero-brand { position: absolute; right: clamp(40px, 9vw, 180px); top: clamp(110px, 14vh, 170px); z-index: 0; width: clamp(240px, 22vw, 340px); aspect-ratio: 1; display: grid; place-items: center; pointer-events: none; }
-  .vb-card { position: relative; display: grid; place-items: center; width: 78%; aspect-ratio: 1; border-radius: 36px; background: linear-gradient(160deg, rgba(255,255,255,.97), rgba(240,246,255,.92)); backdrop-filter: blur(6px); box-shadow: 0 40px 80px -30px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.4), 0 0 70px -10px rgba(var(--a1), .55); animation: vbFloat 6s ease-in-out infinite; }
-  .vb-card img { display: none; width: 78%; height: auto; }
-  :global(:root[data-brand='danatfix']) .vb-card img[data-for='danatfix'], :global(:root[data-brand='369']) .vb-card img[data-for='369'] { display: block; }
-  .vb-ring { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, #049AE9, #8B2BE2, #FF7A00, #049AE9); filter: blur(46px); opacity: .45; animation: vbSpin 14s linear infinite; }
-  @keyframes vbFloat { 50% { transform: translateY(-14px) rotate(-1.5deg); } }
-  @keyframes vbSpin { to { rotate: 360deg; } }
-  @media (max-width: 1100px) { .vhero-brand { display: none; } }
-  @media (prefers-reduced-motion: reduce) { .vb-card, .vb-ring { animation: none; } }
   .vhero .hero-facts { color: rgba(255,255,255,.7); }
   .vhero .hero-facts b { color: #fff; }
   .vhero-down { position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); width: 30px; height: 48px; border: 2px solid rgba(255,255,255,.6); border-radius: 20px; }
