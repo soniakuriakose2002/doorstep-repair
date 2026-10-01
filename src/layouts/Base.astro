@@ -117,6 +117,28 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     </footer>
 
     <script>
+      // Count-up numbers, site-wide: any <b data-count="12" data-from="0" data-suffix="+"> counts up the
+      // first time it scrolls into view. The final value is already in the HTML, so nothing breaks without JS.
+      // window.__countUp(el) replays it (used when a panel with a number is shown).
+      {
+        const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const countUp = (el: HTMLElement) => {
+          const to = Number(el.dataset.count), from = Number(el.dataset.from ?? 0), sfx = el.dataset.suffix ?? '';
+          if (still || !Number.isFinite(to)) { el.textContent = to + sfx; return; }
+          const t0 = performance.now(), D = Math.min(1800, 700 + Math.abs(to - from) * 40);
+          el.classList.add('counting');
+          const step = (now: number) => {
+            const k = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - k, 3);
+            el.textContent = Math.round(from + (to - from) * e) + sfx;
+            if (k < 1) requestAnimationFrame(step); else { el.classList.remove('counting'); el.classList.add('counted'); setTimeout(() => el.classList.remove('counted'), 600); }
+          };
+          el.textContent = from + sfx; requestAnimationFrame(step);
+        };
+        (window as any).__countUp = countUp;
+        const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { countUp(e.target as HTMLElement); io.unobserve(e.target); } }), { threshold: .6 });
+        document.querySelectorAll<HTMLElement>('[data-count]').forEach((el) => io.observe(el));
+      }
+
       // Header location chip (like "Deliver to" on shopping sites): shows the last checked area,
       // opens the location picker on Home, or goes Home and opens it from other pages.
       const chip = document.querySelector<HTMLButtonElement>('[data-loc-chip]');

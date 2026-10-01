@@ -109,7 +109,7 @@ const angles = [
               </div>
               <div class="bk-sel-head">
                 <h4><span>1.</span> Select the repair service</h4>
-                <small>Showing <b>{c.issues.length}</b> services</small>
+                <small>Showing <b data-count={c.issues.length}>{c.issues.length}</b> services</small>
               </div>
               <div class="bk-grid" role="radiogroup" aria-label={`Services for ${c.name}`}>
                 {c.issues.map((iss, i) => (
@@ -151,6 +151,7 @@ const angles = [
       bk.querySelectorAll<HTMLElement>('[data-bk-panel]').forEach((p) => (p.hidden = p.dataset.bkPanel !== t.dataset.bkTab));
       const panel = bk.querySelector<HTMLElement>(`[data-bk-panel="${t.dataset.bkTab}"]`)!;
       setCta(panel.querySelector<HTMLElement>('.bk-card[aria-checked="true"]')!);
+      panel.querySelectorAll<HTMLElement>('[data-count]').forEach((n) => (window as any).__countUp?.(n));
       if (bk.getBoundingClientRect().top < 0) bk.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }));
   }

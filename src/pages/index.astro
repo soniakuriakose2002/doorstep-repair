@@ -218,8 +218,8 @@ const [rowA, rowB] = rowsOf(mostBooked);
         <h2 class="bb-title">All the big names, <span>one trusted fix.</span></h2>
       </div>
       <ul class="bb-stats">
-        <li><b>{makers.length}+</b><small>brands</small></li>
-        <li><b>9</b><small>device types</small></li>
+        <li><b data-count={makers.length} data-suffix="+">{makers.length}+</b><small>brands</small></li>
+        <li><b data-count="9">9</b><small>device types</small></li>
       </ul>
     </div>
     <div class="bb-rows">
@@ -348,21 +348,7 @@ const [rowA, rowB] = rowsOf(mostBooked);
 </Base>
 
 <script>
-  // Hero numbers count up when they come into view (final value is already in the HTML)
-  const counters = document.querySelectorAll<HTMLElement>('[data-count]');
-  if (counters.length && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const run = (el: HTMLElement) => {
-      const to = Number(el.dataset.count), from = Number(el.dataset.from ?? 0), sfx = el.dataset.suffix ?? '', t0 = performance.now(), D = 1600;
-      const step = (now: number) => {
-        const k = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - k, 3);
-        el.textContent = Math.round(from + (to - from) * e) + sfx;
-        if (k < 1) requestAnimationFrame(step);
-      };
-      el.textContent = from + sfx; requestAnimationFrame(step);
-    };
-    const cio = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { run(e.target as HTMLElement); cio.unobserve(e.target); } }), { threshold: .6 });
-    counters.forEach((el) => cio.observe(el));
-  }
+  // Numbers marked data-count count up via the site-wide counter in Base.astro
 
   // Smooth scroll for Book Your Slot (offset for the sticky nav via scroll-margin)
   document.querySelectorAll<HTMLAnchorElement>('[data-scroll]').forEach((a) => a.addEventListener('click', (e) => {
@@ -603,8 +589,10 @@ const [rowA, rowB] = rowsOf(mostBooked);
   .bb-stats small { font-size: 12px; color: var(--ink-3); }
   .bb-rows { display: grid; gap: 14px; mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); }
   .bb-row { overflow: hidden; }
-  .bb-track { display: flex; gap: 14px; width: max-content; padding: 6px 0; animation: marquee 60s linear infinite; }
-  .bb-row.rev .bb-track { animation-direction: reverse; animation-duration: 70s; }
+  .bb-track { display: flex; gap: 14px; width: max-content; padding: 6px 0; animation: bbSlide 45s linear infinite; }
+  /* track holds the row twice; sliding half its width (+ half a gap) loops seamlessly */
+  @keyframes bbSlide { to { transform: translateX(calc(-50% - 7px)); } }
+  .bb-row.rev .bb-track { animation-direction: reverse; animation-duration: 52s; }
   .bb-rows:hover .bb-track { animation-play-state: paused; }
   .bb-card { display: grid; justify-items: center; align-content: center; gap: 10px; width: 176px; height: 118px; margin: 0; padding: 14px 12px 12px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(16,24,40,.04); transition: transform .3s cubic-bezier(.3,1.4,.5,1), box-shadow .3s, border-color .3s; }
   .bb-logo { display: grid; place-items: center; height: 40px; width: 100%; }
