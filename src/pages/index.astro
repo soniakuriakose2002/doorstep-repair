@@ -57,6 +57,9 @@ const heroPoster = stamp('kling.jpg');
 const coverageCount = new Set(Object.values(coverage).flatMap((m) => m.zones.flatMap((z) => z.areas))).size;
 
 const allBrands = [...new Set(categories.flatMap((c) => c.brands.map((b) => b.name)))];
+// Brand chips for the strip: name + the device type it belongs to (first category it appears in)
+const brandChips = allBrands.map((name) => { const c = categories.find((x) => x.brands.some((b) => b.name === name))!; return { name, cat: c.name.replace(/ &.*$/, ''), hue: c.hue, ini: name.replace(/[^A-Za-z0-9 ]/g, ' ').trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase() }; });
+const brandRows = [brandChips.filter((_, i) => i % 2 === 0), brandChips.filter((_, i) => i % 2 === 1)];
 
 const formats = [
   { id: 'image', label: 'Image' },
@@ -178,11 +181,23 @@ const [rowA, rowB] = rowsOf(mostBooked);
   </section>
 
   <!-- ============ BRAND MARQUEE ============ -->
-  <section class="brands-band">
-    <div class="marquee" aria-label="Brands we repair">
-      <div class="marquee-track">
-        {[...allBrands, ...allBrands].map((b) => <span class="marquee-item">{b}</span>)}
-      </div>
+  <section class="brands-band" aria-label="Brands we repair">
+    <div class="wrap bb-head" data-reveal>
+      <span class="bb-kick"><i></i>Brands &amp; devices we repair</span>
+      <p><b>{brandChips.length}+</b> brands and device types — phones, laptops, printers, CCTV and networks</p>
+    </div>
+    <div class="bb-rows">
+      {brandRows.map((row, r) => (
+        <div class:list={['bb-row', { rev: r === 1 }]}>
+          <div class="bb-track">
+            {[...row, ...row].map((b, i) => (
+              <span class="bb-chip" style={`--h:${b.hue}`} aria-hidden={i >= row.length ? 'true' : undefined}>
+                <i>{b.ini}</i><b>{b.name}</b><small>{b.cat}</small>
+              </span>
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   </section>
   <!-- ============ WHAT OUR CLIENTS SAY ============ -->
@@ -534,18 +549,24 @@ const [rowA, rowB] = rowsOf(mostBooked);
   @media (max-width: 760px) { .modes { grid-template-columns: 1fr; } }
 
   /* brands + issues */
-  .brands-band { padding-top: 40px; }
-  .marquee {
-    overflow: hidden;
-    border-block: 1px solid var(--line);
-    padding: 22px 0;
-    mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
-    margin-bottom: 0;
-  }
-  .marquee-track { display: flex; gap: 56px; width: max-content; animation: marquee 40s linear infinite; }
-  .marquee-item { font-family: var(--display); font-size: clamp(22px, 3vw, 34px); font-weight: 600; color: var(--ink-3); white-space: nowrap; transition: color .3s; }
-  .marquee-item:hover { color: var(--ink); }
-  @keyframes marquee { to { transform: translateX(-50%); } }
+  .brands-band { padding: 44px 0 24px; }
+  .bb-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 20px; margin-bottom: 22px; }
+  .bb-kick { display: inline-flex; align-items: center; gap: 10px; font-size: 12.5px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--violet); }
+  .bb-kick i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 5px var(--accent-soft); animation: bbPulse 2s ease-in-out infinite; }
+  @keyframes bbPulse { 50% { box-shadow: 0 0 0 9px transparent; } }
+  .bb-head p { color: var(--ink-3); font-size: 15px; }
+  .bb-head p b { color: var(--ink); font-size: 17px; }
+  .bb-rows { display: grid; gap: 12px; mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+  .bb-row { overflow: hidden; }
+  .bb-track { display: flex; gap: 12px; width: max-content; padding: 4px 0; animation: marquee 55s linear infinite; }
+  .bb-row.rev .bb-track { animation-direction: reverse; animation-duration: 65s; }
+  .bb-rows:hover .bb-track { animation-play-state: paused; }
+  .bb-chip { display: inline-grid; grid-template-columns: auto auto; grid-template-rows: auto auto; column-gap: 12px; align-items: center; padding: 10px 18px 10px 10px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(16,24,40,.04); white-space: nowrap; transition: transform .25s, border-color .25s, box-shadow .25s; }
+  .bb-chip:hover { transform: translateY(-3px); border-color: hsl(var(--h) 70% 55% / .6); box-shadow: 0 14px 26px -18px hsl(var(--h) 60% 35% / .7); }
+  .bb-chip i { grid-row: 1 / 3; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; font-style: normal; font-weight: 800; font-size: 13px; letter-spacing: .02em; color: hsl(var(--h) 65% 38%); background: linear-gradient(135deg, hsl(var(--h) 85% 95%), hsl(var(--h) 70% 88%)); }
+  .bb-chip b { font-size: 15.5px; color: var(--ink); line-height: 1.15; }
+  .bb-chip small { font-size: 12px; color: var(--ink-3); }
+  @media (prefers-reduced-motion: reduce) { .bb-track, .bb-kick i { animation: none; } }  @keyframes marquee { to { transform: translateX(-50%); } }
 
   .issues { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 48px; align-items: center; }
   .issues h2 { margin: 14px 0 14px; }
@@ -768,7 +789,6 @@ const [rowA, rowB] = rowsOf(mostBooked);
   .uc-add:hover, .uc-add.done { background: var(--violet); color: var(--on-accent); }
   @media (max-width: 1000px) { .uc-cats { grid-template-columns: repeat(4, 1fr); } .uc-rail { grid-auto-columns: calc((100% - 20px) / 2); } }
   @media (max-width: 560px) { .uc-head { flex-direction: column; align-items: start; } .uc-cats { grid-template-columns: repeat(3, 1fr); } .uc-rail { grid-auto-columns: 82%; } }  .tight-sec { padding-top: 30px; padding-bottom: 50px; }
-  .brands-band { padding: 10px 0 30px; }
   .center-head { text-align: center; display: grid; justify-items: center; gap: 12px; margin-bottom: 40px; }
 
   /* ---------- roadmap ---------- */
