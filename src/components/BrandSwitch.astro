@@ -83,6 +83,12 @@ export const brands = [
   /* logo inside the header bar, no tagline (like 369ai.biz) */
   .bs-logo .logo-369 { display: none; height: 52px; width: auto; margin-block: -4px; }
   @media (max-width: 560px) { .bs-logo .logo-369 { height: 42px; } }
+  /* wide screens: logo + chevron stand together in the empty space left of the bar (like 369ai.biz) */
+  @media (min-width: 1480px) {
+    .bs { position: absolute; right: calc(100% + 20px); top: 0; bottom: 0; width: max-content; flex-wrap: nowrap; gap: 4px; padding: 0 12px 0 18px; border-radius: 999px; background: var(--surface); box-shadow: var(--shadow), 0 0 0 1px var(--line); }
+    .bs-logo .logo-369 { height: 54px; width: auto; max-width: none; flex: none; margin: 0; }
+    .bs-menu { left: 0; }
+  }
   /* wide screens: logo stands on its own in the empty space left of the header bar */
 
   :global(:root[data-brand='danatfix']) .bs-logo [data-for='danatfix'],
