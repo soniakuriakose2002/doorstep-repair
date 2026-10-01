@@ -71,8 +71,16 @@ export async function countryFromIp(ip: string): Promise<string | null> {
   const hit = cache.get(ip);
   // a found country is remembered for a day; a failed lookup only for 10 minutes
   if (hit && Date.now() - hit.at < (hit.cc ? DAY : 10 * 60 * 1000)) return hit.cc;
-  const cc = await lookup(ip);
-  if (cache.size >= MAX) cache.delete(cache.keys().next().value!); // drop the oldest
-  cache.set(ip, { cc, at: Date.now() });
-  return cc;
+  // visitors from the same IP arriving together share one lookup
+  let job = pending.get(ip);
+  if (!job) {
+    job = lookup(ip).then((cc) => {
+      if (cache.size >= MAX) cache.delete(cache.keys().next().value!); // drop the oldest
+      cache.set(ip, { cc, at: Date.now() });
+      return cc;
+    }).finally(() => pending.delete(ip));
+    pending.set(ip, job);
+  }
+  return job;
 }
+const pending = new Map<string, Promise<string | null>>();
