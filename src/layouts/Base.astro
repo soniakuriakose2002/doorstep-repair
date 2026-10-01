@@ -247,6 +247,10 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
   .contact { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 6px; font-size: 14px; color: rgba(255,255,255,.75); }
   .contact a:hover { color: #fff; text-decoration: underline; }
   nav { margin-left: auto; }
+  /* wide screens: logo sits left of the bar, so the menu starts at the bar's own left edge (no empty gap) */
+  /* menu sits right after the logo (no empty gap); action buttons stay on the right */
+  @media (min-width: 1101px) { nav { margin-left: 8px; } .nav-inner > :global(.sp) { margin-left: auto; } }
+  @media (min-width: 1480px) { nav { margin-left: 0; } .nav-inner { padding-left: 14px; } }
   nav ul { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; }
   nav a {
     display: block;
