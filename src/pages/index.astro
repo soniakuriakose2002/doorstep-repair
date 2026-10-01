@@ -57,10 +57,40 @@ const heroPoster = stamp('kling.jpg');
 const coverageCount = new Set(Object.values(coverage).flatMap((m) => m.zones.flatMap((z) => z.areas))).size;
 
 const allBrands = [...new Set(categories.flatMap((c) => c.brands.map((b) => b.name)))];
-// Brand chips for the strip: name + the device type it belongs to (first category it appears in)
-const brandChips = allBrands.map((name) => { const c = categories.find((x) => x.brands.some((b) => b.name === name))!; return { name, cat: c.name.replace(/ &.*$/, ''), hue: c.hue, ini: name.replace(/[^A-Za-z0-9 ]/g, ' ').trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase() }; });
-const brandRows = [brandChips.filter((_, i) => i % 2 === 0), brandChips.filter((_, i) => i % 2 === 1)];
-
+// Brand logo strip. Logos self-hosted in public/brand/makers (Simple Icons, CC0; others from
+// Wikimedia Commons). `c` = brand colour for single-colour marks (CSS mask); none = full-colour image.
+const makers: { n: string; f?: string; c?: string; w?: number; what: string }[] = [
+  { n: 'Apple', f: 'apple', c: '#000000', w: 34, what: 'iPhone · iPad · Mac' },
+  { n: 'Samsung', f: 'samsung', c: '#1428A0', w: 124, what: 'Galaxy phones & tabs' },
+  { n: 'Google', f: 'google', c: '#4285F4', w: 32, what: 'Pixel phones' },
+  { n: 'Xiaomi', f: 'xiaomi', c: '#FF6900', w: 34, what: 'Xiaomi & Redmi' },
+  { n: 'OnePlus', f: 'oneplus', c: '#F5010C', w: 34, what: 'Phones & tablets' },
+  { n: 'vivo', f: 'vivo', c: '#415FFF', w: 100, what: 'Smartphones' },
+  { n: 'OPPO', f: 'oppo', c: '#2D683D', w: 108, what: 'Smartphones' },
+  { n: 'realme', f: 'realme', w: 1.7, what: 'Smartphones' },
+  { n: 'iQOO', f: 'iqoo', w: 1.6, what: 'Smartphones' },
+  { n: 'Motorola', f: 'motorola', c: '#E1140A', w: 36, what: 'Smartphones' },
+  { n: 'Nothing', f: 'nothing', w: 2.2, what: 'Phones' },
+  { n: 'Lenovo', f: 'lenovo', c: '#E2231A', w: 112, what: 'Laptops & tablets' },
+  { n: 'Dell', f: 'dell', c: '#007DB8', w: 38, what: 'Laptops & desktops' },
+  { n: 'HP', f: 'hp', c: '#0096D6', w: 36, what: 'Laptops & printers' },
+  { n: 'ASUS', f: 'asus', c: '#000000', w: 108, what: 'Laptops' },
+  { n: 'Acer', f: 'acer', c: '#83B81A', w: 100, what: 'Laptops' },
+  { n: 'MSI', f: 'msi', c: '#FF0000', w: 40, what: 'Gaming laptops' },
+  { n: 'Microsoft', f: 'windows', c: '#0078D4', w: 32, what: 'Windows PCs' },
+  { n: 'Canon', f: 'canon', w: 2, what: 'Printers' },
+  { n: 'Epson', f: 'epson', c: '#003399', w: 108, what: 'Printers' },
+  { n: 'Brother', f: 'brother', w: 2, what: 'Printers' },
+  { n: 'Hikvision', f: 'hikvision', w: 2.2, what: 'CCTV' },
+  { n: 'Dahua', f: 'dahua', w: 2, what: 'CCTV' },
+  { n: 'CP PLUS', what: 'CCTV' },
+  { n: 'TP-Link', f: 'tplink', c: '#4ACBD6', w: 36, what: 'Wi-Fi & routers' },
+  { n: 'Ubiquiti', f: 'ubiquiti', c: '#0559C9', w: 34, what: 'Networks' },
+  { n: 'Cisco', f: 'cisco', c: '#1BA0D7', w: 68, what: 'Networks' },
+  { n: 'NETGEAR', f: 'netgear', c: '#2C262D', w: 128, what: 'Wi-Fi & routers' },
+  { n: 'D-Link', f: 'dlink', w: 2, what: 'Wi-Fi & routers' },
+];
+const brandRows = [makers.filter((_, i) => i % 2 === 0), makers.filter((_, i) => i % 2 === 1)];
 const formats = [
   { id: 'image', label: 'Image' },
   { id: 'post', label: 'Post' },
@@ -183,17 +213,28 @@ const [rowA, rowB] = rowsOf(mostBooked);
   <!-- ============ BRAND MARQUEE ============ -->
   <section class="brands-band" aria-label="Brands we repair">
     <div class="wrap bb-head" data-reveal>
-      <span class="bb-kick"><i></i>Brands &amp; devices we repair</span>
-      <p><b>{brandChips.length}+</b> brands and device types — phones, laptops, printers, CCTV and networks</p>
+      <div>
+        <span class="bb-kick"><i></i>Brands we repair</span>
+        <h2 class="bb-title">All the big names, <span>one trusted fix.</span></h2>
+      </div>
+      <ul class="bb-stats">
+        <li><b>{makers.length}+</b><small>brands</small></li>
+        <li><b>9</b><small>device types</small></li>
+      </ul>
     </div>
     <div class="bb-rows">
       {brandRows.map((row, r) => (
         <div class:list={['bb-row', { rev: r === 1 }]}>
           <div class="bb-track">
             {[...row, ...row].map((b, i) => (
-              <span class="bb-chip" style={`--h:${b.hue}`} aria-hidden={i >= row.length ? 'true' : undefined}>
-                <i>{b.ini}</i><b>{b.name}</b><small>{b.cat}</small>
-              </span>
+              <figure class="bb-card" aria-hidden={i >= row.length ? 'true' : undefined} title={`${b.n} — ${b.what}`}>
+                <span class="bb-logo" style={`--s:${b.w ?? 34}px`}>
+                  {b.f && b.c ? <i class="bb-mask" style={`--c:${b.c}; -webkit-mask-image:url(/brand/makers/${b.f}.svg); mask-image:url(/brand/makers/${b.f}.svg)`} role="img" aria-label={b.n}></i>
+                    : b.f ? <img src={`/brand/makers/${b.f}.svg`} alt={b.n} loading="lazy" />
+                    : <em class="bb-word">{b.n}</em>}
+                </span>
+                <figcaption><b>{b.n}</b><small>{b.what}</small></figcaption>
+              </figure>
             ))}
           </div>
         </div>
@@ -549,25 +590,36 @@ const [rowA, rowB] = rowsOf(mostBooked);
   @media (max-width: 760px) { .modes { grid-template-columns: 1fr; } }
 
   /* brands + issues */
-  .brands-band { padding: 44px 0 24px; }
-  .bb-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 20px; margin-bottom: 22px; }
+  .brands-band { padding: 48px 0 28px; }
+  .bb-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 14px 24px; margin-bottom: 26px; }
   .bb-kick { display: inline-flex; align-items: center; gap: 10px; font-size: 12.5px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--violet); }
   .bb-kick i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 5px var(--accent-soft); animation: bbPulse 2s ease-in-out infinite; }
   @keyframes bbPulse { 50% { box-shadow: 0 0 0 9px transparent; } }
-  .bb-head p { color: var(--ink-3); font-size: 15px; }
-  .bb-head p b { color: var(--ink); font-size: 17px; }
-  .bb-rows { display: grid; gap: 12px; mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+  .bb-title { margin-top: 10px; font-size: clamp(24px, 2.6vw, 34px); letter-spacing: -.02em; }
+  .bb-title span { color: var(--violet); }
+  .bb-stats { display: flex; gap: 10px; list-style: none; margin: 0; padding: 0; }
+  .bb-stats li { display: grid; padding: 10px 18px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); text-align: center; }
+  .bb-stats b { font-size: 22px; color: var(--ink); line-height: 1.1; }
+  .bb-stats small { font-size: 12px; color: var(--ink-3); }
+  .bb-rows { display: grid; gap: 14px; mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); }
   .bb-row { overflow: hidden; }
-  .bb-track { display: flex; gap: 12px; width: max-content; padding: 4px 0; animation: marquee 55s linear infinite; }
-  .bb-row.rev .bb-track { animation-direction: reverse; animation-duration: 65s; }
+  .bb-track { display: flex; gap: 14px; width: max-content; padding: 6px 0; animation: marquee 60s linear infinite; }
+  .bb-row.rev .bb-track { animation-direction: reverse; animation-duration: 70s; }
   .bb-rows:hover .bb-track { animation-play-state: paused; }
-  .bb-chip { display: inline-grid; grid-template-columns: auto auto; grid-template-rows: auto auto; column-gap: 12px; align-items: center; padding: 10px 18px 10px 10px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(16,24,40,.04); white-space: nowrap; transition: transform .25s, border-color .25s, box-shadow .25s; }
-  .bb-chip:hover { transform: translateY(-3px); border-color: hsl(var(--h) 70% 55% / .6); box-shadow: 0 14px 26px -18px hsl(var(--h) 60% 35% / .7); }
-  .bb-chip i { grid-row: 1 / 3; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; font-style: normal; font-weight: 800; font-size: 13px; letter-spacing: .02em; color: hsl(var(--h) 65% 38%); background: linear-gradient(135deg, hsl(var(--h) 85% 95%), hsl(var(--h) 70% 88%)); }
-  .bb-chip b { font-size: 15.5px; color: var(--ink); line-height: 1.15; }
-  .bb-chip small { font-size: 12px; color: var(--ink-3); }
-  @media (prefers-reduced-motion: reduce) { .bb-track, .bb-kick i { animation: none; } }  @keyframes marquee { to { transform: translateX(-50%); } }
-
+  .bb-card { display: grid; justify-items: center; align-content: center; gap: 10px; width: 176px; height: 118px; margin: 0; padding: 14px 12px 12px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(16,24,40,.04); transition: transform .3s cubic-bezier(.3,1.4,.5,1), box-shadow .3s, border-color .3s; }
+  .bb-logo { display: grid; place-items: center; height: 40px; width: 100%; }
+  .bb-mask { display: block; width: 140px; height: 40px; background: #8a94a6; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: var(--s) auto; mask-size: var(--s) auto; transition: background .3s; }
+  .bb-logo img { max-height: 30px; max-width: 120px; width: auto; filter: grayscale(1) contrast(.9) opacity(.62); transition: filter .3s; }
+  .bb-word { font-style: normal; font-weight: 900; font-size: 22px; letter-spacing: .04em; color: #8a94a6; transition: color .3s; }
+  .bb-card figcaption { display: grid; justify-items: center; line-height: 1.2; text-align: center; }
+  .bb-card figcaption b { font-size: 13px; color: var(--ink); }
+  .bb-card figcaption small { font-size: 11.5px; color: var(--ink-3); white-space: nowrap; }
+  .bb-card:hover { transform: translateY(-5px); border-color: transparent; box-shadow: 0 0 0 2px var(--violet), 0 18px 34px -20px rgba(16,24,40,.45); }
+  .bb-card:hover .bb-mask { background: var(--c); }
+  .bb-card:hover .bb-logo img { filter: none; }
+  .bb-card:hover .bb-word { color: #E11D2E; }
+  @media (max-width: 560px) { .bb-card { width: 150px; height: 108px; } .bb-stats { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .bb-track, .bb-kick i { animation: none; } }
   .issues { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 48px; align-items: center; }
   .issues h2 { margin: 14px 0 14px; }
   .issues .btn { margin-top: 28px; }
