@@ -55,11 +55,13 @@ async function lookup(ip: string): Promise<string | null> {
 }
 
 /** Development only: country of this machine's own public IP (localhost visitors have none). */
-let selfCountry: Promise<string | null> | null = null;
-export function countryOfThisMachine(): Promise<string | null> {
-  selfCountry ??= getJson('https://api.country.is/')
-    .then((j) => (typeof j?.country === 'string' && /^[A-Z]{2}$/.test(j.country) ? j.country : null))
-    .catch(() => null);
+let selfCountry: string | null = null;
+export async function countryOfThisMachine(): Promise<string | null> {
+  if (selfCountry) return selfCountry; // remember a success; retry after a failure
+  try {
+    const j = await getJson('https://api.country.is/');
+    if (typeof j?.country === 'string' && /^[A-Z]{2}$/.test(j.country)) selfCountry = j.country;
+  } catch { /* stay null and try again next time */ }
   return selfCountry;
 }
 
