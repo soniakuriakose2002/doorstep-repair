@@ -238,7 +238,7 @@ const perks: Record<string, string[]> = {
   .ig-x svg { width: 20px; height: 20px; }
 
   /* left */
-  .ig-show { position: relative; display: grid; grid-template-rows: 1fr auto auto; padding: 44px 24px 22px 92px; overflow: hidden; background: linear-gradient(135deg, #f6faf5 0%, #eaf5ec 55%, #d8eedd 100%); }
+  .ig-show { position: relative; display: grid; grid-template-rows: 1fr auto auto; padding: 44px 24px 22px 92px; overflow: hidden; background: radial-gradient(420px 320px at 85% 15%, var(--glow), transparent 70%), linear-gradient(135deg, var(--bg) 0%, var(--accent-soft) 55%, color-mix(in srgb, var(--accent-soft) 60%, var(--violet) 18%) 100%); }
   .ig-swoosh { position: absolute; right: -18%; top: -30%; width: 75%; height: 160%; border-radius: 50%; background: radial-gradient(closest-side, rgba(47,160,90,.28), rgba(47,160,90,.08) 70%, transparent); transform: rotate(-20deg); pointer-events: none; }
   .ig-slide { grid-area: 1 / 1; position: relative; display: grid; grid-template-columns: 1.1fr .9fr; align-items: center; gap: 10px; min-height: 430px; opacity: 0; pointer-events: none; transition: opacity .5s; }
   .ig-slide.on { opacity: 1; pointer-events: auto; }
@@ -287,14 +287,14 @@ const perks: Record<string, string[]> = {
 
   /* right */
   .ig-form { display: flex; flex-direction: column; gap: 16px; padding: 40px 36px 30px; }
-  .ig-wa-pill { align-self: flex-start; display: inline-flex; align-items: center; gap: 10px; padding: 11px 18px; border-radius: 999px; background: #e7f5ea; color: var(--g2); font-size: 15px; font-weight: 600; }
+  .ig-wa-pill { align-self: flex-start; display: inline-flex; align-items: center; gap: 10px; padding: 11px 18px; border-radius: 999px; background: var(--accent-soft); color: var(--g2); font-size: 15px; font-weight: 600; }
   .ig-wa-pill svg { width: 22px; height: 22px; color: var(--g); }
   .ig-form h2 { font-family: var(--display); font-size: clamp(32px, 3vw, 44px); font-weight: 800; letter-spacing: -.02em; color: #111a15; margin-top: 8px; }
   .ig-sub { font-size: 16px; color: #56625b; line-height: 1.5; }
   .ig-mode { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .ig-mode button { display: flex; align-items: center; justify-content: center; gap: 10px; height: 56px; border: 1.5px solid transparent; border-radius: 14px; background: #f1f4f2; color: #26322b; font-size: 15px; font-weight: 600; transition: all .2s; }
   .ig-mode button svg { width: 20px; height: 20px; }
-  .ig-mode button[aria-selected='true'] { border-color: var(--g); background: #eef8f0; color: var(--g2); }
+  .ig-mode button[aria-selected='true'] { border-color: var(--g); background: var(--accent-soft); color: var(--g2); }
   .ig-quick { display: grid; gap: 14px; }
   .ig-row { display: flex; gap: 10px; }
   .ig-row[hidden] { display: none; }
