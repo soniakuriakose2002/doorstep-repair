@@ -289,10 +289,6 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
   }
   /* Services mega menu — six styles live in MegaMenu.astro; this is the shell */
   .nav-inner { position: relative; }
-  /* header spans the page like the hero (no empty side gaps); logo gets room to breathe */
-  .nav > .wrap.nav-inner { width: calc(100% - 40px); max-width: none; padding-left: 26px; }
-  /* keep the Services dropdown at its normal 1200px width, centred */
-  .nav-inner > nav .mega, .nav-inner .mega { left: max(0px, calc(50% - 600px)); right: max(0px, calc(50% - 600px)); }
   .has-mega > a { display: inline-flex; align-items: center; gap: 4px; }
   .caret { width: 14px; height: 14px; transition: transform .25s; }
   .mega {
