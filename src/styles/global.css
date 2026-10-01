@@ -604,7 +604,7 @@ a.glass:hover, .issue.glass:hover { transform: translateY(-4px); border-color: r
    blue secondary, blue → purple accent gradient */
 :root[data-brand][data-brand='danatfix'][data-shade='36'][data-shade] {
   --d-main: #0455C0; --d-cyan: #049AE9; --d-purple: #A20ABF; --d-orange: #F78E36; --d-orange2: #FFA65A;
-  --d-bg: #FFF9F5; --d-navbg: #FFFFFF; --d-navink: #211D38;
+  --d-bg: #F8FAFC; --d-navbg: #FFFFFF; --d-navink: #101828;
   --d-word: linear-gradient(100deg, #049AE9 0%, #6A4FD8 45%, #A20ABF 75%, #D22AD4 100%);
   --ink: #211D38; --ink-2: #4A4659; --ink-3: #6B6870; --navy: #211D38;
   --accent-soft: #FDEEE3; --glow: #E9D3F5; --a1: 4, 154, 233; --a2: 162, 10, 191;
@@ -620,3 +620,25 @@ a.glass:hover, .issue.glass:hover { transform: translateY(-4px); border-color: r
 :root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] .eyebrow::before { background: #A20ABF !important; }
 :root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] .uc-badge { background: #FDEEE3 !important; color: #D06A14 !important; }
 :root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] .bk-hero { background: linear-gradient(120deg, #FFF9F5 0%, #E8F5FD 50%, #F6E6FA 100%) !important; }
+
+/* Danat Logo Palette, soft version: every pastel comes from a logo colour
+   soft blue #E8F5FF · soft cyan #E8FAFF · soft purple #F3EAFF · soft orange #FFF0E5 */
+:root[data-brand][data-brand='danatfix'][data-shade='36'][data-shade] {
+  --d-main: #0757B8; --d-purple: #8B2BE2; --d-orange: #FF7A00; --d-orange2: #FF9A3D;
+  --ink: #101828; --accent-soft: #E8F5FF; --glow: #F3EAFF;
+}
+:root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] body { background:
+  radial-gradient(900px 520px at 100% 0%, #F3EAFF, transparent 62%),
+  radial-gradient(800px 520px at 0% 40%, #E8F5FF, transparent 62%),
+  radial-gradient(700px 480px at 70% 100%, #FFF0E5, transparent 65%), #F8FAFC !important; background-attachment: fixed !important; }
+:root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] .uc-cat:nth-child(4n+1) .uc-ci { background: #E8F5FF !important; }
+:root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] .uc-cat:nth-child(4n+2) .uc-ci { background: #E8FAFF !important; }
+:root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] .uc-cat:nth-child(4n+3) .uc-ci { background: #F3EAFF !important; }
+:root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] .uc-cat:nth-child(4n+4) .uc-ci { background: #FFF0E5 !important; }
+:root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] .uc-badge { background: #FFF0E5 !important; color: #C25E00 !important; }
+:root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] .eyebrow { color: #8B2BE2 !important; }
+:root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] .eyebrow::before { background: #8B2BE2 !important; }
+:root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] .bk-hero { background: linear-gradient(120deg, #E8F5FF 0%, #E8FAFF 40%, #F3EAFF 75%, #FFF0E5 100%) !important; }
+:root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] .tst, :root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] .cta2 { background: linear-gradient(120deg, #E8F5FF, #F3EAFF 60%, #FFF0E5) !important; }
+:root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] .uc-add { border-color: #0757B8 !important; color: #0757B8 !important; }
+:root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] .uc-add:hover, :root[data-brand='danatfix'][data-shade='36'][data-shade][data-brand][data-brand][data-brand] .uc-add.done { background: #0757B8 !important; color: #fff !important; }
