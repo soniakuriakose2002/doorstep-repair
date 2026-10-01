@@ -65,7 +65,11 @@ export const brands = [
   btn.addEventListener('click', (e) => { e.stopPropagation(); toggle(menu.hidden); });
   menu.addEventListener('click', (e) => {
     const b = e.target.closest('[data-brand-id]'); if (!b) return;
-    apply(b.dataset.brandId); toggle(false);
+    // Switching company starts a fresh visit for that brand: reload so its welcome pop-up and
+    // offer bar show again (they normally appear once per visit).
+    if (b.dataset.brandId === cur) { toggle(false); return; }
+    try { ['offer-seen', 'ann-closed', 'spin-won', 'idle-shown', 'sl-shown'].forEach((k) => sessionStorage.removeItem(k)); } catch {}
+    const u = new URL(location.href); u.searchParams.set('brand', b.dataset.brandId); location.href = u.toString();
   });
   document.addEventListener('click', (e) => { if (!root.contains(e.target)) toggle(false); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') toggle(false); });
