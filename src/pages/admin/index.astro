@@ -73,7 +73,7 @@ Astro.response.headers.set('cache-control', 'no-store');
               <button class:list={['btn', { 'btn-primary': settings!.autoCurrency }]} name="autoCurrency" value="on" type="submit" aria-pressed={settings!.autoCurrency}>Enable</button>
               <button class:list={['btn', { 'btn-primary': !settings!.autoCurrency }]} name="autoCurrency" value="off" type="submit" aria-pressed={!settings!.autoCurrency}>Disable</button>
             </form>
-            {saved && <p class="ad-ok" role="status">✓ Saved. Visitors get the new setting within an hour (or on their next new visit).</p>}
+            {saved && <p class="ad-ok" role="status">✓ Saved. Visitors get the new setting within 10 minutes (or straight away in a new tab).</p>}
           </section>
           <form method="post" class="ad-out">
             <input type="hidden" name="action" value="logout" />

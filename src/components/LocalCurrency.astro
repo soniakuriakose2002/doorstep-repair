@@ -11,7 +11,7 @@ const base = site.currency.trim();
 
 <script is:inline define:vars={{ base }}>
 (() => {
-  const KEY = 'fx-v2', TTL = 3600e3; // reuse the answer for 1 hour in this tab
+  const KEY = 'fx-v2', TTL = 600e3; // reuse the answer for 10 minutes in this tab
   try { localStorage.removeItem('fx-v1'); } catch {} // old browser-side cache
 
   const valid = (fx) => fx && /^[A-Z]{3}$/.test(fx.currency) && typeof fx.rate === 'number' && isFinite(fx.rate) && fx.rate > 0

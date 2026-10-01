@@ -41,8 +41,8 @@ Visitors see prices in their own country's currency; stored prices never change.
   - `format.ts` — `Intl.NumberFormat` (₹1,000 · $12.00 · AED 44.00 · OMR 4.60).
   - `index.ts` — `resolveDisplayCurrency()` combines the above with the admin setting.
 - **API**: `GET /api/currency` → `{ enabled, base, currency, rate, country, reason, format }`.
-  Browser cache `private, max-age=3600`.
-- **Browser**: `src/components/LocalCurrency.astro` calls the API once per session and
+  Browser cache `private, max-age=600`.
+- **Browser**: `src/components/LocalCurrency.astro` calls the API at most every 10 minutes per tab and
   rewrites displayed "OMR n" amounts. No rates, keys or third-party calls in the browser.
   WhatsApp booking messages keep the base currency.
 - **Fallback**: setting off, unknown IP/country, unsupported currency, missing rate or
