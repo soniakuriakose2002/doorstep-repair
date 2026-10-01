@@ -77,6 +77,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
             ))}
           </ul>
         </nav>
+        <span class="fx-badge" data-fx-badge data-no-fx tabindex="0" hidden></span>
         <ShadePicker />
         <a href="/services#catalog" class="nav-search" aria-label="Search devices and models"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></a>
         <button type="button" class="nav-cart" data-cart-open aria-label="Open cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 3.5h2.2l2.4 11.2a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.1l1.8-7.3H6"/><circle cx="9.5" cy="19.8" r="1.4"/><circle cx="17" cy="19.8" r="1.4"/></svg><b data-cart-count hidden>0</b></button>
@@ -289,6 +290,15 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
   }
   /* Services mega menu — six styles live in MegaMenu.astro; this is the shell */
   .nav-inner { position: relative; }
+  .fx-badge { position: relative; display: inline-flex; align-items: center; gap: 6px; height: 40px; margin-left: auto; padding: 0 13px 0 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 14px; color: var(--ink); cursor: default; flex: none; }
+  .fx-badge[hidden] { display: none; }
+  .fx-badge :global(img) { width: 20px; height: 15px; border-radius: 3px; object-fit: cover; box-shadow: 0 0 0 1px rgba(0,0,0,.08); }
+  .fx-badge :global(b) { font-weight: 800; letter-spacing: .02em; }
+  .fx-badge :global(.fx-sym) { display: grid; place-items: center; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 999px; background: var(--accent-soft); color: var(--violet); font-weight: 800; font-size: 13px; }
+  .fx-badge :global(.fx-tip) { position: absolute; right: 0; top: calc(100% + 10px); z-index: 80; width: 240px; padding: 10px 12px; border-radius: 12px; background: #16141f; color: #fff; font-size: 13px; line-height: 1.4; opacity: 0; visibility: hidden; transition: opacity .2s; }
+  .fx-badge :global(.fx-tip small) { color: rgba(255,255,255,.65); font-size: 11.5px; }
+  .fx-badge:hover :global(.fx-tip), .fx-badge:focus :global(.fx-tip) { opacity: 1; visibility: visible; }
+  @media (max-width: 900px) { .fx-badge :global(b) { display: none; } }
   .has-mega > a { display: inline-flex; align-items: center; gap: 4px; }
   .caret { width: 14px; height: 14px; transition: transform .25s; }
   .mega {

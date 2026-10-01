@@ -40,7 +40,19 @@ const base = site.currency.trim();
   }
 
   const RE = new RegExp(`${base}\\s?(\\d[\\d,]*(?:\\.\\d+)?)`, 'g');
-  function apply(fx) {
+  // Prominent badge in the header: flag, currency code + symbol, today's rate from the base price
+  const COUNTRY = { IN: 'India', AE: 'UAE (Dubai)', OM: 'Oman', SA: 'Saudi Arabia', QA: 'Qatar', KW: 'Kuwait', BH: 'Bahrain', US: 'USA', GB: 'UK' };
+  function badge(fx) {
+    const el = document.querySelector('[data-fx-badge]'); if (!el || !fx || !fx.cur) return;
+    const LOCAL_SYM = { AED: 'د.إ', OMR: 'ر.ع.', SAR: 'ر.س', QAR: 'ر.ق', KWD: 'د.ك', BHD: 'د.ب' };
+    const sym = LOCAL_SYM[fx.cur] || (() => { try { return new Intl.NumberFormat(LOCALE[fx.cur] || undefined, { style: 'currency', currency: fx.cur, currencyDisplay: 'narrowSymbol' }).formatToParts(0).find((p) => p.type === 'currency').value; } catch { return fx.cur; } })();
+    const flag = fx.cc ? `<img src="https://flagcdn.com/w40/${fx.cc.toLowerCase()}.png" alt="" width="20" height="15" />` : '';
+    const where = COUNTRY[fx.cc] || fx.cc || '';
+    const rate = fx.cur === base ? `Base currency` : `1 ${base} = ${new Intl.NumberFormat(LOCALE[fx.cur] || undefined, { style: 'currency', currency: fx.cur, maximumFractionDigits: 2 }).format(fx.rate)}`;
+    el.innerHTML = `${flag}<b>${fx.cur}</b><span class="fx-sym">${sym}</span><span class="fx-tip">Prices shown in ${fx.cur} for ${where}<br><small>Detected from your IP address · ${rate}</small></span>`;
+    el.title = `Prices shown in ${fx.cur} (${where}) — ${rate}`;
+    el.hidden = false;
+  }  function apply(fx) {
     if (!fx || fx.cur === base || !fx.rate) return;
     const fmt = new Intl.NumberFormat(LOCALE[fx.cur] || undefined, { style: 'currency', currency: fx.cur, maximumFractionDigits: fx.rate > 50 ? 0 : 2, minimumFractionDigits: 0 });
     const swap = (s) => s.replace(RE, (_, n) => fmt.format(parseFloat(n.replace(/,/g, '')) * fx.rate));
@@ -66,6 +78,7 @@ const base = site.currency.trim();
       fx = { cc, cur, rate: await rate(cur), t: Date.now() };
       if (!forced) put(fx);
     }
+    badge(fx);
     apply(fx);
   }
   document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();
