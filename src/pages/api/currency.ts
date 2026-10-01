@@ -43,8 +43,8 @@ export const GET: APIRoute = async ({ request, clientAddress }) => {
     {
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        // private: per visitor; a test override must never be cached
-        'cache-control': override ? 'no-store' : 'private, max-age=600',
+        // the page keeps its own 10-minute copy; the browser must not hold an older answer
+        'cache-control': 'no-store',
         vary: 'x-test-country',
       },
     },

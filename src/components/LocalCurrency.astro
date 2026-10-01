@@ -23,7 +23,7 @@ const base = site.currency.trim();
       try { const c = JSON.parse(sessionStorage.getItem(KEY) || 'null'); if (c && Date.now() - c.t < TTL && valid(c.fx)) return c.fx; } catch {}
     }
     try {
-      const r = await fetch('/api/currency' + (test ? `?country=${encodeURIComponent(test)}` : ''), { headers: { accept: 'application/json' } });
+      const r = await fetch('/api/currency' + (test ? `?country=${encodeURIComponent(test)}` : ''), { headers: { accept: 'application/json' }, cache: 'no-store' });
       if (!r.ok) return null;
       const fx = await r.json();
       if (!valid(fx)) return null;
