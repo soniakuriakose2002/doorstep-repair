@@ -407,6 +407,9 @@ import { DIAL as dial } from '../lib/phone';
     .ig-thumb { font-size: 10.5px; padding: 8px 2px 12px; }
     .ig-thumb-art { width: 44px; height: 38px; }
     .ig-form { padding: 26px 22px; }
+    /* picture sits on top here — keep the arrows beside it, off the text */
+    .ig-arrow { top: 130px; width: 42px; height: 42px; }
+    .ig-arrow.prev { left: 10px; } .ig-arrow.next { right: 10px; }
   }
   .sl { position: fixed; left: 18px; bottom: 110px; z-index: 86; width: min(340px, calc(100% - 36px)); background: #fff; border-radius: 26px; overflow: hidden; box-shadow: 0 30px 70px -20px rgba(0,0,0,.45); color: #16211b; transform: translateX(-120%) rotate(-4deg); transition: transform .6s cubic-bezier(.2,1.15,.3,1); }
   .sl[hidden] { display: none; }

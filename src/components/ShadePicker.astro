@@ -49,7 +49,7 @@ export const shades369 = [
       </button>
     )]))}
   </div>
-  <button type="button" class="sp-btn" aria-expanded="false" data-sp-btn>
+  <button type="button" class="sp-btn" aria-expanded="false" aria-label="Theme" title="Theme" data-sp-btn>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1 0 1.6-.8 1.6-1.6 0-.5-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1 0-.9.7-1.6 1.6-1.6H16a5 5 0 0 0 5-5c0-4.1-4-7.6-9-7.6z"/><circle cx="7.5" cy="11" r="1.2"/><circle cx="10.5" cy="7" r="1.2"/><circle cx="15" cy="7.5" r="1.2"/></svg>
     <span>Theme</span>
   </button>
@@ -67,6 +67,11 @@ export const shades369 = [
   btn.addEventListener('click', (e) => { e.stopPropagation(); menu.hidden = !menu.hidden; btn.setAttribute('aria-expanded', String(!menu.hidden)); });
   menu.addEventListener('click', (e) => { const b = e.target.closest('[data-shade-id]'); if (b) set(b.dataset.shadeId); });
   document.addEventListener('click', (e) => { if (!root.contains(e.target)) { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); } });
+  // only one header menu open at a time; Escape closes it
+  const shut = () => { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); };
+  btn.addEventListener('click', () => { if (!menu.hidden) document.dispatchEvent(new CustomEvent('hdr-menu', { detail: 'sp' })); });
+  document.addEventListener('hdr-menu', (e) => { if (e.detail !== 'sp') shut(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !menu.hidden) { shut(); btn.focus(); } });
   // a shade belongs to one brand (1–14 Danat Fix, 21–28 369 ai Fix): drop it when the brand no longer matches
   const fits = () => { const s = Number(document.documentElement.dataset.shade || 0), br = document.documentElement.dataset.brand || 'danatfix'; return !s || (br === '369' ? s >= 21 && s <= 28 : (s >= 1 && s <= 14) || (s >= 32 && s <= 37)); };
   const check = () => { if (!fits()) { delete document.documentElement.dataset.shade; try { localStorage.setItem('shade', '0'); } catch {} } mark(); };

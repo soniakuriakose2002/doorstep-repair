@@ -60,9 +60,22 @@ export const brands = [
     else if (n.nodeType === 1) fix(n, base, shown);
   })); }).observe(document.body, { childList: true, subtree: true });
 
+  // Messages built at the moment of sending (booking wizard, pop-up, cart, "someone else")
+  // are written with the default name — swap it on the way out, so 369 customers never
+  // send "Hi Danat Fix".
+  const out = (u) => (shown === base || u == null ? u : swapStr(String(u), base, shown));
+  const nativeOpen = window.open.bind(window);
+  window.open = (u, ...rest) => nativeOpen(out(u), ...rest);
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest && e.target.closest('a[href]');
+    if (a && shown !== base && !a.closest('[data-no-brand]')) { const h = a.getAttribute('href'); const s = out(h); if (s !== h) a.setAttribute('href', s); }
+  }, true);
+
   const root = document.querySelector('[data-bs]'), btn = root.querySelector('[data-bs-btn]'), menu = root.querySelector('[data-bs-menu]');
   const toggle = (open) => { menu.hidden = !open; btn.setAttribute('aria-expanded', String(open)); root.classList.toggle('open', open); };
-  btn.addEventListener('click', (e) => { e.stopPropagation(); toggle(menu.hidden); });
+  btn.addEventListener('click', (e) => { e.stopPropagation(); toggle(menu.hidden); if (!menu.hidden) document.dispatchEvent(new CustomEvent('hdr-menu', { detail: 'bs' })); });
+  document.addEventListener('hdr-menu', (e) => { if (e.detail !== 'bs') toggle(false); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !menu.hidden) { toggle(false); btn.focus(); } });
   menu.addEventListener('click', (e) => {
     const b = e.target.closest('[data-brand-id]'); if (!b) return;
     // Switching company starts a fresh visit for that brand: reload so its welcome pop-up and
