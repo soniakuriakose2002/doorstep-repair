@@ -100,7 +100,7 @@ import { DIAL as dial } from '../lib/phone';
         </div>
         <p class="ig-err" data-field-err role="alert" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg><span data-err-text></span><button type="button" class="ig-fix" data-err-fix hidden>Use it</button></p>
         <button type="submit" class="ig-send"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg> <span>Send on WhatsApp</span><svg class="arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-        <p class="ig-msg" data-quick-msg aria-live="polite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>No spam. We only use your number to confirm the booking.</p>
+        <p class="ig-msg" data-quick-msg aria-live="polite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span data-quick-note>No spam. We only use your number to confirm the booking.</span></p>
       </form>
       <div class="ig-or"><span>OR</span></div>
       <a class="ig-all" href="/services#all" data-idle-x><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>View all services<svg class="arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
@@ -179,6 +179,7 @@ import { DIAL as dial } from '../lib/phone';
       idle.querySelector<HTMLElement>('[data-row-phone]')!.hidden = mode !== 'phone';
       idle.querySelector<HTMLElement>('[data-row-email]')!.hidden = mode !== 'email';
       (window as any).__clearQuickErr?.();
+      const note = idle.querySelector('[data-quick-note]'); if (note) note.textContent = `No spam. We only use your ${mode === 'email' ? 'email' : 'number'} to confirm the booking.`;
       idle.querySelector<HTMLInputElement>(mode === 'phone' ? '[name=phone]' : '[name=email]')!.focus();
     }));
     idle.querySelector('[data-prev]')!.addEventListener('click', () => go(cur - 1));
@@ -224,7 +225,13 @@ import { DIAL as dial } from '../lib/phone';
     bindPhone(phIn, () => ccSel.value, (m) => fieldErr(phIn, m));
     // email: check when leaving the box; once an error shows, re-check live so it clears as soon as it's fixed
     emIn.addEventListener('blur', () => { if (!emIn.value.trim()) return; const r = checkEmail(emIn.value); fieldErr(emIn, r.msg, r.suggest); });
-    emIn.addEventListener('input', () => { if (errEl.hidden) return; const r = checkEmail(emIn.value); fieldErr(emIn, r.ok ? '' : r.msg, r.suggest); });
+    // while typing: re-check at once if an error is showing; otherwise check after a short pause
+    let emTimer = 0;
+    emIn.addEventListener('input', () => {
+      clearTimeout(emTimer);
+      const run = () => { if (!emIn.value.trim()) { fieldErr(emIn, ''); return; } const r = checkEmail(emIn.value); fieldErr(emIn, r.ok ? '' : r.msg, r.suggest); };
+      if (!errEl.hidden) run(); else emTimer = window.setTimeout(run, 700);
+    });
     let ccTouched = false;
     ccSel.addEventListener('change', () => { ccTouched = true; ccShow(); });
     const ccAuto = (cc: unknown) => { if (ccTouched || typeof cc !== 'string') return; const v = cc.toLowerCase(); if ([...ccSel.options].some((o) => o.value === v)) { ccSel.value = v; ccShow(); } };
