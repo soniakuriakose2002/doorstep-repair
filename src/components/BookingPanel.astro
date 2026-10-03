@@ -7,17 +7,8 @@ import { categories, iconPaths } from '../data/devices';
 import { artFor, note } from '../data/menu';
 const wa = (m: string) => `https://wa.me/${site.phone.tel.replace('+', '')}?text=${encodeURIComponent(m)}`;
 
-// Real repair photos supplied by the client (public/media/repairs). Others fall back to the illustration.
-const photo: Record<string, string> = {
-  'mobile:Screen replacement': 'screen', 'mobile:Battery replacement': 'battery', 'mobile:Charging port': 'charging',
-  'mobile:Back glass': 'backglass', 'mobile:Speaker / microphone': 'speaker', 'mobile:Water damage': 'water', 'mobile:Software & data': 'software', 'mobile:Camera': 'camera',
-  'tablet:Screen / glass': 'tab-screen', 'tablet:Display / touch not working': 'tab-display', 'tablet:Battery replacement': 'tab-battery',
-  'tablet:Charging port': 'tab-charging', 'tablet:Buttons': 'tab-buttons',
-  'laptop:Screen replacement': 'lap-screen', 'laptop:Keyboard / trackpad': 'lap-keyboard', 'laptop:Battery replacement': 'lap-battery',
-  'laptop:Hinge repair': 'lap-hinge', 'laptop:Motherboard repair': 'lap-board', 'laptop:Overheating / fan': 'lap-fan',
-  'desktop:Not powering on': 'desk-power-on', 'desktop:Power supply': 'desk-psu', 'desktop:Motherboard repair': 'desk-board',
-  'desktop:SSD / RAM upgrade': 'desk-ssd', 'desktop:Graphics card': 'desk-gpu', 'desktop:Custom PC build': 'desk-build',
-};
+// Real repair photos (public/media/repairs) — one shared list; others fall back to the illustration.
+import { photo } from '../data/photos';
 const heroCopy: Record<string, [string, string]> = {
   mobile: ['Keep Your Phone Working Like New', 'Screen, battery, charging, camera and more – quick and reliable service.'],
   tablet: ['Your Tablet, Good as New', 'Cracked glass, batteries and charging faults fixed fast.'],
