@@ -4,6 +4,17 @@ import { serviceModes, price, site } from '../data/site';
 import { categories, totals, iconPaths } from '../data/devices';
 import { coverage } from '../data/coverage';
 import { DIAL } from '../lib/phone';
+// Brand logo for each wizard brand id: [file in public/brand/makers, colour] — no colour = multi-colour SVG shown as <img>
+const LOGO: Record<string, [string, string?]> = {
+  apple: ['apple', '#1d1d1f'], ipad: ['apple', '#1d1d1f'], macbook: ['apple', '#1d1d1f'], imac: ['apple', '#1d1d1f'], macos: ['apple', '#1d1d1f'],
+  samsung: ['samsung', '#1428A0'], 'galaxy-tab': ['samsung', '#1428A0'], google: ['google', '#4285F4'], oneplus: ['oneplus', '#F5010C'],
+  xiaomi: ['xiaomi', '#FF6900'], vivo: ['vivo', '#415FFF'], oppo: ['oppo', '#2D683D'], realme: ['realme'], iqoo: ['iqoo'],
+  motorola: ['motorola', '#E1140A'], nothing: ['nothing'], dell: ['dell', '#007DB8'], 'dell-pc': ['dell', '#007DB8'],
+  hp: ['hp', '#0096D6'], 'hp-pc': ['hp', '#0096D6'], 'hp-print': ['hp', '#0096D6'], lenovo: ['lenovo', '#E2231A'], 'lenovo-pc': ['lenovo', '#E2231A'],
+  asus: ['asus', '#1d1d1f'], acer: ['acer', '#83B81A'], msi: ['msi', '#FF0000'], canon: ['canon'], epson: ['epson', '#003399'], brother: ['brother'],
+  hikvision: ['hikvision'], dahua: ['dahua'], tplink: ['tplink', '#4ACBD6'], ubiquiti: ['ubiquiti', '#0559C9'], cisco: ['cisco', '#1BA0D7'],
+  dlink: ['dlink'], windows: ['windows', '#0078D4'],
+};
 import BookingPanel from '../components/BookingPanel.astro';
 import { note as issueNote } from '../data/menu';
 const issueSvg = (s: string) => {
@@ -211,17 +222,28 @@ const payload = JSON.stringify({
           <h3 class="wz-q">Which <span data-wz-catname>device</span>?</h3>
           <div class="wz-bm">
             <div class="wz-brands">
-              {categories.flatMap((c) => c.brands.map((b) => (
-                <button type="button" class="wz-brand" data-wz-brand={b.id} data-wz-brand-cat={c.id} data-name={b.name} style={`--h:${b.hue}`} hidden>
-                  <span class="wz-mono">{b.name[0]}</span><span><b>{b.name}</b><small>{b.models.length} {c.id === 'cctv' ? 'types' : 'models'}</small></span>
-                </button>
-              )))}
+              {categories.flatMap((c) => c.brands.map((b, k) => {
+                const lg = LOGO[b.id];
+                return (
+                  <button type="button" class="wz-brand" data-wz-brand={b.id} data-wz-brand-cat={c.id} data-name={b.name} style={`--h:${b.hue}; --i:${k}`} hidden>
+                    <span class:list={['wz-mono', { logo: !!lg }]}>
+                      {lg ? (lg[1] ? <i class="wz-lmask" style={`--c:${lg[1]}; -webkit-mask-image:url(/brand/makers/${lg[0]}.svg); mask-image:url(/brand/makers/${lg[0]}.svg)`} aria-hidden="true"></i> : <img src={`/brand/makers/${lg[0]}.svg`} alt="" loading="lazy" />) : b.name[0]}
+                    </span>
+                    <span class="wz-bt"><b>{b.name}</b><small>{b.models.length} {c.id === 'cctv' ? 'types' : 'models'}</small></span>
+                    <span class="wz-bck" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+                  </button>
+                );
+              }))}
             </div>
             <div class="wz-models">
               <label class="wz-search">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
                 <input type="search" data-model-search placeholder="Search model, e.g. S24, LaserJet" autocomplete="off" aria-label="Search models" />
               </label>
+              <div class="wz-mempty" aria-hidden="true">
+                <span class="wz-mpoint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></span>
+                <b>Pick a brand</b><small>or search your model above</small>
+              </div>
               <p class="wz-mhint" data-wz-mhint>Pick a brand to see its models.</p>
               <ul class="wz-mlist" data-wz-mlist>
                 {categories.flatMap((c) => c.brands.flatMap((b) => b.models.map((m) => (
@@ -254,29 +276,38 @@ const payload = JSON.stringify({
           <h3 class="wz-q">Your estimate</h3>
           <div class="wz-est">
             <div class="wz-sum">
-              <div class="wz-dev-line"><span class="wz-di sm" data-wz-sumico></span><div><b data-wz-sumdev>—</b><small data-wz-summodel>—</small></div></div>
+              <div class="wz-rhead">
+                <span class="wz-di sm" data-wz-sumico></span>
+                <div><small class="wz-rk">Repair estimate</small><b data-wz-sumdev>—</b><small data-wz-summodel>—</small></div>
+              </div>
               <ul data-wz-sumlist></ul>
+              <div class="wz-tear" aria-hidden="true"></div>
               <div class="wz-total"><span>Estimated cost</span><b>{price()}</b></div>
-              <p class="wz-note">Pricing is confirmed by our technician after diagnosis, before any work starts.</p>
+              <p class="wz-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>Price confirmed after diagnosis — before any work starts.</p>
             </div>
             <div class="wz-time">
-              <h4>Estimated completion</h4>
-              <div class="wz-t"><span class="wz-ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span><div><b>Doorstep</b><small>{coverage.doorstep.eta}</small></div></div>
-              <div class="wz-t" data-wz-pickup><span class="wz-ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M6 17h5l3-7h4M14 10l-2-3H9"/></svg></span><div><b>Pickup &amp; service</b><small>{coverage.pickup.eta}</small></div></div>
+              <h4>How should we reach you?</h4>
+              <div class="wz-tcards" role="radiogroup" aria-label="Service type">
+                <button type="button" role="radio" class="wz-t" data-wz-mode="doorstep" aria-checked="true">
+                  <span class="wz-ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span>
+                  <span class="wz-tt"><b>Doorstep service</b><small>{coverage.doorstep.eta}</small></span>
+                  <span class="wz-tpick"><i></i>Your choice</span>
+                </button>
+                <button type="button" role="radio" class="wz-t" data-wz-mode="pickup" data-wz-pickup aria-checked="false">
+                  <span class="wz-ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M6 17h5l3-7h4M14 10l-2-3H9"/></svg></span>
+                  <span class="wz-tt"><b>Pickup &amp; service</b><small>{coverage.pickup.eta}</small></span>
+                  <span class="wz-tpick"><i></i>Your choice</span>
+                </button>
+              </div>
               <p class="wz-onsite" data-wz-onsite hidden>This service is done on-site, so it is booked as a doorstep visit.</p>
             </div>
           </div>
 
           <div class="wz-who" data-wz-who>
-            <h4>Your details <small>so our team can confirm the booking</small></h4>
+            <h4><span class="wz-hico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 13l2 2 4-4"/></svg></span>Your details <small>so our team can confirm the booking</small></h4>
             <div class="wz-f">
-              <div class="wz-fl"><span>Service type</span>
-                <div class="wz-seg" role="radiogroup" aria-label="Service type">
-                  {serviceModes.map((m) => <button type="button" role="radio" data-wz-mode={m.id} aria-checked={m.id === 'doorstep' ? 'true' : 'false'}>{m.title}</button>)}
-                </div>
-              </div>
-              <label class="wz-fl"><span>Your area</span><select data-wz-area aria-label="Your area"></select></label>
-              <label class="wz-fl"><span>Your name</span><input data-wz-name autocomplete="name" placeholder="Full name" maxlength="60" /></label>
+              <label class="wz-fl"><span>Your area</span><span class="wz-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><select data-wz-area aria-label="Your area"></select></span></label>
+              <label class="wz-fl"><span>Your name</span><span class="wz-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><input data-wz-name autocomplete="name" placeholder="Full name" maxlength="60" /></span></label>
               <div class="wz-fl"><span>Mobile number</span>
                 <div class="wz-ph">
                   <select data-wz-cc aria-label="Country code">{DIAL.map((d) => <option value={d.cc} selected={d.cc === 'om'}>{d.code} {d.name}</option>)}</select>
@@ -482,10 +513,12 @@ const payload = JSON.stringify({
       m.classList.toggle('on', ok && m.dataset.model === wzState.model);
       if (ok) n++;
     });
+    wz.querySelector('.wz-models')!.classList.toggle('empty', !q && !wzState.brand);
     $('[data-wz-mhint]', wz).textContent = q ? (n ? `${n} match${n === 1 ? '' : 'es'}` : 'No match — try a shorter word, or skip.') : wzState.brand ? `${n} models` : 'Pick a brand to see its models.';
   };
   $$('[data-wz-brand]', wz).forEach((b) => b.addEventListener('click', () => {
     wzState.brand = b.dataset.wzBrand!; wzState.model = '';
+    wz.style.setProperty('--mh', b.style.getPropertyValue('--h')); // model panel takes the brand's colour
     $$('[data-wz-brand]', wz).forEach((x) => x.classList.toggle('on', x === b));
     wzSearch.value = '';
     showWzModels(); wzGo(2);
@@ -512,8 +545,9 @@ const payload = JSON.stringify({
     const c = wzCat()!;
     $('[data-wz-sumico]', wz).innerHTML = wz.querySelector(`[data-wz-cat="${c.id}"] .wz-di`)!.innerHTML;
     $('[data-wz-sumdev]', wz).textContent = c.name;
+    wz.style.setProperty('--eh', wz.querySelector<HTMLElement>(`[data-wz-cat="${c.id}"]`)!.style.getPropertyValue('--h')); // receipt header colour
     $('[data-wz-summodel]', wz).textContent = [brandName(), wzState.model].filter(Boolean).join(' · ') || 'Model not specified';
-    $('[data-wz-sumlist]', wz).innerHTML = [...wzState.issues].map((i) => `<li><span>${esc(i)}</span><b>${price()}</b></li>`).join('');
+    $('[data-wz-sumlist]', wz).innerHTML = [...wzState.issues].map((i, k) => `<li style="--i:${k}"><span><i class="wz-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i>${esc(i)}</span><b>${price()}</b></li>`).join('');
     $('[data-wz-pickup]', wz).hidden = c.onsiteOnly;
     $('[data-wz-onsite]', wz).hidden = !c.onsiteOnly;
     paintWzMode();
@@ -610,6 +644,7 @@ const payload = JSON.stringify({
 <style>
   .cart-lead { margin: 12px 0 28px; }
   #coverage { scroll-margin-top: 110px; }
+
   .faq { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 40px; align-items: start; }
   .faq h2 { margin-top: 14px; }
   .faq-list { display: grid; gap: 10px; }
@@ -865,10 +900,6 @@ const payload = JSON.stringify({
   .wz-fl select, .wz-fl input { width: 100%; min-width: 0; height: 48px; padding: 0 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); font: inherit; font-size: 15px; outline: none; transition: border-color .2s, box-shadow .2s; }
   .wz-fl select:focus, .wz-fl input:focus { border-color: var(--violet); box-shadow: 0 0 0 4px color-mix(in srgb, var(--violet) 14%, transparent); }
   .wz-fl .bad { border-color: #F43F5E !important; box-shadow: 0 0 0 4px rgba(244, 63, 94, .12) !important; }
-  .wz-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; height: 48px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
-  .wz-seg button { border: 0; border-radius: 9px; background: transparent; color: var(--ink-2); font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; transition: background .2s, color .2s; }
-  .wz-seg button[aria-checked='true'] { background: color-mix(in srgb, var(--violet) 12%, var(--surface)); color: var(--violet); box-shadow: inset 0 0 0 1.5px var(--violet); }
-  .wz-seg button:disabled { opacity: .45; cursor: not-allowed; text-decoration: line-through; }
   .wz-ph { display: flex; gap: 8px; }
   .wz-ph select { flex: none; width: 128px; padding: 0 8px; font-size: 14px; }
   .wz-ph input { flex: 1; }
@@ -880,4 +911,89 @@ const payload = JSON.stringify({
   @keyframes wzShake { 20% { translate: -6px; } 40% { translate: 5px; } 60% { translate: -3px; } 80% { translate: 2px; } }
   .wz-now { border: 0; font: inherit; font-weight: 700; cursor: pointer; }
   @media (max-width: 640px) { .wz-f, .wz-acts { grid-template-columns: 1fr; } .wz-who { padding: 18px; } }
+  /* ===== redesign: step 2 brand & model ===== */
+  .wz-brand { position: relative; padding: 12px 14px; border-radius: 18px; box-shadow: 0 1px 2px rgba(16,24,40,.04); transition: border-color .25s, transform .25s cubic-bezier(.3,1.4,.5,1), box-shadow .25s, background .25s; }
+  .wz-panel.on .wz-brand:not([hidden]) { animation: wzPop .45s cubic-bezier(.2,.9,.3,1.2) both; animation-delay: calc(var(--i, 0) * 45ms); }
+  .wz-brand:hover { transform: translateY(-3px); border-color: hsl(var(--h) 70% 60% / .55); box-shadow: 0 14px 26px -18px hsl(var(--h) 60% 40% / .55); }
+  .wz-brand.on { border-color: transparent; background: linear-gradient(var(--surface), var(--surface)) padding-box, linear-gradient(135deg, hsl(var(--h) 85% 62%), hsl(calc(var(--h) + 50) 85% 66%)) border-box; box-shadow: 0 14px 28px -18px hsl(var(--h) 70% 45% / .6); }
+  .wz-mono { width: 46px; height: 46px; border-radius: 14px; background: linear-gradient(135deg, hsl(var(--h) 90% 94%), hsl(calc(var(--h) + 40) 90% 90%)); font-size: 18px; transition: transform .3s; }
+  .wz-mono.logo { width: 62px; border-radius: 14px; background: #fff; box-shadow: inset 0 0 0 1px var(--line); }
+  .wz-mono img { max-width: 52px; max-height: 26px; object-fit: contain; }
+  .wz-lmask { display: block; width: 52px; height: 26px; background: var(--c); -webkit-mask: center / contain no-repeat; mask: center / contain no-repeat; }
+  .wz-brand:hover .wz-mono { transform: rotate(-6deg) scale(1.06); }
+  .wz-bt { flex: 1; min-width: 0; }
+  .wz-bck { position: absolute; top: -7px; right: -7px; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, hsl(var(--h) 85% 58%), hsl(calc(var(--h) + 50) 85% 62%)); color: #fff; box-shadow: 0 6px 12px -4px hsl(var(--h) 70% 45% / .6); transform: scale(0); transition: transform .35s cubic-bezier(.3,1.8,.5,1); }
+  .wz-bck svg { width: 13px; height: 13px; }
+  .wz-brand.on .wz-bck { transform: scale(1); }
+  .wz-models { position: relative; padding: 16px; border-radius: 22px; background: linear-gradient(160deg, hsl(var(--mh, 210) 90% 97%), hsl(calc(var(--mh, 210) + 40) 85% 95%)); border: 1px solid hsl(var(--mh, 210) 60% 88%); transition: background .4s, border-color .4s; }
+  .wz-models.empty .wz-mhint, .wz-models.empty .wz-mlist { display: none; }
+  .wz-mempty { display: none; }
+  .wz-models.empty .wz-mempty { display: grid; justify-items: center; gap: 4px; padding: 30px 10px 18px; text-align: center; }
+  .wz-mempty b { font-size: 15.5px; color: var(--ink-2); }
+  .wz-mempty small { font-size: 13px; color: var(--ink-3); }
+  .wz-mpoint { display: grid; place-items: center; width: 52px; height: 52px; margin-bottom: 8px; border-radius: 16px; background: #fff; color: hsl(var(--mh, 210) 70% 52%); box-shadow: 0 10px 22px -14px rgba(30,60,110,.45); animation: wzNudge 1.6s ease-in-out infinite; }
+  .wz-mpoint svg { width: 24px; height: 24px; }
+  @keyframes wzNudge { 50% { transform: translateX(-8px); } }
+  .wz-mlist li:not([hidden]) { animation: wzSlide .35s ease both; }
+  .wz-model { border: 1px solid transparent; border-radius: 12px; background: rgba(255,255,255,.85); }
+  .wz-model:hover { border-color: hsl(var(--mh, 210) 70% 80%); background: #fff; }
+  .wz-model.on { background: #fff; border-color: hsl(var(--mh, 210) 75% 60%); box-shadow: 0 8px 18px -14px hsl(var(--mh, 210) 70% 40% / .6); }
+  .wz-skip { margin-top: auto; padding: 8px 12px; border-radius: 999px; background: rgba(255,255,255,.7); }
+  .wz-skip:hover { background: #fff; }
+  @keyframes wzPop { from { opacity: 0; transform: translateY(10px) scale(.96); } to { opacity: 1; transform: none; } }
+  @keyframes wzSlide { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: none; } }
+
+  /* ===== redesign: step 4 receipt, service cards, details ===== */
+  .wz-panel[data-wz-panel="4"].on .wz-sum, .wz-panel[data-wz-panel="4"].on .wz-time, .wz-panel[data-wz-panel="4"].on .wz-who { animation: wzPop .5s cubic-bezier(.2,.9,.3,1.1) both; }
+  .wz-panel[data-wz-panel="4"].on .wz-time { animation-delay: .08s; }
+  .wz-panel[data-wz-panel="4"].on .wz-who { animation-delay: .16s; }
+  .wz-sum { position: relative; padding: 0; overflow: hidden; border-radius: 22px; background: var(--surface); box-shadow: 0 18px 40px -30px rgba(30,60,110,.4); }
+  .wz-rhead { display: flex; align-items: center; gap: 14px; padding: 20px 22px; background: linear-gradient(135deg, hsl(var(--eh, 210) 90% 95%), hsl(calc(var(--eh, 210) + 45) 90% 93%)); }
+  .wz-rhead .wz-di.sm { width: 54px; height: 54px; border-radius: 16px; background: #fff; color: hsl(var(--eh, 210) 65% 48%); box-shadow: 0 10px 22px -14px hsl(var(--eh, 210) 60% 40% / .6); animation: wzFloat 3.2s ease-in-out infinite; }
+  @keyframes wzFloat { 50% { transform: translateY(-4px) rotate(-3deg); } }
+  .wz-rhead b { display: block; font-size: 17px; color: var(--ink); }
+  .wz-rhead small { font-size: 13px; color: var(--ink-2); }
+  .wz-rk { display: block; font-size: 11px !important; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: hsl(var(--eh, 210) 55% 45%) !important; }
+  .wz-sum ul { margin: 0; padding: 16px 22px 6px; gap: 10px; }
+  .wz-sum ul :global(li) { align-items: center; animation: wzSlide .35s ease both; animation-delay: calc(var(--i, 0) * 70ms + .2s); }
+  .wz-sum ul :global(li > span) { display: flex; align-items: center; gap: 10px; color: var(--ink-2); }
+  .wz-sum ul :global(.wz-ok) { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: #DCFCE7; color: #16A34A; flex: none; }
+  .wz-sum ul :global(.wz-ok svg) { width: 11px; height: 11px; }
+  .wz-tear { position: relative; height: 18px; margin: 8px 0 0; }
+  .wz-tear::before { content: ''; position: absolute; left: 22px; right: 22px; top: 50%; border-top: 2px dashed var(--line); }
+  .wz-tear::after { content: ''; position: absolute; inset: 0 -9px; background: radial-gradient(circle at 0 50%, var(--tint) 9px, transparent 10px), radial-gradient(circle at 100% 50%, var(--tint) 9px, transparent 10px); }
+  .wz-total { margin: 0; padding: 8px 22px 0; border: 0; }
+  .wz-total b { background: linear-gradient(90deg, var(--violet), hsl(var(--eh, 210) 80% 60%), var(--violet)); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: wzShine 3s linear infinite; }
+  @keyframes wzShine { to { background-position: -200% 0; } }
+  .wz-note { display: flex; align-items: center; gap: 8px; margin: 10px 22px 20px; padding: 9px 12px; border-radius: 12px; background: var(--tint); }
+  .wz-note svg { width: 16px; height: 16px; flex: none; color: #16A34A; }
+  .wz-time { border-radius: 22px; background: var(--surface); }
+  .wz-tcards { display: grid; gap: 12px; }
+  .wz-t { position: relative; width: 100%; padding: 14px; border: 1.5px solid var(--line); border-radius: 16px; background: var(--surface); text-align: left; font: inherit; cursor: pointer; transition: border-color .25s, background .25s, transform .25s, opacity .25s, box-shadow .25s; }
+  .wz-t:hover:not(:disabled) { transform: translateY(-2px); }
+  .wz-t[aria-checked='false'] { opacity: .72; }
+  .wz-t[aria-checked='true'] { opacity: 1; border-color: color-mix(in srgb, var(--violet) 55%, white); background: color-mix(in srgb, var(--violet) 6%, var(--surface)); box-shadow: 0 14px 28px -22px var(--violet); }
+  .wz-t:disabled { cursor: not-allowed; }
+  .wz-tt { flex: 1; min-width: 0; }
+  .wz-t[aria-checked='true'] .wz-ti { background: linear-gradient(135deg, #7CC4FA, #4A9BEF); color: #fff; box-shadow: 0 8px 16px -10px #4A9BEF; }
+  .wz-ti { transition: background .25s, color .25s; }
+  .wz-tpick { position: absolute; top: -9px; right: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; background: #DCFCE7; color: #15803D; font-size: 11.5px; font-weight: 800; transform: scale(0); transition: transform .35s cubic-bezier(.3,1.8,.5,1); }
+  .wz-tpick i { width: 7px; height: 7px; border-radius: 50%; background: #22C55E; animation: wzLive 1.4s ease-in-out infinite; }
+  @keyframes wzLive { 50% { box-shadow: 0 0 0 5px rgba(34,197,94,.18); } }
+  .wz-t[aria-checked='true'] .wz-tpick { transform: scale(1); }
+  .wz-who { border-radius: 22px; background: linear-gradient(180deg, var(--surface), color-mix(in srgb, var(--violet) 3%, var(--surface))); }
+  .wz-who h4 { align-items: center; }
+  .wz-hico { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; background: color-mix(in srgb, var(--violet) 12%, var(--surface)); color: var(--violet); }
+  .wz-hico svg { width: 17px; height: 17px; }
+  .wz-f { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .wz-ic { position: relative; display: block; }
+  .wz-ic > svg { position: absolute; left: 13px; top: 50%; width: 17px; height: 17px; translate: 0 -50%; color: var(--ink-3); pointer-events: none; transition: color .2s; }
+  .wz-ic select, .wz-ic input { padding-left: 38px !important; }
+  .wz-ic:focus-within > svg { color: var(--violet); }
+  .wz-now { position: relative; overflow: hidden; }
+  .wz-now::after { content: ''; position: absolute; top: 0; left: -60%; width: 40%; height: 100%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.45), transparent); transform: skewX(-20deg); animation: igShineWz 3.2s ease-in-out infinite; }
+  @keyframes igShineWz { 0%, 55% { left: -60%; } 100% { left: 140%; } }
+  @media (max-width: 900px) { .wz-f { grid-template-columns: 1fr 1fr; } .wz-f > :last-child { grid-column: 1 / -1; } }
+  @media (max-width: 640px) { .wz-f { grid-template-columns: 1fr; } }
+  @media (prefers-reduced-motion: reduce) { .wz-brand, .wz-mlist li, .wz-sum, .wz-time, .wz-who, .wz-sum ul :global(li), .wz-mpoint, .wz-rhead .wz-di.sm, .wz-total b, .wz-now::after, .wz-tpick i { animation: none !important; } }
 </style>
