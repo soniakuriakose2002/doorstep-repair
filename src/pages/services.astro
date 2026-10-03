@@ -312,7 +312,13 @@ const payload = JSON.stringify({
             <div class="wz-wmain">
             <h4><span class="wz-hico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 13l2 2 4-4"/></svg></span>Your details <small>so our team can confirm the booking</small></h4>
             <div class="wz-f">
-              <label class="wz-fl"><span>Your area</span><span class="wz-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><select data-wz-area aria-label="Your area"></select></span></label>
+              <div class="wz-fl wz-afl"><span>Your area</span>
+                <span class="wz-ic wz-area"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><input data-wz-area autocomplete="off" placeholder="Type your area, e.g. Qurum" aria-label="Your area" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="wz-asug" maxlength="80" />
+                  <button type="button" class="wz-loc" data-wz-loc><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7"/></svg><span>Use my location</span></button>
+                  <ul class="wz-asug" id="wz-asug" role="listbox" data-wz-asug hidden></ul>
+                </span>
+                <p class="wz-astat" data-wz-astat hidden></p>
+              </div>
               <label class="wz-fl"><span>Your name</span><span class="wz-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><input data-wz-name autocomplete="name" placeholder="Full name" maxlength="60" /></span></label>
               <div class="wz-fl"><span>Mobile number</span>
                 <div class="wz-ph">
@@ -362,6 +368,7 @@ const payload = JSON.stringify({
 <script>
   import { price, site } from '../data/site';
   import { checkPhone, bindPhone, limitPhone, dialFor } from '../lib/phone';
+  import { areaGeo, branchGeo, km } from '../lib/areaGeo';
 
   type Cat = { id: string; name: string; onsiteOnly: boolean; issues: string[]; brands: { id: string; name: string; models: string[] }[] };
   type Data = {
@@ -377,18 +384,17 @@ const payload = JSON.stringify({
 
   const areaSearch = $<HTMLInputElement>('[data-area-search]');
   // booking details live in the wizard's last step
-  const wzArea = $<HTMLSelectElement>('[data-wz-area]');
+  const wzArea = $<HTMLInputElement>('[data-wz-area]');
+  let wzAt: [number, number] | null = null; // set by "Use my location" — sent as a map link
 
   let mode = 'doorstep';
-  const OTHER = 'Other / not listed';
 
   // ---------- service mode + coverage ----------
+  // Areas the chosen service covers (for suggestions and the "we serve here" check)
+  let listed: { a: string; z: string }[] = [];
   const fillAreas = () => {
-    const keep = wzArea.value;
-    wzArea.innerHTML = '<option value="">Select your area</option>' + data.coverage[mode].zones
-      .map((z) => `<optgroup label="${esc(z.name)}">${z.areas.map((a) => `<option>${esc(a)}</option>`).join('')}</optgroup>`)
-      .join('') + `<option>${OTHER}</option>`;
-    wzArea.value = keep === OTHER || data.coverage[mode].zones.some((z) => z.areas.includes(keep)) ? keep : '';
+    listed = data.coverage[mode].zones.flatMap((z) => z.areas.map((a) => ({ a, z: z.name.replace(/ \(.*\)/, '') })));
+    if (typeof areaStatus === 'function') areaStatus();
   };
 
   const filterAreas = () => {
@@ -451,9 +457,8 @@ const payload = JSON.stringify({
     if (b) setMode(b.dataset.switch!);
   });
   $$<HTMLButtonElement>('.area').forEach((b) => b.addEventListener('click', () => {
-    if (![...wzArea.options].some((o) => o.value === b.dataset.area)) return;
-    wzArea.value = b.dataset.area!;
-    wzProgress();
+    wzArea.value = b.dataset.area!; wzAt = null;
+    areaStatus(); wzProgress();
     $$('.area').forEach((x) => x.classList.toggle('picked', x === b));
   }));
 
@@ -592,14 +597,111 @@ const payload = JSON.stringify({
   window.addEventListener('visitor-country', (e) => ccAuto((e as CustomEvent).detail));
   bindPhone(wzPhone, () => wzCc.value, (m) => wzErrFor(wzPhone, m));
   wzName.addEventListener('input', () => { if (wzName.classList.contains('bad')) wzErrFor(null, ''); });
-  wzArea.addEventListener('change', () => { if (wzArea.classList.contains('bad')) wzErrFor(null, ''); });
+  // ---------- area: type with suggestions, or "Use my location" ----------
+  const asug = $('[data-wz-asug]', wz);
+  const astat = $('[data-wz-astat]', wz);
+  const locBtn = $<HTMLButtonElement>('[data-wz-loc]', wz);
+  let areaState: '' | 'listed' | 'unlisted' | 'far' = '';
+  let sugIdx = -1;
+  const findListed = (v: string) => listed.find((x) => norm(x.a) === norm(v));
+  function areaStatus(extra = '') {
+    const v = wzArea.value.trim();
+    const hit = v && findListed(v);
+    areaState = !v ? '' : hit ? 'listed' : areaState === 'far' && extra !== 'typed' ? 'far' : 'unlisted';
+    if (hit && hit.a !== v) wzArea.value = hit.a;
+    const stat = (cls: string, html: string) => { astat.className = `wz-astat ${cls}`; astat.innerHTML = html; astat.hidden = !html; };
+    if (!v) stat('', '');
+    else if (areaState === 'listed') stat('ok', `<b>We serve ${esc(hit!.a)}</b> · ${esc(hit!.z)} branch · ${esc(data.coverage[mode].eta)}`);
+    else if (areaState === 'far') stat('far', extra);
+    else stat('soon', `<b>Not on our ${titles[mode]} list yet</b> — send the booking and we'll confirm on WhatsApp.`);
+  }
+  const closeSug = () => { asug.hidden = true; wzArea.setAttribute('aria-expanded', 'false'); sugIdx = -1; };
+  const renderSug = () => {
+    const q = norm(wzArea.value);
+    const hits = (q ? listed.filter((x) => norm(x.a).includes(q)) : listed).slice(0, 8);
+    if (!hits.length) { closeSug(); return; }
+    asug.innerHTML = hits.map((x, i) => `<li role="option" id="wz-as-${i}" data-a="${esc(x.a)}"><b>${esc(x.a)}</b><small>${esc(x.z)}</small></li>`).join('');
+    asug.hidden = false; wzArea.setAttribute('aria-expanded', 'true'); sugIdx = -1;
+  };
+  const pick = (a: string) => { wzArea.value = a; wzAt = null; closeSug(); areaStatus(); wzProgress(); if (wzArea.classList.contains('bad')) wzErrFor(null, ''); };
+  wzArea.addEventListener('focus', renderSug);
+  wzArea.addEventListener('input', () => { wzAt = null; renderSug(); areaStatus('typed'); wzProgress(); if (wzArea.classList.contains('bad')) wzErrFor(null, ''); });
+  wzArea.addEventListener('keydown', (e) => {
+    const items = [...asug.querySelectorAll<HTMLElement>('li')];
+    if (asug.hidden || !items.length) return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      sugIdx = (sugIdx + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+      items.forEach((li, i) => li.classList.toggle('on', i === sugIdx));
+      wzArea.setAttribute('aria-activedescendant', items[sugIdx].id);
+    } else if (e.key === 'Enter' && sugIdx >= 0) { e.preventDefault(); pick(items[sugIdx].dataset.a!); }
+    else if (e.key === 'Escape') closeSug();
+  });
+  asug.addEventListener('mousedown', (e) => { const li = (e.target as HTMLElement).closest<HTMLElement>('li'); if (li) { e.preventDefault(); pick(li.dataset.a!); } });
+  wzArea.addEventListener('blur', () => setTimeout(closeSug, 120));
+
+  // "Use my location": device GPS first, then the internet connection (city level) as a fallback
+  const ipGuess = async (): Promise<{ at: [number, number]; place: string } | null> => {
+    for (const [url, pickIt] of [
+      ['https://get.geojs.io/v1/ip/geo.json', (j: any) => j.latitude != null && { at: [Number(j.latitude), Number(j.longitude)], place: [j.city, j.country].filter(Boolean).join(', ') }],
+      ['https://ipwho.is/', (j: any) => j.latitude != null && { at: [j.latitude, j.longitude], place: [j.city, j.country].filter(Boolean).join(', ') }],
+    ] as [string, (j: any) => any][]) {
+      try { const v = pickIt(await (await fetch(url, { signal: AbortSignal.timeout(4000) })).json()); if (v) return v; } catch {}
+    }
+    return null;
+  };
+  const placeName = async (at: [number, number]) => {
+    try {
+      const j = await (await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${at[0]}&longitude=${at[1]}&localityLanguage=en`, { signal: AbortSignal.timeout(5000) })).json();
+      return [j.locality || j.city, j.countryName].filter(Boolean).filter((v: string, i: number, a: string[]) => a.indexOf(v) === i).join(', ');
+    } catch { return ''; }
+  };
+  const gps = () => new Promise<[number, number] | null>((res) => {
+    if (!navigator.geolocation) return res(null);
+    navigator.geolocation.getCurrentPosition((p) => res([p.coords.latitude, p.coords.longitude]), () => res(null), { enableHighAccuracy: true, timeout: 9000, maximumAge: 0 });
+  });
+  const useLocation = async (at: [number, number], place: string, exact: boolean) => {
+    const near = Object.entries(areaGeo).map(([n, p]) => ({ n, d: km(at, p) })).sort((a, b) => a.d - b.d)[0];
+    const served = near.d <= (exact ? 12 : 40) && listed.some((x) => x.a === near.n);
+    wzAt = at;
+    if (served) { wzArea.value = near.n; areaStatus(); astat.innerHTML += ` <em>· found from your ${exact ? 'device' : 'internet connection'}</em>`; }
+    else {
+      const br = branchGeo.map((b) => ({ ...b, d: km(at, b.at) })).sort((a, b) => a.d - b.d)[0];
+      wzArea.value = place || `${at[0].toFixed(3)}, ${at[1].toFixed(3)}`;
+      areaState = 'far';
+      areaStatus(near.d <= 60
+        ? `<b>Close to ${esc(near.n)}</b> but just outside our list — send it and we'll confirm.`
+        : `<b>Outside our service area</b> — our nearest branch is ${esc(br.name)}, ${Math.round(br.d).toLocaleString()} km away. You can still book for an address in Oman.`);
+    }
+    wzProgress();
+    try { localStorage.setItem('svc-loc', JSON.stringify({ name: served ? near.n : wzArea.value, covered: served })); window.dispatchEvent(new CustomEvent('svc-loc', { detail: { name: served ? near.n : wzArea.value, covered: served } })); } catch {}
+  };
+  locBtn.addEventListener('click', async () => {
+    if (locBtn.classList.contains('busy')) return;
+    locBtn.classList.add('busy'); closeSug();
+    astat.className = 'wz-astat wait'; astat.hidden = false; astat.innerHTML = '<i class="wz-spin"></i> Finding your location…';
+    const at = await gps();
+    if (at) await useLocation(at, await placeName(at), true);
+    else {
+      const ip = await ipGuess();
+      if (ip) await useLocation(ip.at, ip.place, false);
+      else { astat.className = 'wz-astat soon'; astat.innerHTML = "<b>We couldn't find your location</b> — please type your area instead."; wzArea.focus(); }
+    }
+    locBtn.classList.remove('busy');
+  });
+  // Already checked your location in the header? Start with that area.
+  try {
+    const saved = JSON.parse(localStorage.getItem('svc-loc') || 'null');
+    if (saved?.covered && saved.name && !wzArea.value) { wzArea.value = String(saved.name).slice(0, 80); }
+  } catch {}
   // live progress: ring + ticks + "ready" button as the three details are filled
   const wzProgress = () => {
-    const ok = [!!wzArea.value, wzName.value.trim().length >= 2, checkPhone(wzCc.value, wzPhone.value).ok];
+    const ok = [wzArea.value.trim().length >= 2, wzName.value.trim().length >= 2, checkPhone(wzCc.value, wzPhone.value).ok];
     [wzArea, wzName, wzPhone].forEach((el, k) => el.closest('.wz-fl')!.classList.toggle('ok', ok[k]));
     // every area we serve is in Oman — a foreign number is allowed (family abroad) but flagged
-    const foreign = ok[2] && wzCc.value !== 'om' && !!wzArea.value && wzArea.value !== OTHER;
+    const foreign = ok[2] && wzCc.value !== 'om' && areaState === 'listed';
     wzPhone.closest('.wz-fl')!.classList.toggle('warn', foreign);
+    wzArea.closest('.wz-fl')!.classList.toggle('warn', ok[0] && (areaState === 'far' || areaState === 'unlisted'));
     $('[data-wz-warn]', wz).hidden = !foreign;
     if (foreign) $('[data-wz-warntx]', wz).textContent = `${wzArea.value} is in Oman, so our technician will call this ${dialFor(wzCc.value).name} number (${dialFor(wzCc.value).code}). If you have an Omani +968 number, please use that — or keep this one if you're booking for family in Oman.`;
     const n = ok.filter(Boolean).length;
@@ -611,11 +713,11 @@ const payload = JSON.stringify({
     wz.querySelector('.wz-who')!.classList.toggle('ready', n === 3);
     if (n === 3 && !was) { const b = $('[data-wz-now]', wz); b.classList.remove('wake'); void b.offsetWidth; b.classList.add('wake'); }
   };
-  [wzArea, wzCc].forEach((el) => el.addEventListener('change', wzProgress));
+  wzCc.addEventListener('change', wzProgress);
   [wzName, wzPhone].forEach((el) => el.addEventListener('input', wzProgress));
   $('[data-wz-now]', wz).addEventListener('click', () => {
     const name = wzName.value.trim().replace(/\s+/g, ' ');
-    if (!wzArea.value) { wzErrFor(wzArea, 'Please choose your area.'); wzArea.focus(); return; }
+    if (wzArea.value.trim().length < 2) { wzErrFor(wzArea, 'Please type your area or tap “Use my location”.'); wzArea.focus(); return; }
     if (name.length < 2) { wzErrFor(wzName, 'Please enter your name.'); wzName.focus(); return; }
     if (!wzPhone.value.trim()) { wzErrFor(wzPhone, 'Please enter your mobile number.'); wzPhone.focus(); return; }
     const ph = checkPhone(wzCc.value, wzPhone.value);
@@ -625,7 +727,8 @@ const payload = JSON.stringify({
     const msg = [
       `Hi Danat Fix, I'd like to book a repair.`,
       `Service: ${titles[mode]}`,
-      `Area: ${wzArea.value}`,
+      `Area: ${wzArea.value.trim()}${areaState === 'listed' ? '' : areaState === 'far' ? ' (outside listed areas)' : ' (not on the list — please confirm)'}`,
+      ...(wzAt ? [`Location: https://maps.google.com/?q=${wzAt[0].toFixed(5)},${wzAt[1].toFixed(5)}`] : []),
       `Device: ${it.device}${it.model ? ' — ' + it.model : ''}`,
       `Needs: ${it.issues.join(', ')}`,
       `Name: ${name}`,
@@ -661,13 +764,14 @@ const payload = JSON.stringify({
   // Links from the menu land on a section; re-scroll once the page has laid out.
   if (location.hash) requestAnimationFrame(() => document.querySelector(location.hash)?.scrollIntoView());
   // Home 'Check your area' cards land here with the mode already chosen — put the cursor in the area box
+  areaStatus();
   wzProgress();
   if (location.hash === '#coverage') setTimeout(() => areaSearch.focus({ preventScroll: true }), 400);
   const startArea = q.get('area');
   if (startArea) {
     areaSearch.value = startArea;
     filterAreas();
-    if ([...wzArea.options].some((o) => o.value === startArea)) { wzArea.value = startArea; wzProgress(); }
+    wzArea.value = startArea; areaStatus(); wzProgress();
   }
 </script>
 
@@ -1017,7 +1121,7 @@ const payload = JSON.stringify({
   .wz-hico svg { width: 17px; height: 17px; }
   .wz-f { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .wz-ic { position: relative; display: block; }
-  .wz-ic > svg { position: absolute; left: 13px; top: 50%; width: 17px; height: 17px; translate: 0 -50%; color: var(--ink-3); pointer-events: none; transition: color .2s; }
+  .wz-ic > svg { position: absolute; z-index: 2; left: 13px; top: 50%; width: 17px; height: 17px; translate: 0 -50%; color: var(--ink-3); pointer-events: none; transition: color .2s; }
   .wz-ic select, .wz-ic input { padding-left: 38px !important; }
   .wz-ic:focus-within > svg { color: var(--violet); }
   .wz-now { position: relative; overflow: hidden; }
@@ -1074,4 +1178,25 @@ const payload = JSON.stringify({
   .wz-warn[hidden] { display: none; }
   .wz-warn svg { width: 18px; height: 18px; flex: none; margin-top: 1px; color: #F59E0B; }
   @media (max-width: 760px) { .wz-f { grid-template-columns: 1fr !important; grid-template-areas: "name" "phone" "area"; } }
+  /* area: type + suggestions + use my location */
+  .wz-area input { padding-right: 168px !important; }
+  .wz-loc { position: absolute; right: 6px; top: 6px; bottom: 6px; display: inline-flex; align-items: center; gap: 7px; padding: 0 14px; border: 0; border-radius: 10px; background: linear-gradient(135deg, #E6F3FF, #EEE8FF); color: #3D7BD9; font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; transition: transform .2s, box-shadow .2s; }
+  .wz-loc:hover { transform: translateY(-1px); box-shadow: 0 8px 16px -10px #6FA8F5; }
+  .wz-loc svg { position: static !important; translate: none !important; width: 17px !important; height: 17px !important; color: currentColor !important; }
+  .wz-loc.busy svg { animation: wzSpin 1s linear infinite; }
+  @keyframes wzSpin { to { transform: rotate(360deg); } }
+  .wz-asug { position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 6px); max-height: 280px; overflow-y: auto; margin: 0; padding: 6px; list-style: none; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); box-shadow: 0 22px 44px -22px rgba(30, 60, 110, .45); animation: wzPop .2s ease both; }
+  .wz-asug[hidden] { display: none; }
+  .wz-asug :global(li) { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; cursor: pointer; font-size: 14.5px; }
+  .wz-asug :global(li small) { font-size: 12px; color: var(--ink-3); }
+  .wz-asug :global(li:hover), .wz-asug :global(li.on) { background: color-mix(in srgb, var(--violet) 8%, var(--surface)); }
+  .wz-astat { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin: 2px 2px 0; font-size: 13px; line-height: 1.45; color: var(--ink-2); animation: wzErrIn .25s ease; }
+  .wz-astat[hidden] { display: none; }
+  .wz-astat.ok { color: #15803D; }
+  .wz-astat.ok::before { content: '✓'; display: grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; background: #22C55E; color: #fff; font-size: 10px; font-weight: 900; margin-right: 4px; }
+  .wz-astat.soon { color: #92400E; }
+  .wz-astat.far { color: #C2410C; }
+  .wz-astat em { font-style: normal; color: var(--ink-3); }
+  .wz-astat .wz-spin, .wz-astat :global(.wz-spin) { display: inline-block; width: 13px; height: 13px; border: 2px solid #BFD7F7; border-top-color: #3D7BD9; border-radius: 50%; animation: wzSpin .8s linear infinite; margin-right: 4px; }
+  @media (max-width: 520px) { .wz-loc span { display: none; } .wz-area input { padding-right: 56px !important; } }
 </style>
