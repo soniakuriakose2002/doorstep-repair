@@ -118,7 +118,7 @@ const payload = JSON.stringify({
         ))}
       </div>
 
-      <div class="step-head sh2" data-reveal>
+      <div class="step-head sh2" id="coverage" data-reveal>
         <span class="step-no">2</span>
         <div><span class="eyebrow">Check your area</span><h2 class="h-lg">Where we cover · <span data-cov-title>Doorstep Service</span></h2></div>
       </div>
@@ -597,6 +597,8 @@ const payload = JSON.stringify({
   // ?area= from the home-page location search: pre-check coverage and pre-fill the booking
   // Links from the menu land on a section; re-scroll once the page has laid out.
   if (location.hash) requestAnimationFrame(() => document.querySelector(location.hash)?.scrollIntoView());
+  // Home 'Check your area' cards land here with the mode already chosen — put the cursor in the area box
+  if (location.hash === '#coverage') setTimeout(() => areaSearch.focus({ preventScroll: true }), 400);
   const startArea = q.get('area');
   if (startArea) {
     areaSearch.value = startArea;
@@ -607,6 +609,7 @@ const payload = JSON.stringify({
 
 <style>
   .cart-lead { margin: 12px 0 28px; }
+  #coverage { scroll-margin-top: 110px; }
   .faq { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 40px; align-items: start; }
   .faq h2 { margin-top: 14px; }
   .faq-list { display: grid; gap: 10px; }
