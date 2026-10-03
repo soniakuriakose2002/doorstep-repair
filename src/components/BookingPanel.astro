@@ -146,14 +146,37 @@ const angles = [
       card.parentElement!.querySelectorAll('.bk-card').forEach((o) => o.setAttribute('aria-checked', String(o === card)));
       setCta(card);
     }));
-    bk.querySelectorAll<HTMLElement>('[data-bk-tab]').forEach((t) => t.addEventListener('click', () => {
+    const showTab = (t: HTMLElement, auto = false) => {
       bk.querySelectorAll('[data-bk-tab]').forEach((x) => x.setAttribute('aria-selected', String(x === t)));
       bk.querySelectorAll<HTMLElement>('[data-bk-panel]').forEach((p) => (p.hidden = p.dataset.bkPanel !== t.dataset.bkTab));
       const panel = bk.querySelector<HTMLElement>(`[data-bk-panel="${t.dataset.bkTab}"]`)!;
       setCta(panel.querySelector<HTMLElement>('.bk-card[aria-checked="true"]')!);
       panel.querySelectorAll<HTMLElement>('[data-count]').forEach((n) => (window as any).__countUp?.(n));
-      if (bk.getBoundingClientRect().top < 0) bk.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }));
+      panel.classList.remove('stagger'); void panel.offsetWidth; panel.classList.add('stagger');
+      if (!auto && bk.getBoundingClientRect().top < 0) bk.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    const tabs = [...bk.querySelectorAll<HTMLElement>('[data-bk-tab]')];
+    tabs.forEach((t) => t.addEventListener('click', (e) => { if (e.isTrusted) stopTour(); showTab(t); }));
+
+    // Auto tour: while the panel is on screen and nobody has touched it, step through the
+    // categories every few seconds (progress line on the active one). Any touch stops it for good.
+    const STEP = 4500;
+    let tourOn = !matchMedia('(prefers-reduced-motion: reduce)').matches, timer = 0, inView = false;
+    const next = () => {
+      if (!tourOn || !inView || document.hidden) return;
+      const i = tabs.findIndex((x) => x.getAttribute('aria-selected') === 'true');
+      showTab(tabs[(i + 1) % tabs.length], true); arm();
+    };
+    const arm = () => {
+      clearTimeout(timer); if (!tourOn) return;
+      bk.classList.remove('touring'); void bk.offsetWidth; bk.classList.add('touring');
+      timer = window.setTimeout(next, STEP);
+    };
+    function stopTour() { tourOn = false; clearTimeout(timer); bk.classList.remove('touring'); }
+    ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach((ev) => bk.addEventListener(ev, (e) => { if (e.isTrusted) stopTour(); }, { passive: true }));
+    bk.addEventListener('mouseenter', () => { if (tourOn) { clearTimeout(timer); bk.classList.add('paused'); } });
+    bk.addEventListener('mouseleave', () => { bk.classList.remove('paused'); if (tourOn && inView) arm(); });
+    new IntersectionObserver(([en]) => { inView = en.isIntersecting; if (inView && tourOn && !bk.matches(':hover')) arm(); else clearTimeout(timer); }, { threshold: .35 }).observe(bk);
   }
 </script>
 
@@ -280,4 +303,15 @@ const angles = [
     .bk-bar > * { min-width: 0; }
     .bk-addcart, .bk-cta { justify-self: stretch; justify-content: center; white-space: normal; text-align: center; }
   }
+  /* auto tour: progress line on the active category; cards slide in one by one */
+  .bk-cat { position: relative; overflow: hidden; }
+  .bk.touring .bk-cat[aria-selected='true']::after { content: ''; position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: linear-gradient(90deg, var(--violet), #7CC4FA); transform-origin: left; animation: bkTour 4.5s linear forwards; }
+  .bk.paused .bk-cat[aria-selected='true']::after { animation-play-state: paused; }
+  @keyframes bkTour { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  .bk-panel.stagger .bk-card { animation: bkCardIn .5s cubic-bezier(.2,.9,.3,1.1) both; }
+  .bk-panel.stagger .bk-card:nth-child(2) { animation-delay: .06s; } .bk-panel.stagger .bk-card:nth-child(3) { animation-delay: .12s; }
+  .bk-panel.stagger .bk-card:nth-child(4) { animation-delay: .18s; } .bk-panel.stagger .bk-card:nth-child(5) { animation-delay: .24s; }
+  .bk-panel.stagger .bk-card:nth-child(6) { animation-delay: .3s; } .bk-panel.stagger .bk-card:nth-child(n+7) { animation-delay: .36s; }
+  @keyframes bkCardIn { from { opacity: 0; transform: translateY(16px) scale(.97); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .bk-panel.stagger .bk-card, .bk.touring .bk-cat::after { animation: none !important; } }
 </style>
